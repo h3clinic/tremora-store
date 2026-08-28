@@ -1,0 +1,236 @@
+{
+  "alignment_contract_version": "tremora-vidimu-sto-derived-alignment-0.5d.0",
+  "alignment_method": "VIDIMU_RMSE_SHIFT_AND_TRIM",
+  "ambiguous_pair_contracts": [
+    {
+      "alignment_authority": "AMBIGUOUS_SOURCE_ALIGNMENT",
+      "chosen_mapping": null,
+      "eligibility_override_applied": false,
+      "eligibility_status": "EXCLUDED",
+      "exclusion_reason": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "range_index_created": false,
+      "recording_id": "S53_A13_T03",
+      "window_created": false
+    },
+    {
+      "alignment_authority": "AMBIGUOUS_SOURCE_ALIGNMENT",
+      "chosen_mapping": null,
+      "eligibility_override_applied": false,
+      "eligibility_status": "EXCLUDED",
+      "exclusion_reason": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "range_index_created": false,
+      "recording_id": "S57_A07_T01",
+      "window_created": false
+    }
+  ],
+  "ambiguous_pair_ids": [
+    "S53_A13_T03",
+    "S57_A07_T01"
+  ],
+  "ambiguous_source_pairs": 2,
+  "artifact_kind": "TREMORA_VIDIMU_V05D_DERIVED_ALIGNMENT_RELEASE_AUDIT",
+  "audit_execution_status": "PASS",
+  "blockers": [
+    {
+      "blocker_id": "RAW_POLL_GROUP_NOT_NOMINAL_50HZ_TICK",
+      "evidence": "The 208 originals contain 2,036,601 structural five-sensor RAW polling groups but only 299,711 dynamic 50 Hz STO/MOT ordinals (aggregate ratio 6.795216)."
+    },
+    {
+      "blocker_id": "SOURCE_RAW_TRIM_BREAKS_SENSOR_GROUP",
+      "evidence": "All 34 RAW trims delete the five N-pose rows and 30 of 34 end mid five-sensor group. Exact source replay cannot also produce complete RAW-derived 50 Hz ticks."
+    },
+    {
+      "blocker_id": "RAW_TO_STO_MOT_ORDINAL_BINDING_NOT_RELEASED",
+      "evidence": "The complete source-tools release contains no RAW-to-STO selection map. A positional RAW group-to-50 Hz ordinal map would therefore be heuristic, not source-derived."
+    },
+    {
+      "blocker_id": "SOURCE_MODIFIER_SKIPS_MP4",
+      "evidence": "VIDIMU's modifier applies CSV, MOT, and RAW trims but skips MP4. Promoting the CSV cut to decoded video-frame ordinals would add an undocumented mapping beyond source behavior."
+    },
+    {
+      "blocker_id": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "evidence": "S53_A13_T03 and S57_A07_T01 retain published transformations in both directions and remain excluded without mappings."
+    }
+  ],
+  "byte_identical_sto_materialization": false,
+  "canonical_clocks_created": 0,
+  "clock_segments_created": 0,
+  "derived_rate_contracts_created": 0,
+  "generic_success_markers_created": 0,
+  "implementation": {
+    "audit_implementation_version": "vidimu-v05d-derived-alignment-audit-1.0.0",
+    "audit_script_sha256": "fe2c6c2e9193cc33d187443a3d884c663a58a6e63933a2aa224e872d1c5fb1d0",
+    "authority_contract_sha256": "7b0587caad2067e4c3b1b6f42dd75f5ee8c40774c4ec12dd2d7b632e1f5981bd",
+    "canonical_json": "SORTED_KEYS_ASCII_INDENT2_TRAILING_NEWLINE_NO_NAN",
+    "schema_contract_sha256": "2dd1bf8f88ad2716b64f6c86d05175bfb5f9fa5bdadcf90e62bb383a28d370d3",
+    "source_transform_sha256": "4c6a61e28f5862392870cdfe4ea681fc7c4bafe81990f00ade2e84b7f0aee38c"
+  },
+  "imu_tick_groups_created": 0,
+  "materialization_claim_boundary": {
+    "canonical_clock_claimed": false,
+    "canonical_time_fields_emitted": false,
+    "derived_alignment_parquet_emitted": false,
+    "exact_physical_sample_times_claimed": false,
+    "frame_to_imu_index_emitted": false,
+    "hardware_synchronization_claimed": false,
+    "measured_drift_claimed": false,
+    "native_clock_mapping_claimed": false,
+    "sto_success_marker_emitted": false,
+    "timestamp_level_alignment_accuracy_claimed": false,
+    "windows_emitted": false
+  },
+  "overrides_bound": 217,
+  "overrides_expected": 217,
+  "overrides_parsed": 217,
+  "overrides_reproduced": 217,
+  "overrides_unreproduced": 0,
+  "raw_native_clock_gate": "NO_GO_RAW_NATIVE_CLOCK_AUTHORITY",
+  "run_a_canonical_hash": "4b00cc760c49c97a745b91c2dedd115bd17e85583500cd7c2abad5771f9f2e93",
+  "run_b_canonical_hash": "4b00cc760c49c97a745b91c2dedd115bd17e85583500cd7c2abad5771f9f2e93",
+  "run_canonical_hash_basis": "DETERMINISTIC_WITHHELD_MATERIALIZATION_LEDGER_NOT_STO_BYTES",
+  "schema_version": "0.5d.0",
+  "source_derived_alignment_gate": "NO_GO",
+  "source_derived_alignment_gate_reason": "NO_GO_V05D_CONTRACT_SEMANTICS",
+  "source_derived_candidate_pairs_upper_bound": 206,
+  "source_derived_pairs_eligible": 0,
+  "source_evidence": {
+    "frozen_inputs": {
+      "analysis_archive_sha256": "3696e2b8dd211b6aedf35f4ca635190e5ee24a545da69847c7c3f6269a2bf64c",
+      "critical_source_tool_member_hashes": {
+        "synchronize/EstimateFileSynchronization.ipynb": "a88c3bb86a27587ca30d99f820643bb48e27500e58f62b035174143e9c1e4865",
+        "synchronize/ModifyFilesToSync.ipynb": "5b719a4e6b80419df18f0711dc62f44e0d7cbdb6bb4337847f3281be097d5fbf",
+        "utils/fileProcessing.py": "2b534daa9887934824e0034ce7af42414ab1884743a581a598300949693f4331",
+        "utils/signalProcessing.py": "88e4701b71e7b7c048f64f1698220d22ee0887b97624aa2c38fae8d37861c591",
+        "utils/syncUtilities.py": "f2674ded71f19a837c9e7cb5f6678ae7944ad8f09932e029845d0766b55f139d"
+      },
+      "dataset_archive_sha256": "eff12be2f1c5a0cc7389726c754ea1c4ab19d8ca49c227b47344109cbf927841",
+      "snapshot_manifest_sha256": "a6e2194aee5478718e6f92cf9306214e361b08bb61363998f1e6e59e7378f1eb",
+      "source_inventory_sha256": "9f328fec92c9921733ba94fd74602bdb6e1edb99ff27ab3025191a6889123b08",
+      "source_tools_archive_sha256": "bc8820d5f79fcc2e58233474ed15aa2191faf2463e82b3d4d1ddacf44eaf9e27",
+      "source_tools_commit": "19beec4156f0109d46341a08f06b035d772afaec",
+      "v05_authority_report_sha256": "3d4492f984ddffaed579da2e107aaf9f7d1e9cdae1ddc83629f8708d8e75bdec",
+      "v05_authority_script_sha256": "abbd59097a16f767729521b4968ac997a55506e467621b997b1894d45334d65a",
+      "v05d_authority_module_sha256": "7b0587caad2067e4c3b1b6f42dd75f5ee8c40774c4ec12dd2d7b632e1f5981bd",
+      "v05d_schema_module_sha256": "2dd1bf8f88ad2716b64f6c86d05175bfb5f9fa5bdadcf90e62bb383a28d370d3",
+      "v05d_source_transform_module_sha256": "4c6a61e28f5862392870cdfe4ea681fc7c4bafe81990f00ade2e84b7f0aee38c"
+    },
+    "raw_poll_to_sto_mot_reconciliation": {
+      "aggregate_raw_group_to_sto_dynamic_ratio": "6.795216",
+      "all_original_raw_groups_structurally_complete": true,
+      "mot_dynamic_ordinal_rows": 299711,
+      "mot_rows_including_npose": 299919,
+      "per_record_ratio_maximum": "7.865480",
+      "per_record_ratio_median": "6.562073",
+      "per_record_ratio_minimum": "5.261773",
+      "raw_dynamic_poll_groups": 2036601,
+      "raw_dynamic_rows": 10183005,
+      "raw_group_timing_authority": "NONE_RAW_POLL_GROUP_ONLY",
+      "raw_groups_are_nominal_50hz_ticks": false,
+      "raw_rows_including_npose": 10184045,
+      "record_count": 208,
+      "record_reconciliation_sha256": "67cfb80fd2ca71158f855f5ecc587005b0de6711f96398b0e132b9f51b279e88",
+      "sto_dynamic_ordinal_rows": 299711,
+      "sto_mot_ordinal_identity_status": "ROW_COUNTS_EQUAL_ALL_RECORDINGS",
+      "sto_rows_including_npose": 299919
+    },
+    "source_alignment_decisions": {
+      "ambiguous_pair_ids": [
+        "S53_A13_T03",
+        "S57_A07_T01"
+      ],
+      "ambiguous_source_pairs": 2,
+      "classification_counts": {
+        "AMBIGUOUS": 2,
+        "IMU": 32,
+        "VIDEO": 147,
+        "ZERO": 27
+      },
+      "eligible_source_pairs_upper_bound": 206,
+      "source_winner_counts": {
+        "IMU": 32,
+        "VIDEO": 149,
+        "ZERO": 27
+      },
+      "sync_plot_hashes": {
+        "analysis/videoandimusync/A01_(walk_forward)_synchronize.svg": "e2032a704830171c2b376ea4f247d70e960c560faf89157390ab7a1620d44a02",
+        "analysis/videoandimusync/A02_(walk_backward)_synchronize.svg": "dfa57bb70166223f2b96e787dd80a032000003750d415740d613eccbec4e1097",
+        "analysis/videoandimusync/A03_(walk_along)_synchronize.svg": "e86142b7e5387f7b8b4ae9d2d6bd6dd994ac5c1b3c9165541be635661f7e65c6",
+        "analysis/videoandimusync/A04_(sit_to_stand)_synchronize.svg": "2691f023398f4eaf30e3af51059f0d6472c2fc0189d5812dc5b37242f90d0504",
+        "analysis/videoandimusync/A05_(move_right_arm)_synchronize.svg": "3a4bb9eab688968f1778ff81a1d815e5ec4c03287c353b027a58ed0ad5085e09",
+        "analysis/videoandimusync/A06_(move_left_arm)_synchronize.svg": "f6ad07fa2740dcb03229ed5c6d8b7a1d775b4d12cced59f96be446b10568d4ac",
+        "analysis/videoandimusync/A07_(drink_right_arm)_synchronize.svg": "b2936dc3ff47bbc04b8e2fb404fe85febc8d534a8397b6f95e4298fcc638d642",
+        "analysis/videoandimusync/A08_(drink_left_arm)_synchronize.svg": "b5ed30c0ecfe5c1ed9335354a7233e965ecd5c1c11af24a12cfb09a147a6855f",
+        "analysis/videoandimusync/A09_(assemble_both_arms)_synchronize.svg": "b082673b47757b78c1d6ff98686e96a0964f4c25d49a7d98584edc20541b9ca7",
+        "analysis/videoandimusync/A10_(throw_both_arms)_synchronize.svg": "b1bef9a0c9e81ffde5c33efe3ac6b122c689acb25b39d0f3a2cc85d5af26aa80",
+        "analysis/videoandimusync/A11_(reachup_right_arm)_synchronize.svg": "f9e60637a69eaecb330d1f372bd8addf0e1fcfd67389a30a635ba38e4cf363be",
+        "analysis/videoandimusync/A12_(reachup_left_arm)_synchronize.svg": "1e2ffe6c4c8648f042c80cbb6bfd820e2cfc0175a91261d665bdb1df009d9395",
+        "analysis/videoandimusync/A13_(tear_both_arms)_synchronize.svg": "bd21909515fb7dccd73ebebfaa26eebd1af1c4d00ad458db69e914729836e49e"
+      }
+    },
+    "source_instructions": {
+      "info_row_count": 366,
+      "info_row_type_counts": {
+        "csv": 149,
+        "mot": 34,
+        "mp4": 149,
+        "raw": 34
+      },
+      "info_to_sync_sha256": "4596803e90e2908717ab227846f7a1c10a5c6b29c9bcbddb90e940a7259c519f",
+      "non_mp4_instruction_count": 217,
+      "non_mp4_instruction_manifest_sha256": "56f82dbf359ad4bbed3a5df70a0f81c28c58ced16df1248cdd0e3bc6b047fb2c",
+      "non_mp4_instruction_recording_count": 181,
+      "non_mp4_instruction_type_counts": {
+        "csv": 149,
+        "mot": 34,
+        "raw": 34
+      },
+      "override_row_ordinal_basis": "ZERO_BASED_DATA_ROW_SOURCE_ORDER",
+      "override_row_sha256_basis": "EXACT_SOURCE_ROW_BYTES_INCLUDING_CRLF"
+    },
+    "source_trim_reproduction": {
+      "all_generated_derivatives_byte_identical": true,
+      "discrepancies": [],
+      "overrides_bound": 217,
+      "overrides_expected": 217,
+      "overrides_reproduced": 217,
+      "overrides_unreproduced": 0,
+      "published_derivative_directory_count": 17,
+      "raw_trim_defects": {
+        "npose_rows_removed_total": 170,
+        "partial_five_sensor_cycle_override_count": 30,
+        "raw_override_count": 34,
+        "raw_overrides_removing_all_npose_rows_count": 34,
+        "removed_dynamic_observation_row_count": 648,
+        "removed_source_data_row_count": 818
+      },
+      "source_transform_semantics": {
+        "csv_removed_rows": "CutFrames",
+        "mot_removed_rows": "floor(CutFrames*5/3)",
+        "raw_removed_rows": "floor(CutFrames*25/3)",
+        "replay": "EXACT_BYTE_LINE_SPLICE_PRESERVING_SOURCE_ENDINGS"
+      },
+      "source_trim_overlay_manifest_sha256": "e35562327b33cff2a74251df7a5ba7e08fd0cc345550cc9d67d5bdd8eedc1600",
+      "type_counts": {
+        "csv": 149,
+        "mot": 34,
+        "raw": 34
+      }
+    }
+  },
+  "source_evidence_sha256": "8c3ab1e6ab670e4369ea87ecaf6e92326bdb8f752e6215e2bb065b0f0464c255",
+  "source_trim_overlays_created": 0,
+  "sto_alignment_contracts_created": 0,
+  "sto_alignment_validation_created": 0,
+  "sto_success_markers_created": 0,
+  "withheld_artifact_counts": {
+    "canonical_clock_tables": 0,
+    "clock_segments": 0,
+    "derived_rate_contract_parquet": 0,
+    "generic_success_markers": 0,
+    "imu_tick_groups_parquet": 0,
+    "source_trim_overlays_parquet": 0,
+    "sto_alignment_contracts_parquet": 0,
+    "sto_alignment_validation_parquet": 0,
+    "sto_success_markers": 0
+  }
+}

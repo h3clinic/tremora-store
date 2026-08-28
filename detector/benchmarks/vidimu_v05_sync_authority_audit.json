@@ -1,0 +1,4389 @@
+{
+  "artifact_kind": "TREMORA_VIDIMU_V05_SYNC_AUTHORITY_AUDIT",
+  "audit_execution_status": "PASS",
+  "blockers": [
+    {
+      "blocker_id": "RAW_TIMESTAMP_UNIT_NOT_DOCUMENTED_IN_PINNED_AUTHORITY",
+      "evidence": "The audited article, Zenodo metadata, complete VIDIMU-TOOLS v1.0 tree, and native-parser evidence contain no authoritative RAW decimal-token unit or integer-tick conversion contract."
+    },
+    {
+      "blocker_id": "RAW_CLOCK_ORIGIN_NOT_DOCUMENTED_IN_PINNED_AUTHORITY",
+      "evidence": "The audited pinned authority does not bind the RAW clock origin to recording start, first accepted video PTS, or another video clock event."
+    },
+    {
+      "blocker_id": "BODYTRACK_ROW_TO_VIDEO_PTS_NOT_DOCUMENTED",
+      "evidence": "Equal BodyTrack CSV-row and decoded-frame counts do not document a row-to-video-PTS mapping."
+    },
+    {
+      "blocker_id": "RAW_ROW_TO_NATIVE_50HZ_SAMPLE_MAPPING_UNSUPPORTED",
+      "evidence": "The article declares nominal 50 Hz sensor output, while the independent all-208 original-RAW scan observes 10,183,005 timestamped dynamic row observations and 8,735,242 exact consecutive held payloads. VIDIMU-TOOLS treats rows positionally and does not derive native ticks from RAW timestamp tokens. The pinned evidence therefore does not authorize interpreting every RAW row as one native 50 Hz hardware sample."
+    },
+    {
+      "blocker_id": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "evidence": "S53_A13_T03 and S57_A07_T01 have plot-selected VIDEO cuts and released applied CSV, MOT, and RAW cuts from both candidate directions; both are AMBIGUOUS_SOURCE_MAPPING."
+    }
+  ],
+  "claim_boundary": {
+    "canonical_clock_segments_emitted": false,
+    "canonical_frame_times_emitted": false,
+    "canonical_imu_times_emitted": false,
+    "correlation_used_by_this_audit": false,
+    "csv_frame_count_equality_proves_clock_mapping": false,
+    "filename_pairing_proves_synchronization": false,
+    "nominal_50hz_proves_each_raw_row_is_a_hardware_sample": false,
+    "raw_timestamp_interpretation": "EXACT_RELEASE_DECIMAL_TOKEN;UNIT_CLOCK_SOURCE_AND_VIDEO_RELATION_NOT_DOCUMENTED_IN_AUDITED_PINNED_AUTHORITY",
+    "released_crop_transform_bytes_reconciled": true,
+    "released_source_mapping_is_unambiguous": false,
+    "sto_companion_promoted_to_raw_clock_authority": false,
+    "v06_indexes_or_windows_emitted": false
+  },
+  "gate_status": "NO_GO_RAW_NATIVE_CLOCK_AUTHORITY",
+  "implementation": {
+    "audit_implementation_version": "vidimu-v05-sync-authority-audit-1.1.0",
+    "audit_script_sha256": "abbd59097a16f767729521b4968ac997a55506e467621b997b1894d45334d65a",
+    "canonical_json": "SORTED_KEYS_UTF8_INDENT2_TRAILING_NEWLINE_NO_NAN"
+  },
+  "reconciliation": {
+    "ambiguous_source_mapping_record_count": 2,
+    "ambiguous_source_mapping_recording_ids": [
+      "S53_A13_T03",
+      "S57_A07_T01"
+    ],
+    "csv_frame_count_equal_recordings": 208,
+    "decoded_frame_count": 179076,
+    "dual_direction_candidate_record_count": 2,
+    "dual_direction_candidate_row_count": 4,
+    "info_recording_count": 181,
+    "info_row_count": 366,
+    "info_type_counts": {
+      "csv": 149,
+      "mot": 34,
+      "mp4": 149,
+      "raw": 34
+    },
+    "plot_recording_count": 208,
+    "plot_selected_direction_counts": {
+      "IMU": 32,
+      "VIDEO": 149,
+      "ZERO": 27
+    },
+    "pose_csv_row_count": 179076,
+    "source_mapping_classification_counts": {
+      "AMBIGUOUS": 2,
+      "IMU": 32,
+      "VIDEO": 147,
+      "ZERO": 27
+    },
+    "sync_override_count": 217
+  },
+  "records": [
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1089,
+      "info_types": [],
+      "plot_rmse_2dp": "2.87",
+      "pose_csv_row_count": 1089,
+      "raw_source_row_count": 70710,
+      "raw_source_sha256": "acd69a5fabf570fc18d6fe0163241ff14cdb4d805aceeb50392bfe29f1a46990",
+      "recording_id": "S40_A01_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1116,
+      "info_types": [],
+      "plot_rmse_2dp": "4.18",
+      "pose_csv_row_count": 1116,
+      "raw_source_row_count": 72670,
+      "raw_source_sha256": "12a134dcc8ceabdb8b5215f7afea77955478ce8237544829d4e0b5d11e6e3015",
+      "recording_id": "S40_A02_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 894,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "5.59",
+      "pose_csv_row_count": 894,
+      "raw_source_row_count": 58970,
+      "raw_source_sha256": "8a9abaa5b432efc1852cd3668eb85971ddf62c16300dec4e574c528333f30f4b",
+      "recording_id": "S40_A03_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 537,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.79",
+      "pose_csv_row_count": 537,
+      "raw_source_row_count": 34065,
+      "raw_source_sha256": "588d4c81ec69cb4738e6d799fd763b4d07192a59bf544715f28db57fee6e7206",
+      "recording_id": "S40_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 6,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 754,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.29",
+      "pose_csv_row_count": 754,
+      "raw_source_row_count": 44335,
+      "raw_source_sha256": "b2a900dbb84c64596264d9883b3983f6752cb1513ed3fd8d5e1727a63b1a7525",
+      "recording_id": "S40_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 609,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "32.92",
+      "pose_csv_row_count": 609,
+      "raw_source_row_count": 37105,
+      "raw_source_sha256": "ac9cdbd7b68e2ad306bb6b5efeaa87526ff6cd9ac964ec2b94d5f19de47ffff9",
+      "recording_id": "S40_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 607,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.55",
+      "pose_csv_row_count": 607,
+      "raw_source_row_count": 35960,
+      "raw_source_sha256": "11b7a3da26f364e0abbbc7e4561ad1def0727c743d8b51d2fb267c971b623754",
+      "recording_id": "S40_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 10,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 574,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.05",
+      "pose_csv_row_count": 574,
+      "raw_source_row_count": 34020,
+      "raw_source_sha256": "9eed63e7e6589689e72dd26972550777105c64b450f81e32e06c10139c79a2d0",
+      "recording_id": "S40_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 697,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.20",
+      "pose_csv_row_count": 697,
+      "raw_source_row_count": 41095,
+      "raw_source_sha256": "4c0e9d1175c0568e92ea879cd79e20e1c3a198126981b4116f5c5ee81cfe9995",
+      "recording_id": "S40_A09_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 624,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.20",
+      "pose_csv_row_count": 624,
+      "raw_source_row_count": 35420,
+      "raw_source_sha256": "1b39b40128007605174d200832063dc743c441823e58da406506e2c46ed50c4e",
+      "recording_id": "S40_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 466,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.16",
+      "pose_csv_row_count": 466,
+      "raw_source_row_count": 27650,
+      "raw_source_sha256": "5410da80841a69bbb2e43e3b6281b374b45773e443ed496f3b067250f7d14385",
+      "recording_id": "S40_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 485,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.60",
+      "pose_csv_row_count": 485,
+      "raw_source_row_count": 28645,
+      "raw_source_sha256": "9017ff12c424f3350cd6f9b4f55f9ef535ce9531b828a4afe11791a0a9c7ab39",
+      "recording_id": "S40_A12_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 559,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.99",
+      "pose_csv_row_count": 559,
+      "raw_source_row_count": 32210,
+      "raw_source_sha256": "9c2e2269efd55576b2026db67b7dcb9db33cfedd2ff6980531358a0ec6ffcb73",
+      "recording_id": "S40_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 6,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1147,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.09",
+      "pose_csv_row_count": 1147,
+      "raw_source_row_count": 72165,
+      "raw_source_sha256": "9ce3a3df7d84df64f8c5bf0c7bb000b596bd84c1d26bd8aa1561c13a2f9b81db",
+      "recording_id": "S41_A01_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1223,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.06",
+      "pose_csv_row_count": 1223,
+      "raw_source_row_count": 79520,
+      "raw_source_sha256": "6f5d24b363fee48456662f845ea4468bb5812eb750ebff169a506ef16e1206b3",
+      "recording_id": "S41_A02_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1681,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.94",
+      "pose_csv_row_count": 1681,
+      "raw_source_row_count": 106050,
+      "raw_source_sha256": "35400c29d6f979bf97d37d43039433f20ac79af35b8b62fa2bc3591ccf17c810",
+      "recording_id": "S41_A03_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 575,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.16",
+      "pose_csv_row_count": 575,
+      "raw_source_row_count": 37460,
+      "raw_source_sha256": "92c45d47d46c5e4c88d73c2b090c777a334be736326c4612938e02f19f230e9d",
+      "recording_id": "S41_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 538,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.44",
+      "pose_csv_row_count": 538,
+      "raw_source_row_count": 33050,
+      "raw_source_sha256": "99b070e2cfacb87ccf8e6131ad3a8500adf55c119d3267e9b7bf6eda0a264212",
+      "recording_id": "S41_A05_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 638,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "28.84",
+      "pose_csv_row_count": 638,
+      "raw_source_row_count": 38900,
+      "raw_source_sha256": "98bf594a8c3eaf7cece24c9aa0a124f5ba3a48e82c90ba09a4ab5ee435616d51",
+      "recording_id": "S41_A06_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 8,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 787,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.57",
+      "pose_csv_row_count": 787,
+      "raw_source_row_count": 46395,
+      "raw_source_sha256": "b755989dce471c40f55065ee8ed0f20c0e2fc8fc7d4cc340675eac6bd7e3e66c",
+      "recording_id": "S41_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 7,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 715,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.50",
+      "pose_csv_row_count": 715,
+      "raw_source_row_count": 42180,
+      "raw_source_sha256": "dac1d3000853df0ec30b529eef0dae3e8ba701ebf78a129e52e36660214e4c67",
+      "recording_id": "S41_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1104,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.37",
+      "pose_csv_row_count": 1104,
+      "raw_source_row_count": 64950,
+      "raw_source_sha256": "494d2a0247c83ed61cd3a65207a85047d6017fdbd7cda9a10da2c600ac4d97a1",
+      "recording_id": "S41_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 610,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "17.96",
+      "pose_csv_row_count": 610,
+      "raw_source_row_count": 37275,
+      "raw_source_sha256": "2244f10ac1fdc8a51634a33ef30e051ac4a415cfa3edcfbc430a8848bb42edcb",
+      "recording_id": "S41_A10_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 14,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 542,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.64",
+      "pose_csv_row_count": 542,
+      "raw_source_row_count": 26360,
+      "raw_source_sha256": "c69aab75bc3c74a29c1eaf560869821ac0284bfb80f7aa79bc6c81f686c44036",
+      "recording_id": "S41_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 523,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.50",
+      "pose_csv_row_count": 523,
+      "raw_source_row_count": 30740,
+      "raw_source_sha256": "47c3a31d4e85cd75f173bec998a6500f82c8f4163f35c0a2101839a6c8e58972",
+      "recording_id": "S41_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 446,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.60",
+      "pose_csv_row_count": 446,
+      "raw_source_row_count": 25455,
+      "raw_source_sha256": "296882ebf42f94db056ed98aadc5ff3cc7c6d6c116711c1b86f666d9f4ad043a",
+      "recording_id": "S41_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1254,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "2.95",
+      "pose_csv_row_count": 1254,
+      "raw_source_row_count": 65360,
+      "raw_source_sha256": "5bcc7423ba7ccc1b9a31d2a64d02dfc7f189db1866d2746ba779ff8c1bdb1716",
+      "recording_id": "S42_A01_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1568,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "2.43",
+      "pose_csv_row_count": 1568,
+      "raw_source_row_count": 81810,
+      "raw_source_sha256": "937ca8972757105f9bfdb491f51b6c9932e99cf315ffe8b6b2e8783b2cf74630",
+      "recording_id": "S42_A02_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1318,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.96",
+      "pose_csv_row_count": 1318,
+      "raw_source_row_count": 68745,
+      "raw_source_sha256": "b887cad4f20cfc0e9220cd2590f3d14bdfda8f39b94f3a4d61cd572c61672002",
+      "recording_id": "S42_A03_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 727,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.62",
+      "pose_csv_row_count": 727,
+      "raw_source_row_count": 38105,
+      "raw_source_sha256": "df8dd6306e83da4be8300af2f095db9bb64f1d2a21194cc03874dfe6e64aa508",
+      "recording_id": "S42_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 883,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.33",
+      "pose_csv_row_count": 883,
+      "raw_source_row_count": 53020,
+      "raw_source_sha256": "85a057525acce8a39dbbd0840fb09bdd946d35d599146ab054351f237cfd75aa",
+      "recording_id": "S42_A05_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 875,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "24.42",
+      "pose_csv_row_count": 875,
+      "raw_source_row_count": 52660,
+      "raw_source_sha256": "4fd3471217d7eac28c35933d6059f90356eb0317b14da057779a48600913fc03",
+      "recording_id": "S42_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 796,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.94",
+      "pose_csv_row_count": 796,
+      "raw_source_row_count": 47465,
+      "raw_source_sha256": "4f000151b9423deca54d3daac4b54d5f42b10778525663efd4dc77f64f0be5bf",
+      "recording_id": "S42_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 785,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.13",
+      "pose_csv_row_count": 785,
+      "raw_source_row_count": 47155,
+      "raw_source_sha256": "775d82a0fce509790809b220dc77f5451de55087141f128bd775e5e29d3df78f",
+      "recording_id": "S42_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 946,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.67",
+      "pose_csv_row_count": 946,
+      "raw_source_row_count": 56725,
+      "raw_source_sha256": "e97d02032e4869b04f6698b8884bb41e66c941324e439dd5d6546e2e4070377f",
+      "recording_id": "S42_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 620,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "23.04",
+      "pose_csv_row_count": 620,
+      "raw_source_row_count": 37085,
+      "raw_source_sha256": "0c95f647fc8e45e15ea113be352381e8c764dcf7b9734c07364e1a536fa90293",
+      "recording_id": "S42_A10_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 473,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.09",
+      "pose_csv_row_count": 473,
+      "raw_source_row_count": 28305,
+      "raw_source_sha256": "84d9b045c7dba6d7b911435fb3b892cfb1d09babdfb41db852d38f0c1a703eda",
+      "recording_id": "S42_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 615,
+      "info_types": [],
+      "plot_rmse_2dp": "7.67",
+      "pose_csv_row_count": 615,
+      "raw_source_row_count": 36830,
+      "raw_source_sha256": "333721bcd21cfba5e1d4a6739651dd67421a4751a2ccc6f32515adfccaee01fe",
+      "recording_id": "S42_A12_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 354,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.51",
+      "pose_csv_row_count": 354,
+      "raw_source_row_count": 22490,
+      "raw_source_sha256": "38928fe92c4346375ff9a2168f6090ede49c453186d7cf46aa8a4aaffaa8be14",
+      "recording_id": "S42_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1645,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "3.23",
+      "pose_csv_row_count": 1645,
+      "raw_source_row_count": 107125,
+      "raw_source_sha256": "390985fa48da28211e8e6a4051fb82ac20a808ed997ec357d9d493fa81871984",
+      "recording_id": "S44_A01_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1825,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "3.44",
+      "pose_csv_row_count": 1825,
+      "raw_source_row_count": 118325,
+      "raw_source_sha256": "46e7bc601dd382fc7566635f6be26854b0d2471b744e3242735011f4974fda48",
+      "recording_id": "S44_A02_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 3,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1561,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "2.81",
+      "pose_csv_row_count": 1561,
+      "raw_source_row_count": 101410,
+      "raw_source_sha256": "aa5d3a01ca9b2efee7c1495611ef51a0e2dce33b354f1ced2798c97e5a54f962",
+      "recording_id": "S44_A03_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 842,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.47",
+      "pose_csv_row_count": 842,
+      "raw_source_row_count": 54460,
+      "raw_source_sha256": "93ffcbc73dc0df4f17418e3fe1dafaba92a6357c1416ed0ec0bb0364f442f980",
+      "recording_id": "S44_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1151,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "16.61",
+      "pose_csv_row_count": 1151,
+      "raw_source_row_count": 69540,
+      "raw_source_sha256": "02e4852030cdfc5c1ca1110388065bb41b60c3b7ee60f5f11c15c689ff5decc4",
+      "recording_id": "S44_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 12,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1126,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "27.34",
+      "pose_csv_row_count": 1126,
+      "raw_source_row_count": 68080,
+      "raw_source_sha256": "9a3ed3c3f824d8250f61bf5a66490da7837963591311e53f4d584edd1c3e200f",
+      "recording_id": "S44_A06_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 948,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.37",
+      "pose_csv_row_count": 948,
+      "raw_source_row_count": 58095,
+      "raw_source_sha256": "b8e4196cc3b3255288e1c4ce5bd64fdc4d452ec4e34d1076b35ba1e106e8aba0",
+      "recording_id": "S44_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 812,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "1.70",
+      "pose_csv_row_count": 812,
+      "raw_source_row_count": 49000,
+      "raw_source_sha256": "f7e250c4982fe7abac5c1b4aaa1ce78c538e371295f8ec7d04eb7234f55c41c0",
+      "recording_id": "S44_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 834,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.11",
+      "pose_csv_row_count": 834,
+      "raw_source_row_count": 50420,
+      "raw_source_sha256": "f6b79a9b7599ae34b2e3327a9d4735228274697768c4f6103e4dfbd607cae903",
+      "recording_id": "S44_A09_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 673,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.04",
+      "pose_csv_row_count": 673,
+      "raw_source_row_count": 40380,
+      "raw_source_sha256": "f61ac6e00cd65a82a2f720e56525140aa3ab3f73caea4db1483327d7887da380",
+      "recording_id": "S44_A10_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 643,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.06",
+      "pose_csv_row_count": 643,
+      "raw_source_row_count": 38960,
+      "raw_source_sha256": "51adc3c08e9eeedc0e9e85ec7619acfff6d5327187b32257bb3c1bfc4ac0a32d",
+      "recording_id": "S44_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 654,
+      "info_types": [],
+      "plot_rmse_2dp": "10.19",
+      "pose_csv_row_count": 654,
+      "raw_source_row_count": 39395,
+      "raw_source_sha256": "d52673ea9a8d98eeca325853845c1815199c9d281396ccd24e1e1b17b2eb10e0",
+      "recording_id": "S44_A12_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 739,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.97",
+      "pose_csv_row_count": 739,
+      "raw_source_row_count": 44575,
+      "raw_source_sha256": "33b90b0fdefebbe65679ad85009f3041a6c9691e10108d0a831610649948fe1a",
+      "recording_id": "S44_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 932,
+      "info_types": [],
+      "plot_rmse_2dp": "4.67",
+      "pose_csv_row_count": 932,
+      "raw_source_row_count": 61335,
+      "raw_source_sha256": "e3d7ccb9792bc831949265a28d9aea6466e7af4f0b2d17a6a54211668c9548bb",
+      "recording_id": "S46_A01_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1306,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "4.79",
+      "pose_csv_row_count": 1306,
+      "raw_source_row_count": 85185,
+      "raw_source_sha256": "a48707659fdc4c0848a272bc24a8f81003064b105347b280238cfbc36c14921a",
+      "recording_id": "S46_A02_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1051,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "4.71",
+      "pose_csv_row_count": 1051,
+      "raw_source_row_count": 68510,
+      "raw_source_sha256": "ec26631885d00b681224fa024ef0ca8bef35999ddfb761ba5449af8ddf4c68e4",
+      "recording_id": "S46_A03_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 582,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "2.85",
+      "pose_csv_row_count": 582,
+      "raw_source_row_count": 38015,
+      "raw_source_sha256": "c345a1f75129ef7b4c36955d3277332df6ca440c0afc8bcdb7b99517c0e03989",
+      "recording_id": "S46_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 860,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.16",
+      "pose_csv_row_count": 860,
+      "raw_source_row_count": 51895,
+      "raw_source_sha256": "1edf62d615395e208dadefb6724ce6c5590214f1222f8c3dffbaa3c1c1b277bf",
+      "recording_id": "S46_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 763,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "20.15",
+      "pose_csv_row_count": 763,
+      "raw_source_row_count": 46415,
+      "raw_source_sha256": "77a6a0fe07e7b52b3557a2bf8acca3e332ef224c94eecf4f91afc47f50c203a7",
+      "recording_id": "S46_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 849,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "21.12",
+      "pose_csv_row_count": 849,
+      "raw_source_row_count": 51540,
+      "raw_source_sha256": "19443c226dd025ae9b04bc1c9e0e10b449a3c8beeb3a800fbaf121afbdbaad0f",
+      "recording_id": "S46_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 7,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 772,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "12.87",
+      "pose_csv_row_count": 772,
+      "raw_source_row_count": 46865,
+      "raw_source_sha256": "d789a10a1b3f25c57c2158cc68a60a85069aeb1e2112624d7ad8408892528f54",
+      "recording_id": "S46_A08_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 761,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.45",
+      "pose_csv_row_count": 761,
+      "raw_source_row_count": 45040,
+      "raw_source_sha256": "a8c254bb5a4572fad15bcc08e3c86edf69c8bdf4aebfc6adc0df106f285fbd07",
+      "recording_id": "S46_A09_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 592,
+      "info_types": [],
+      "plot_rmse_2dp": "4.90",
+      "pose_csv_row_count": 592,
+      "raw_source_row_count": 35910,
+      "raw_source_sha256": "1016f5730a4291e8a5e27a6471bf0e291f6afbd7769e60b98ef61edd8699db18",
+      "recording_id": "S46_A10_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 454,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.94",
+      "pose_csv_row_count": 454,
+      "raw_source_row_count": 27205,
+      "raw_source_sha256": "58d9b21706cb4cc02a65d07c2ede71cbd49b7fd7033af29a41ed78cbaffaaa6b",
+      "recording_id": "S46_A11_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 515,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.49",
+      "pose_csv_row_count": 515,
+      "raw_source_row_count": 31185,
+      "raw_source_sha256": "213ade7d7e24c09391c20d7e0016bf3da302728cd3b04f2c8f4474231bbb8afe",
+      "recording_id": "S46_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 322,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.22",
+      "pose_csv_row_count": 322,
+      "raw_source_row_count": 19515,
+      "raw_source_sha256": "374e85cc7e0fa00ee4933d83946416f3b1ec8c105174890c50dd23fda5c3b657",
+      "recording_id": "S46_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1601,
+      "info_types": [],
+      "plot_rmse_2dp": "7.19",
+      "pose_csv_row_count": 1601,
+      "raw_source_row_count": 104110,
+      "raw_source_sha256": "53ecf32271e1a98cda74a632a8f0dd0d9859e55a32237b2d1b79852c61f1056c",
+      "recording_id": "S47_A01_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1543,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "4.36",
+      "pose_csv_row_count": 1543,
+      "raw_source_row_count": 100800,
+      "raw_source_sha256": "15a455739291e310a029ddb9217ae022cb647c19f55e9a6c40666eb4439d078c",
+      "recording_id": "S47_A02_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1263,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.94",
+      "pose_csv_row_count": 1263,
+      "raw_source_row_count": 82200,
+      "raw_source_sha256": "97046a153b3ac32269a90d928ee78a3108de68cceeee75594d708a73349e22ed",
+      "recording_id": "S47_A03_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 596,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.08",
+      "pose_csv_row_count": 596,
+      "raw_source_row_count": 38950,
+      "raw_source_sha256": "45875d0645974fdeddc750b9a008755253b9034fa5de70321d305cc4fe2596b2",
+      "recording_id": "S47_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 961,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "10.59",
+      "pose_csv_row_count": 961,
+      "raw_source_row_count": 59000,
+      "raw_source_sha256": "765efaadc8576167721f6c7ad6e3fb158b5469fac1c49eb77e69f10215c54085",
+      "recording_id": "S47_A05_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 982,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.18",
+      "pose_csv_row_count": 982,
+      "raw_source_row_count": 60255,
+      "raw_source_sha256": "02cd3aea7e23d6365088986923a2a31e4708b9c1fd249b459dbe17e02c4f978d",
+      "recording_id": "S47_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 690,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.42",
+      "pose_csv_row_count": 690,
+      "raw_source_row_count": 42115,
+      "raw_source_sha256": "51effd9b641c63408297f14eb73329cf3921aeee80dec8839c64c2413e00faed",
+      "recording_id": "S47_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 727,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.93",
+      "pose_csv_row_count": 727,
+      "raw_source_row_count": 44585,
+      "raw_source_sha256": "7e936eb0e4850dca5110cbf3613a95342ae967de1819ca4a52b5167ccd8c72b7",
+      "recording_id": "S47_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 653,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.00",
+      "pose_csv_row_count": 653,
+      "raw_source_row_count": 40005,
+      "raw_source_sha256": "fd53929365d8a5ab707f837dc0cece5c2ce19456a6f307b8c9a3a4b2466360d6",
+      "recording_id": "S47_A09_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 576,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.37",
+      "pose_csv_row_count": 576,
+      "raw_source_row_count": 34810,
+      "raw_source_sha256": "ad5b81e98993e2c4e14787e9fc15488b3e0ad6be96654526bdf50800cc52b168",
+      "recording_id": "S47_A10_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 404,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.51",
+      "pose_csv_row_count": 404,
+      "raw_source_row_count": 24695,
+      "raw_source_sha256": "2569820672b09e01097d62724346de4534c1642d6f4f8b5bea9a49e570b7c0ea",
+      "recording_id": "S47_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 489,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "7.61",
+      "pose_csv_row_count": 489,
+      "raw_source_row_count": 29270,
+      "raw_source_sha256": "fb960d04460fedda997653e550d290352c7f68b91113610ede1625adf531df6a",
+      "recording_id": "S47_A12_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 353,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.70",
+      "pose_csv_row_count": 353,
+      "raw_source_row_count": 21295,
+      "raw_source_sha256": "1cc5dd3a834e534a8c0b0d2e1ca8da0cb8be3d246b3fffe83345d610ded3d12b",
+      "recording_id": "S47_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1444,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.39",
+      "pose_csv_row_count": 1444,
+      "raw_source_row_count": 95020,
+      "raw_source_sha256": "1d3610129bd759477ee0d2e08598500b474801966556f1d9843a07cf1e2e2806",
+      "recording_id": "S48_A01_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1888,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "3.24",
+      "pose_csv_row_count": 1888,
+      "raw_source_row_count": 122935,
+      "raw_source_sha256": "e2049caa62d5752ff2b2129f086bb33b85e780b8732ddcd02b6ded8e095e0991",
+      "recording_id": "S48_A02_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1416,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "2.62",
+      "pose_csv_row_count": 1416,
+      "raw_source_row_count": 92110,
+      "raw_source_sha256": "c0524bb9de375fc85fb430002407e763a52c05f61209d0f6f9779c1fb486d345",
+      "recording_id": "S48_A03_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 859,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.34",
+      "pose_csv_row_count": 859,
+      "raw_source_row_count": 56170,
+      "raw_source_sha256": "081572288fe5d98572f5be9d34d90ca1c994a7b361d44c97cb3d00861c0c62e8",
+      "recording_id": "S48_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1305,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.78",
+      "pose_csv_row_count": 1305,
+      "raw_source_row_count": 80620,
+      "raw_source_sha256": "5b8d245c96ba7aaaeb5f75845a6f3b6f9ac7ae2403b1a5509e9acce2ef2dfecf",
+      "recording_id": "S48_A05_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 9,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1116,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "25.03",
+      "pose_csv_row_count": 1116,
+      "raw_source_row_count": 68885,
+      "raw_source_sha256": "85457ce5eb9bede9738b44de868315bafe8b26a84a98c02910403759eb5a8dc9",
+      "recording_id": "S48_A06_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 14,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 802,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.60",
+      "pose_csv_row_count": 802,
+      "raw_source_row_count": 49630,
+      "raw_source_sha256": "c6aa58c6e62ed5876298746d089687e714ce3b69199bb7dfe3b1d1075735429b",
+      "recording_id": "S48_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 793,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.05",
+      "pose_csv_row_count": 793,
+      "raw_source_row_count": 48955,
+      "raw_source_sha256": "b1f974e929caa6baf841ede862d6d18aa6c9fb5a1777d1063b57d4c81cb9ecf8",
+      "recording_id": "S48_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 721,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.48",
+      "pose_csv_row_count": 721,
+      "raw_source_row_count": 44575,
+      "raw_source_sha256": "1e1daee59206b436d67af685a98f92e5c0045913dd1bc3fcf33b7bb90f5adb93",
+      "recording_id": "S48_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 670,
+      "info_types": [],
+      "plot_rmse_2dp": "5.24",
+      "pose_csv_row_count": 670,
+      "raw_source_row_count": 38660,
+      "raw_source_sha256": "f6fafeac70a9421cdd383c156b74b5aeb3048ae7ae83e8cd459ace5ff29928f5",
+      "recording_id": "S48_A10_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 409,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.38",
+      "pose_csv_row_count": 409,
+      "raw_source_row_count": 25250,
+      "raw_source_sha256": "398b397b64139bbb429a3f317785b83bf639939f3bb1087c2feae553ec0c66b6",
+      "recording_id": "S48_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 549,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.42",
+      "pose_csv_row_count": 549,
+      "raw_source_row_count": 34020,
+      "raw_source_sha256": "5cd434d16400d8edcb35f8d72cb2495874b42c24f89434e93f2a7af26d627140",
+      "recording_id": "S48_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 464,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.52",
+      "pose_csv_row_count": 464,
+      "raw_source_row_count": 28390,
+      "raw_source_sha256": "8edac8dceab4eaf4d65f285deb3854c330b83917cd758bf6a7bd13ef24052785",
+      "recording_id": "S48_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1270,
+      "info_types": [],
+      "plot_rmse_2dp": "4.40",
+      "pose_csv_row_count": 1270,
+      "raw_source_row_count": 68900,
+      "raw_source_sha256": "cd94a34335ab34f6ddefca2022a1e65bb2931e261615a27cf95202284b5cc81d",
+      "recording_id": "S49_A01_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 2089,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "3.57",
+      "pose_csv_row_count": 2089,
+      "raw_source_row_count": 112085,
+      "raw_source_sha256": "d3ee7b2ebd183ea7742281d60b701688b7e1798d034f089c99c975ccc02916db",
+      "recording_id": "S49_A02_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1417,
+      "info_types": [],
+      "plot_rmse_2dp": "4.04",
+      "pose_csv_row_count": 1417,
+      "raw_source_row_count": 75205,
+      "raw_source_sha256": "8c0083ac6f0f289f9498bf1c95c19d2ea34e420cc0f0c570e57e6ce90b593359",
+      "recording_id": "S49_A03_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 775,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.59",
+      "pose_csv_row_count": 775,
+      "raw_source_row_count": 41490,
+      "raw_source_sha256": "d02aec49d0dce6457e0f9c179b0692b4efa0fa1d4593dbddfb4e8bd1a1aa5422",
+      "recording_id": "S49_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1005,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.10",
+      "pose_csv_row_count": 1005,
+      "raw_source_row_count": 51490,
+      "raw_source_sha256": "068266ce06a6171bb0aa3946ea9695d7dca0efd5fce9656257dc5bd5d767b66f",
+      "recording_id": "S49_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 902,
+      "info_types": [],
+      "plot_rmse_2dp": "24.74",
+      "pose_csv_row_count": 902,
+      "raw_source_row_count": 46150,
+      "raw_source_sha256": "c5a638a437fad3ea03e8c363b6fccc8a2ff2dc300d7d72446d1f847ff1a783b3",
+      "recording_id": "S49_A06_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 704,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.79",
+      "pose_csv_row_count": 704,
+      "raw_source_row_count": 35980,
+      "raw_source_sha256": "8d8c53552aded15e2bad5232a1a8d171f4403a06ee5cb6fe8c5c170be9a75d45",
+      "recording_id": "S49_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 6,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 766,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.18",
+      "pose_csv_row_count": 766,
+      "raw_source_row_count": 39200,
+      "raw_source_sha256": "51983cdf1ebc218bccde550f1261f9c6127ac70834370821b5c2249f6bc69666",
+      "recording_id": "S49_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 790,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.22",
+      "pose_csv_row_count": 790,
+      "raw_source_row_count": 40570,
+      "raw_source_sha256": "d3a46c6b326d1ccd50cfafaf24db02ac854e2ec6ef30953b06d333bc2fd9cc3e",
+      "recording_id": "S49_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 638,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.67",
+      "pose_csv_row_count": 638,
+      "raw_source_row_count": 33560,
+      "raw_source_sha256": "8a08b177dfe2b937e753ca17642482c25ba5dfb430df27e05f9dc30f9dcf2f02",
+      "recording_id": "S49_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 488,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.79",
+      "pose_csv_row_count": 488,
+      "raw_source_row_count": 25545,
+      "raw_source_sha256": "6336f6150f2b5f8a53a808911b23edcb0d7500af4cbb65ff15b6a0c234b7caac",
+      "recording_id": "S49_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 503,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.15",
+      "pose_csv_row_count": 503,
+      "raw_source_row_count": 26330,
+      "raw_source_sha256": "25393c986db5eb2605d68d555078104f0cf1aeb2c56548bde23bfbe9ba18eee9",
+      "recording_id": "S49_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 462,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.05",
+      "pose_csv_row_count": 462,
+      "raw_source_row_count": 24140,
+      "raw_source_sha256": "0e3106027eec77554131fa4189c89d79c7c73c14a80263281aed9c5c0a9bf334",
+      "recording_id": "S49_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1147,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "5.00",
+      "pose_csv_row_count": 1147,
+      "raw_source_row_count": 61775,
+      "raw_source_sha256": "dd808d43fc76655b695d8f761217f0c30492a5484cc8c6efb26064d059df53a3",
+      "recording_id": "S50_A01_T03",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1279,
+      "info_types": [],
+      "plot_rmse_2dp": "2.98",
+      "pose_csv_row_count": 1279,
+      "raw_source_row_count": 67180,
+      "raw_source_sha256": "bcf0b5c51b7a750274e3655178fd6eda20786974f7fee9337e64d4c0c313b80a",
+      "recording_id": "S50_A02_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1162,
+      "info_types": [],
+      "plot_rmse_2dp": "3.84",
+      "pose_csv_row_count": 1162,
+      "raw_source_row_count": 62585,
+      "raw_source_sha256": "735830a36fc07794e1a81f67f60bf981d874c2fc867d8b0048a6092305a0aeb2",
+      "recording_id": "S50_A03_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 720,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.75",
+      "pose_csv_row_count": 720,
+      "raw_source_row_count": 38465,
+      "raw_source_sha256": "696311ca741dda24dfcdca7920ed37dd3727b0a07c43cc4c265739eff67a011a",
+      "recording_id": "S50_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 964,
+      "info_types": [],
+      "plot_rmse_2dp": "10.60",
+      "pose_csv_row_count": 964,
+      "raw_source_row_count": 50385,
+      "raw_source_sha256": "dd48040b542744e57b1480e12b23a26e82c466edbb153639780ce0b0b6efa76d",
+      "recording_id": "S50_A05_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 921,
+      "info_types": [],
+      "plot_rmse_2dp": "27.44",
+      "pose_csv_row_count": 921,
+      "raw_source_row_count": 47405,
+      "raw_source_sha256": "37e5c2d443802fef92e4165c2b461fdc62343185035fff7593faec5064cffa5d",
+      "recording_id": "S50_A06_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 803,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "19.47",
+      "pose_csv_row_count": 803,
+      "raw_source_row_count": 41220,
+      "raw_source_sha256": "2629860c7e426a2e1c5381c455f4889c7dbcfdfb208991f90a2531b2798e35b8",
+      "recording_id": "S50_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 7,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 851,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.71",
+      "pose_csv_row_count": 851,
+      "raw_source_row_count": 45310,
+      "raw_source_sha256": "53daf0a7ccb53022445f91531410259d2748dc0a43aa1c83a8ba14e1e78c10e1",
+      "recording_id": "S50_A08_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 985,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.31",
+      "pose_csv_row_count": 985,
+      "raw_source_row_count": 51750,
+      "raw_source_sha256": "101c71efcff82fbc57657c911e252c30d7934607d448b13ee3d5fc62b10d7b95",
+      "recording_id": "S50_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 8,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 729,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.35",
+      "pose_csv_row_count": 729,
+      "raw_source_row_count": 37925,
+      "raw_source_sha256": "1add8c5256e1ac080921c590a677a2af44fc16d820a8c6155c244c54a2038757",
+      "recording_id": "S50_A10_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 631,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.20",
+      "pose_csv_row_count": 631,
+      "raw_source_row_count": 32735,
+      "raw_source_sha256": "82365ec34738b9e95a62447898ba216144544111645f28561d6652511409bf0e",
+      "recording_id": "S50_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 676,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.90",
+      "pose_csv_row_count": 676,
+      "raw_source_row_count": 35035,
+      "raw_source_sha256": "abc414dd32cb6ca5f16f66c26f99c5f1f317547fdafdeb7ba642370388752548",
+      "recording_id": "S50_A12_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 426,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.43",
+      "pose_csv_row_count": 426,
+      "raw_source_row_count": 22070,
+      "raw_source_sha256": "43c05f38cd07d9b335f4410fe111b6404a304bfab4b65b3cd5bbcd4e3fae8622",
+      "recording_id": "S50_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1135,
+      "info_types": [],
+      "plot_rmse_2dp": "6.87",
+      "pose_csv_row_count": 1135,
+      "raw_source_row_count": 61860,
+      "raw_source_sha256": "2e456b0136a20690bec7e581d573073193407016810744681caaeaaf44f1f142",
+      "recording_id": "S51_A01_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1247,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.97",
+      "pose_csv_row_count": 1247,
+      "raw_source_row_count": 66410,
+      "raw_source_sha256": "41462b8f0e3500041b9fa34242ca2292413da78f98614877e38bfddb84468cb0",
+      "recording_id": "S51_A02_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1284,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.23",
+      "pose_csv_row_count": 1284,
+      "raw_source_row_count": 67660,
+      "raw_source_sha256": "a885cbabf97a9de775d06811b78fdcb7c739cce8e15c346432777ed8f0429c95",
+      "recording_id": "S51_A03_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 636,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.65",
+      "pose_csv_row_count": 636,
+      "raw_source_row_count": 33205,
+      "raw_source_sha256": "9f14b9f21e57746eb018397c8e528a9e8530893772148977a76c8d6515fc85f7",
+      "recording_id": "S51_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 908,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "14.38",
+      "pose_csv_row_count": 908,
+      "raw_source_row_count": 48460,
+      "raw_source_sha256": "c3255cdeb0f8a9788dee4c36538a7b8a359ed4c42b8204aec77ba0d0288e501c",
+      "recording_id": "S51_A05_T03",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 939,
+      "info_types": [],
+      "plot_rmse_2dp": "29.31",
+      "pose_csv_row_count": 939,
+      "raw_source_row_count": 49365,
+      "raw_source_sha256": "eb93d2425ac38916b839fdba119a05c745c7a55085c5a6e0838cb1e3da384beb",
+      "recording_id": "S51_A06_T03",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 787,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "16.99",
+      "pose_csv_row_count": 787,
+      "raw_source_row_count": 41480,
+      "raw_source_sha256": "0842e7162709f85845cb21b3bbc02378fe1422b90276c72f5805436098472ee7",
+      "recording_id": "S51_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 789,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.50",
+      "pose_csv_row_count": 789,
+      "raw_source_row_count": 40660,
+      "raw_source_sha256": "10ce00ca1c32ae100fc67b6956f8884dbd0ed0558c476e1aa2ea89f0104677e5",
+      "recording_id": "S51_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 723,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "21.86",
+      "pose_csv_row_count": 723,
+      "raw_source_row_count": 37695,
+      "raw_source_sha256": "dbacbd6b9880ec5cb14548f8801c8d299f5ea75fbfca6fd212743bc4d002216b",
+      "recording_id": "S51_A09_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 560,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.91",
+      "pose_csv_row_count": 560,
+      "raw_source_row_count": 29145,
+      "raw_source_sha256": "81af0eb7e5bf34f839f5156b270eeeabc70068f16511967fc9326e967675c599",
+      "recording_id": "S51_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 534,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.58",
+      "pose_csv_row_count": 534,
+      "raw_source_row_count": 27220,
+      "raw_source_sha256": "36baf885c4f077a6730686c7b5695f048738c4937f05891268565c34d6fba3be",
+      "recording_id": "S51_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 546,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.23",
+      "pose_csv_row_count": 546,
+      "raw_source_row_count": 27525,
+      "raw_source_sha256": "4c12a9db4ccb024c96a967b2c831bef098cfeba572442b118acd09790231b9af",
+      "recording_id": "S51_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 394,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.14",
+      "pose_csv_row_count": 394,
+      "raw_source_row_count": 20290,
+      "raw_source_sha256": "e9948e0bace1ea7682ba3f9d334c105dd9770d32db423dcbf06060e0693cc0f0",
+      "recording_id": "S51_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1502,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "2.82",
+      "pose_csv_row_count": 1502,
+      "raw_source_row_count": 80250,
+      "raw_source_sha256": "edbe2bfcf4ca025a9195745d045df602e5b135e7b31e8403f9d893695372043d",
+      "recording_id": "S52_A01_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 3,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1984,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.14",
+      "pose_csv_row_count": 1984,
+      "raw_source_row_count": 102505,
+      "raw_source_sha256": "98d41fa26514a45a25f7139f0faaedda389ae8013e327eaec057a5d7f55985f9",
+      "recording_id": "S52_A02_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1514,
+      "info_types": [],
+      "plot_rmse_2dp": "3.16",
+      "pose_csv_row_count": 1514,
+      "raw_source_row_count": 78945,
+      "raw_source_sha256": "46c43c997a93ff5a8a92cc528394cb7ee4bdc6fc705b3df426ab66c2b22952f0",
+      "recording_id": "S52_A03_T03",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 862,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.34",
+      "pose_csv_row_count": 862,
+      "raw_source_row_count": 42770,
+      "raw_source_sha256": "588342e7e257d54011b3759b064c9dbb6aed4a69e9f05e949295b984e7a8c9cf",
+      "recording_id": "S52_A04_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1040,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.45",
+      "pose_csv_row_count": 1040,
+      "raw_source_row_count": 53565,
+      "raw_source_sha256": "92ec0cfc80aca6410ad80bbbf2e90aed943b103dfefbb47bef6fb108e21f3eb6",
+      "recording_id": "S52_A05_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 978,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "44.12",
+      "pose_csv_row_count": 978,
+      "raw_source_row_count": 50355,
+      "raw_source_sha256": "32cff5cf68816e39743a5b4acc830b25be2dcfd1ce894ad5575d5060cfb3c4ec",
+      "recording_id": "S52_A06_T05",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 14,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 868,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "18.25",
+      "pose_csv_row_count": 868,
+      "raw_source_row_count": 44780,
+      "raw_source_sha256": "09a0b357a64a6d2740767b70544b2b8dca2b806ff9db7c768caefc683c8984fb",
+      "recording_id": "S52_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 14,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 950,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.65",
+      "pose_csv_row_count": 950,
+      "raw_source_row_count": 49690,
+      "raw_source_sha256": "ad9a4ea60e7575da55784ccd3ee8163c6a3b5c68a6ef75e91ed8fe1494b08243",
+      "recording_id": "S52_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 981,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.55",
+      "pose_csv_row_count": 981,
+      "raw_source_row_count": 50410,
+      "raw_source_sha256": "32ea3d26fb7683a20955f86c64d299790bc3b10463e337268816c4316992b8f2",
+      "recording_id": "S52_A09_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 794,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.05",
+      "pose_csv_row_count": 794,
+      "raw_source_row_count": 40750,
+      "raw_source_sha256": "c3f85f2719932e1ff85e3ac18405837adfa28f8b854d2643efbe20b5414b7217",
+      "recording_id": "S52_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 668,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.24",
+      "pose_csv_row_count": 668,
+      "raw_source_row_count": 34375,
+      "raw_source_sha256": "3eac5c2b9fa2e45b055c7a33935b947ea4e34c0ba9f82e8377465b42a38a7995",
+      "recording_id": "S52_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 7,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 680,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "10.39",
+      "pose_csv_row_count": 680,
+      "raw_source_row_count": 34880,
+      "raw_source_sha256": "cad6a5f533d6fbb49e35ebfa2ec5436ad75af83cc8914fc930b7b7cd6d9ff73f",
+      "recording_id": "S52_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 335,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.48",
+      "pose_csv_row_count": 335,
+      "raw_source_row_count": 17250,
+      "raw_source_sha256": "d1a7ddcdbf42e22566beeaa4ebe9cec445568c451d75a170203fc825500bb1ac",
+      "recording_id": "S52_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1495,
+      "info_types": [],
+      "plot_rmse_2dp": "6.15",
+      "pose_csv_row_count": 1495,
+      "raw_source_row_count": 86895,
+      "raw_source_sha256": "d057dda06d72d1de6a384beda0a0120476c1945d4eb4bf4aaaceb1395e3fc4ae",
+      "recording_id": "S53_A01_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1630,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.48",
+      "pose_csv_row_count": 1630,
+      "raw_source_row_count": 91010,
+      "raw_source_sha256": "1d03d1674eadeb0553f5c67493261651d6ec0378bc5a849f435e7332576a4a28",
+      "recording_id": "S53_A02_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1285,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "6.27",
+      "pose_csv_row_count": 1285,
+      "raw_source_row_count": 71915,
+      "raw_source_sha256": "3cf06958a39f258e7a3a0f02b829c94d890befb8fbaa9e6c77b00be517c20608",
+      "recording_id": "S53_A03_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 798,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.04",
+      "pose_csv_row_count": 798,
+      "raw_source_row_count": 45005,
+      "raw_source_sha256": "c9badc1645201db3150f639254315dab8e7a4bd483103bc7318b685e9b324054",
+      "recording_id": "S53_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 930,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.67",
+      "pose_csv_row_count": 930,
+      "raw_source_row_count": 48875,
+      "raw_source_sha256": "edd94be177312bc489d7be44b8d4cd47d0273cb024c4b4ac37ae868a42cc82d3",
+      "recording_id": "S53_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 910,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.70",
+      "pose_csv_row_count": 910,
+      "raw_source_row_count": 47860,
+      "raw_source_sha256": "0b654ef0d2971940cc325e3f2a39e45acb601d93a585a223b449d084b7448772",
+      "recording_id": "S53_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 924,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.73",
+      "pose_csv_row_count": 924,
+      "raw_source_row_count": 47010,
+      "raw_source_sha256": "46b486b24188233b6f8e9d509ba6af74cf0edb07cc362efeef5d44d5eef0631b",
+      "recording_id": "S53_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 11,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 934,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.08",
+      "pose_csv_row_count": 934,
+      "raw_source_row_count": 49990,
+      "raw_source_sha256": "186f7463cd3e8b3756a4219a2a0c4d25b16bb17ee9d89216c597c235bd5394e5",
+      "recording_id": "S53_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 689,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.60",
+      "pose_csv_row_count": 689,
+      "raw_source_row_count": 36745,
+      "raw_source_sha256": "baae628b44409cd8cbd7114ffc149d6b4e5bd70483c8b34b8ca60549d477088f",
+      "recording_id": "S53_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 6,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 735,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.31",
+      "pose_csv_row_count": 735,
+      "raw_source_row_count": 39360,
+      "raw_source_sha256": "a429d41c6902951a940ff3945d3425bf4b0c6f41a3e491544c66854f6f538243",
+      "recording_id": "S53_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 713,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.05",
+      "pose_csv_row_count": 713,
+      "raw_source_row_count": 38540,
+      "raw_source_sha256": "2cc06e17819bb56af85e3816c5eecd44b7658066ff0d4ed282f801fdc499d7dd",
+      "recording_id": "S53_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 639,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.36",
+      "pose_csv_row_count": 639,
+      "raw_source_row_count": 34380,
+      "raw_source_sha256": "2747f685d693bb32aaddc8a4390024c1f98d7457d8b52b253487ce896938d462",
+      "recording_id": "S53_A12_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [
+        "mot",
+        "raw"
+      ],
+      "decoded_frame_count": 368,
+      "info_types": [
+        "csv",
+        "mot",
+        "mp4",
+        "raw"
+      ],
+      "plot_rmse_2dp": "10.79",
+      "pose_csv_row_count": 368,
+      "raw_source_row_count": 19535,
+      "raw_source_sha256": "b99799ef68435d62ae4eeb72db1d38bebe650563190cac5325b8734049d2a8ac",
+      "recording_id": "S53_A13_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "AMBIGUOUS_SOURCE_MAPPING",
+      "sync_override_types": [
+        "csv",
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1082,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.77",
+      "pose_csv_row_count": 1082,
+      "raw_source_row_count": 75310,
+      "raw_source_sha256": "4e04decee3480ffefb7fbf068a267aa4967fff851a051624fe44c7aff6045285",
+      "recording_id": "S54_A01_T03",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1172,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "2.72",
+      "pose_csv_row_count": 1172,
+      "raw_source_row_count": 67300,
+      "raw_source_sha256": "2829dc43de858709e613831e07372fe47dd3605f9b3e43e8fe666f9256f1aeb8",
+      "recording_id": "S54_A02_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1045,
+      "info_types": [],
+      "plot_rmse_2dp": "3.95",
+      "pose_csv_row_count": 1045,
+      "raw_source_row_count": 58515,
+      "raw_source_sha256": "9fc4463e76364e5ef7600e9d17a785ef6eb672bf64c91c52e572f2f7264be1f9",
+      "recording_id": "S54_A03_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 554,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.98",
+      "pose_csv_row_count": 554,
+      "raw_source_row_count": 30855,
+      "raw_source_sha256": "56a0979899dcc3c85a2552fce02b031c2487c1198f8cefa6efb6a8f665440a94",
+      "recording_id": "S54_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 838,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.93",
+      "pose_csv_row_count": 838,
+      "raw_source_row_count": 43930,
+      "raw_source_sha256": "82025416be0bdf6969e31e60d8285e77b01436d6d43dd89018242d7d5382ac49",
+      "recording_id": "S54_A05_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 893,
+      "info_types": [],
+      "plot_rmse_2dp": "21.81",
+      "pose_csv_row_count": 893,
+      "raw_source_row_count": 47280,
+      "raw_source_sha256": "6df541679c1d4fd48971d68638d40f188dd637e89bf15328fa410fea1b67d191",
+      "recording_id": "S54_A06_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 934,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.83",
+      "pose_csv_row_count": 934,
+      "raw_source_row_count": 48955,
+      "raw_source_sha256": "122cdd21c7a996229f40219c759a3db082050e2898eaee2cea51c65abb729972",
+      "recording_id": "S54_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 797,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.89",
+      "pose_csv_row_count": 797,
+      "raw_source_row_count": 41635,
+      "raw_source_sha256": "6a96fe8cf0dbb90f38c009a8a9ac60319485b5a10d271e9fbdf80796bd4659a3",
+      "recording_id": "S54_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 888,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.92",
+      "pose_csv_row_count": 888,
+      "raw_source_row_count": 47735,
+      "raw_source_sha256": "de8e1f6978d91fb04a6a26f7f0c19738f33c19ada1d8fde59fc3236d212e2f48",
+      "recording_id": "S54_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 681,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "7.73",
+      "pose_csv_row_count": 681,
+      "raw_source_row_count": 36450,
+      "raw_source_sha256": "7f8370168e47ad7b68689f4bfd6ec407de613232ae84b9f9794f81f3519af614",
+      "recording_id": "S54_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 574,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.59",
+      "pose_csv_row_count": 574,
+      "raw_source_row_count": 30935,
+      "raw_source_sha256": "647cedb067eff4440cfb4de05f243c460f03803d9f3148a5e2abd7d600242ca0",
+      "recording_id": "S54_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 516,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "7.97",
+      "pose_csv_row_count": 516,
+      "raw_source_row_count": 27585,
+      "raw_source_sha256": "ecf033aebdf905dd85a064d0ecf82bba731cf3e5bbb3e4842d2cf6f2ebbfa045",
+      "recording_id": "S54_A12_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 344,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.11",
+      "pose_csv_row_count": 344,
+      "raw_source_row_count": 18380,
+      "raw_source_sha256": "e0daf813d5db2f809daa615e7716dd7a5754385bd173309dba138a861816ee60",
+      "recording_id": "S54_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1327,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "4.79",
+      "pose_csv_row_count": 1327,
+      "raw_source_row_count": 73875,
+      "raw_source_sha256": "85891cba1a7c9a1247128c63568969fbc74a71ba1f76a2aba957c16a83ec2cd4",
+      "recording_id": "S55_A01_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1732,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "3.25",
+      "pose_csv_row_count": 1732,
+      "raw_source_row_count": 96255,
+      "raw_source_sha256": "691460ffeb7933073f3862b658b52d3257bededa4fa16f2530620bc2f8f6a97e",
+      "recording_id": "S55_A02_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1261,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "4.15",
+      "pose_csv_row_count": 1261,
+      "raw_source_row_count": 69320,
+      "raw_source_sha256": "05b2583d14929cfc47f8376cf09b966f2debd63733b96fa982addafb9646356c",
+      "recording_id": "S55_A03_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 734,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.36",
+      "pose_csv_row_count": 734,
+      "raw_source_row_count": 39545,
+      "raw_source_sha256": "7f180966f88afcf6feb5958ab18888541715eb09c28505b78900c4c938e61a95",
+      "recording_id": "S55_A04_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 889,
+      "info_types": [],
+      "plot_rmse_2dp": "10.99",
+      "pose_csv_row_count": 889,
+      "raw_source_row_count": 46295,
+      "raw_source_sha256": "404ebe9d97be53d75d80d50c9a97e507ef7f486583c0d916cfe9f871edd507d9",
+      "recording_id": "S55_A05_T02",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 854,
+      "info_types": [],
+      "plot_rmse_2dp": "23.70",
+      "pose_csv_row_count": 854,
+      "raw_source_row_count": 44680,
+      "raw_source_sha256": "1faf96228c04190a98d5025535fca12afc91071ef5fa0d68990581f48bf1005e",
+      "recording_id": "S55_A06_T03",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 798,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "20.19",
+      "pose_csv_row_count": 798,
+      "raw_source_row_count": 41730,
+      "raw_source_sha256": "2d2114e55c35d459ecaa192c87d12cacea5857ed029129f84e0fc2f76bdac144",
+      "recording_id": "S55_A07_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 9,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 805,
+      "info_types": [],
+      "plot_rmse_2dp": "9.05",
+      "pose_csv_row_count": 805,
+      "raw_source_row_count": 42210,
+      "raw_source_sha256": "4f48079eda53de37ef782fb9660fec1e1d7b242fae5982c65128f4c171c7aa47",
+      "recording_id": "S55_A08_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 876,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "6.94",
+      "pose_csv_row_count": 876,
+      "raw_source_row_count": 45760,
+      "raw_source_sha256": "0d172fae56f8fc24949b91dd199bffa35cee239c1febfaedca5f5fd567833059",
+      "recording_id": "S55_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 584,
+      "info_types": [],
+      "plot_rmse_2dp": "6.32",
+      "pose_csv_row_count": 584,
+      "raw_source_row_count": 30675,
+      "raw_source_sha256": "3b339a732f2f8a475677c423f8d25079f949fce71876e5171e81ae2c286928ef",
+      "recording_id": "S55_A10_T03",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 659,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.25",
+      "pose_csv_row_count": 659,
+      "raw_source_row_count": 34175,
+      "raw_source_sha256": "a8b5d7d1679d0a2d405484abc36a484176074f134094acf6c86df6df438e614b",
+      "recording_id": "S55_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 683,
+      "info_types": [],
+      "plot_rmse_2dp": "5.50",
+      "pose_csv_row_count": 683,
+      "raw_source_row_count": 35400,
+      "raw_source_sha256": "486676a9ee11f10d21ea55eaa860f1724b3d16a0d7c757174748f08eed000cbd",
+      "recording_id": "S55_A12_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 355,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.57",
+      "pose_csv_row_count": 355,
+      "raw_source_row_count": 20005,
+      "raw_source_sha256": "250bafccdc04c971c5fc32790a5ec62af39346c7391feae77a609de709245018",
+      "recording_id": "S55_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1073,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "7.41",
+      "pose_csv_row_count": 1073,
+      "raw_source_row_count": 61030,
+      "raw_source_sha256": "2f9c0d906574dfae3aa4fcad091c40431f470f0870e51732653de2d77d464e25",
+      "recording_id": "S56_A01_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 3,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1188,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "6.49",
+      "pose_csv_row_count": 1188,
+      "raw_source_row_count": 66705,
+      "raw_source_sha256": "d75bd8f0eb484e681aa9b6c691763151226cb59cc807d16cc95c6e4f4847302f",
+      "recording_id": "S56_A02_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1049,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "7.30",
+      "pose_csv_row_count": 1049,
+      "raw_source_row_count": 58650,
+      "raw_source_sha256": "85c345c7a39e65f3d083f5ef950e90366780f64843a4c3fa50e2399f6f9c7e15",
+      "recording_id": "S56_A03_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 3,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 782,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.84",
+      "pose_csv_row_count": 782,
+      "raw_source_row_count": 41055,
+      "raw_source_sha256": "6af991e94780d36f996a8504c770d1c3c6f4c4c0a00942d1a6200081cefb0366",
+      "recording_id": "S56_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 859,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.11",
+      "pose_csv_row_count": 859,
+      "raw_source_row_count": 37995,
+      "raw_source_sha256": "fc2b3343e27c8499d680397d071a864bf3d76263cae6107baaaa31af665c9ebc",
+      "recording_id": "S56_A05_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 769,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "21.39",
+      "pose_csv_row_count": 769,
+      "raw_source_row_count": 42815,
+      "raw_source_sha256": "e6a521f325a59de41bc1279f9c330320b05043a4f0ea356a790e1f37d478325a",
+      "recording_id": "S56_A06_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 720,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "14.90",
+      "pose_csv_row_count": 720,
+      "raw_source_row_count": 39235,
+      "raw_source_sha256": "4c84a1c4517db6208a38d2173ee84185eab422477b1605f1a24955ea0e45c904",
+      "recording_id": "S56_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 12,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 691,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "8.73",
+      "pose_csv_row_count": 691,
+      "raw_source_row_count": 38285,
+      "raw_source_sha256": "e68f43250193859631081a731baeb339c5376dff724199b65ae760a7d191a150",
+      "recording_id": "S56_A08_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 807,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "5.13",
+      "pose_csv_row_count": 807,
+      "raw_source_row_count": 43105,
+      "raw_source_sha256": "8832034bcede44bff245bdf3ef9c9f84002b4834cad31bc4b3bd51629a384fa8",
+      "recording_id": "S56_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 680,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.88",
+      "pose_csv_row_count": 680,
+      "raw_source_row_count": 36235,
+      "raw_source_sha256": "bdf7f044508a15961072349f933b4223e6ae0f67f2bb3ff31279cf1ff4c98681",
+      "recording_id": "S56_A10_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 1,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 509,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.36",
+      "pose_csv_row_count": 509,
+      "raw_source_row_count": 27605,
+      "raw_source_sha256": "c3fcf84be7c38f521f941e1141c5fff26f9d9e4f7ab71412f1fc1c9c474d873b",
+      "recording_id": "S56_A11_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 504,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.08",
+      "pose_csv_row_count": 504,
+      "raw_source_row_count": 27045,
+      "raw_source_sha256": "d789ef554146d77ba41138aa76fa37d54748954d64b9cd3d1684e915710df8f1",
+      "recording_id": "S56_A12_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 387,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "4.46",
+      "pose_csv_row_count": 387,
+      "raw_source_row_count": 20600,
+      "raw_source_sha256": "b3eeadf8d951503d4b930dccdc3007162b3f264cf54a2333a3722393b62f2140",
+      "recording_id": "S56_A13_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1050,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "7.20",
+      "pose_csv_row_count": 1050,
+      "raw_source_row_count": 59290,
+      "raw_source_sha256": "128a6062d86e6037a5117e0f9e903cb35b794a9246d1bf5130d3b4c40b36386a",
+      "recording_id": "S57_A01_T02",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 1,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1894,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "2.30",
+      "pose_csv_row_count": 1894,
+      "raw_source_row_count": 103910,
+      "raw_source_sha256": "a52c4c26c9ccd9694b67200e050a0cf4d7b468875473d463273f7395b24a5162",
+      "recording_id": "S57_A02_T03",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1103,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "6.18",
+      "pose_csv_row_count": 1103,
+      "raw_source_row_count": 59625,
+      "raw_source_sha256": "0bb95bbe01f94cda5a756b767aeab774556d61a53dcb3abcf4bfc7157b5d178f",
+      "recording_id": "S57_A03_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 729,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "3.58",
+      "pose_csv_row_count": 729,
+      "raw_source_row_count": 38395,
+      "raw_source_sha256": "cf5e7e7047796b581c25230359772ec6e14af90ebe5eb5ae5175a0cd428ef95f",
+      "recording_id": "S57_A04_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 859,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "20.13",
+      "pose_csv_row_count": 859,
+      "raw_source_row_count": 46165,
+      "raw_source_sha256": "d11a4f0dc4b37306c12028d74de266230c0e3ae525dfd4240c6b8b6bb6b557b1",
+      "recording_id": "S57_A05_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 5,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 854,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "34.96",
+      "pose_csv_row_count": 854,
+      "raw_source_row_count": 45480,
+      "raw_source_sha256": "84aad4fa6f6ee998af6553437fb06daf33b3eb025e4885d1cd596533ad62189a",
+      "recording_id": "S57_A06_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [
+        "mot",
+        "raw"
+      ],
+      "decoded_frame_count": 761,
+      "info_types": [
+        "csv",
+        "mot",
+        "mp4",
+        "raw"
+      ],
+      "plot_rmse_2dp": "17.78",
+      "pose_csv_row_count": 761,
+      "raw_source_row_count": 40950,
+      "raw_source_sha256": "90e0c8e4124237bcba8cb6fb0a672e00b3d5598393a3e627db47191acf1ac498",
+      "recording_id": "S57_A07_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 11,
+      "source_mapping_status": "AMBIGUOUS_SOURCE_MAPPING",
+      "sync_override_types": [
+        "csv",
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 732,
+      "info_types": [
+        "mot",
+        "raw"
+      ],
+      "plot_rmse_2dp": "13.68",
+      "pose_csv_row_count": 732,
+      "raw_source_row_count": 38920,
+      "raw_source_sha256": "7526b6dd61e1deaf57e8f6f05bd36d00637c80bff93326333b0c9d0d91ea5509",
+      "recording_id": "S57_A08_T01",
+      "selected_direction": "IMU",
+      "selected_imu_cut_frames": 2,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "mot",
+        "raw"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 1182,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "9.47",
+      "pose_csv_row_count": 1182,
+      "raw_source_row_count": 61350,
+      "raw_source_sha256": "4b6d092d3873e657d2ad8af493cc42b3a7c10113a036d4fd00b828b2f2fc7e9a",
+      "recording_id": "S57_A09_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 536,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "11.72",
+      "pose_csv_row_count": 536,
+      "raw_source_row_count": 28545,
+      "raw_source_sha256": "2be35db2d6eaa71605053c90fc44dade05ebfc97c67c05bea6424a634a66cb99",
+      "recording_id": "S57_A10_T02",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 2,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 513,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "13.00",
+      "pose_csv_row_count": 513,
+      "raw_source_row_count": 27355,
+      "raw_source_sha256": "a86dbd01e2006d01cb5c0c2155f01d9242f1e3e2f3de379782a702c01dca35e6",
+      "recording_id": "S57_A11_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 3,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 496,
+      "info_types": [],
+      "plot_rmse_2dp": "14.14",
+      "pose_csv_row_count": 496,
+      "raw_source_row_count": 26555,
+      "raw_source_sha256": "85aadf368f3c350ce4330aad8dc1a34313cfe6f629c80fa2c26b631dc5944d5a",
+      "recording_id": "S57_A12_T01",
+      "selected_direction": "ZERO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 0,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": []
+    },
+    {
+      "conflicting_logged_types": [],
+      "decoded_frame_count": 443,
+      "info_types": [
+        "csv",
+        "mp4"
+      ],
+      "plot_rmse_2dp": "12.03",
+      "pose_csv_row_count": 443,
+      "raw_source_row_count": 24450,
+      "raw_source_sha256": "1e8483c9eabd822340391072557165c91f4fe3e3dbd85d3a4e4b784f16d7a45e",
+      "recording_id": "S57_A13_T01",
+      "selected_direction": "VIDEO",
+      "selected_imu_cut_frames": 0,
+      "selected_video_cut_frames": 4,
+      "source_mapping_status": "SOURCE_CROP_DIRECTION_RECONCILED_CLOCK_UNRESOLVED",
+      "sync_override_types": [
+        "csv"
+      ]
+    }
+  ],
+  "schema_version": "0.5.1",
+  "source_evidence": {
+    "analysis_archive": {
+      "info_to_sync_sha256": "4596803e90e2908717ab227846f7a1c10a5c6b29c9bcbddb90e940a7259c519f",
+      "published_md5": "d68f2a16fa3fcd8cec090a3169e4764e",
+      "sha256": "3696e2b8dd211b6aedf35f4ca635190e5ee24a545da69847c7c3f6269a2bf64c",
+      "sync_plot_hashes": {
+        "analysis/videoandimusync/A01_(walk_forward)_synchronize.svg": "e2032a704830171c2b376ea4f247d70e960c560faf89157390ab7a1620d44a02",
+        "analysis/videoandimusync/A02_(walk_backward)_synchronize.svg": "dfa57bb70166223f2b96e787dd80a032000003750d415740d613eccbec4e1097",
+        "analysis/videoandimusync/A03_(walk_along)_synchronize.svg": "e86142b7e5387f7b8b4ae9d2d6bd6dd994ac5c1b3c9165541be635661f7e65c6",
+        "analysis/videoandimusync/A04_(sit_to_stand)_synchronize.svg": "2691f023398f4eaf30e3af51059f0d6472c2fc0189d5812dc5b37242f90d0504",
+        "analysis/videoandimusync/A05_(move_right_arm)_synchronize.svg": "3a4bb9eab688968f1778ff81a1d815e5ec4c03287c353b027a58ed0ad5085e09",
+        "analysis/videoandimusync/A06_(move_left_arm)_synchronize.svg": "f6ad07fa2740dcb03229ed5c6d8b7a1d775b4d12cced59f96be446b10568d4ac",
+        "analysis/videoandimusync/A07_(drink_right_arm)_synchronize.svg": "b2936dc3ff47bbc04b8e2fb404fe85febc8d534a8397b6f95e4298fcc638d642",
+        "analysis/videoandimusync/A08_(drink_left_arm)_synchronize.svg": "b5ed30c0ecfe5c1ed9335354a7233e965ecd5c1c11af24a12cfb09a147a6855f",
+        "analysis/videoandimusync/A09_(assemble_both_arms)_synchronize.svg": "b082673b47757b78c1d6ff98686e96a0964f4c25d49a7d98584edc20541b9ca7",
+        "analysis/videoandimusync/A10_(throw_both_arms)_synchronize.svg": "b1bef9a0c9e81ffde5c33efe3ac6b122c689acb25b39d0f3a2cc85d5af26aa80",
+        "analysis/videoandimusync/A11_(reachup_right_arm)_synchronize.svg": "f9e60637a69eaecb330d1f372bd8addf0e1fcfd67389a30a635ba38e4cf363be",
+        "analysis/videoandimusync/A12_(reachup_left_arm)_synchronize.svg": "1e2ffe6c4c8648f042c80cbb6bfd820e2cfc0175a91261d665bdb1df009d9395",
+        "analysis/videoandimusync/A13_(tear_both_arms)_synchronize.svg": "bd21909515fb7dccd73ebebfaa26eebd1af1c4d00ad458db69e914729836e49e"
+      }
+    },
+    "authoritative_article": {
+      "article_url": "https://uvadoc.uva.es/bitstream/handle/10324/64478/s41597-023-02554-9.pdf?isAllowed=y&sequence=1",
+      "doi": "10.1038/s41597-023-02554-9",
+      "semantic_review_status": "PINNED_CONTENT_MANUALLY_REVIEWED",
+      "sha256": "c6927d0fff9f4ebbf371ddc46f5c2f67b416021b630fe2eba7770a55caf36d36",
+      "size_bytes": 6614907
+    },
+    "dataset_sync": {
+      "base_sto_companion_count": 208,
+      "complete_sync_subtree_entry_count": 234,
+      "complete_sync_subtree_file_count": 217,
+      "complete_sync_subtree_matched_file_count": 217,
+      "override_count": 217,
+      "override_manifest_sha256": "352177dbca2fe17f84cb2bb221aa8cf0a1757616b8a49b6a1b78f6084e61a7f5",
+      "override_recording_count": 181,
+      "override_type_counts": {
+        "csv": 149,
+        "mot": 34,
+        "raw": 34
+      },
+      "raw_override_defects": {
+        "npose_rows_removed_total": 170,
+        "partial_five_sensor_cycle_override_count": 30,
+        "raw_override_count": 34,
+        "raw_overrides_removing_all_npose_rows_count": 34,
+        "removed_dynamic_observation_row_count": 648,
+        "removed_line_histogram": {
+          "116": 3,
+          "16": 12,
+          "25": 4,
+          "66": 1,
+          "8": 14
+        },
+        "removed_source_data_row_count": 818,
+        "strict_native_sample_status": "UNUSABLE_AS_CANONICAL_RAW_SAMPLE_TABLE"
+      },
+      "sync_all_paths_sha256": "8310351662ef1c378b484c000c0753f4eb5b99078737915562cbff629db6766b",
+      "sync_directory_count": 17,
+      "sync_directory_paths_sha256": "4e1463ba9a1ddda0912916ee1fa201128dc60a12c910506cbeac18d19a521400",
+      "sync_file_paths_sha256": "56b9609d46a61b05e54ed4ad4e1129bd87d2b7a839b92862af74eb7536717496"
+    },
+    "official_record_metadata": {
+      "record_id": 15075076,
+      "record_url": "https://zenodo.org/records/15075076",
+      "sha256": "97fd3f755aab65631ec19bff762fe848a609cee5324644f6baedf1d1b4f3926f",
+      "version": "v2.0.0"
+    },
+    "raw_independent_reconciliation": {
+      "all_record_hashes_equal": true,
+      "all_record_row_counts_equal": true,
+      "all_stream_statistics_equal": true,
+      "raw_recording_count": 208,
+      "reconciled_manifest_sha256": "f60170bdd1f46dd4004d46cb109f2e8913eb5d237e35277ad211773b90a5361b"
+    },
+    "snapshot": {
+      "asset_reference_count": 624,
+      "dataset_archive_sha256": "eff12be2f1c5a0cc7389726c754ea1c4ab19d8ca49c227b47344109cbf927841",
+      "independent_raw_scan": {
+        "aggregate_held_payload_fraction": {
+          "decimal_6": "0.857826",
+          "denominator": 10183005,
+          "numerator": 8735242
+        },
+        "dynamic_complete_five_sensor_cycle_count": 2036601,
+        "dynamic_observation_row_count": 10183005,
+        "exact_consecutive_distinct_payload_run_count": 1447763,
+        "exact_consecutive_held_payload_row_count": 8735242,
+        "held_observation_fraction": {
+          "definition": "PER_DYNAMIC_SENSOR_STREAM;(OBSERVATION_COUNT_MINUS_CONSECUTIVE_DISTINCT_EXACT_SOURCE_PAYLOAD_COUNT)/OBSERVATION_COUNT",
+          "maximum": {
+            "decimal_6": "0.920376",
+            "denominator": 9997,
+            "numerator": 9201,
+            "recording_id": "S53_A08_T02",
+            "sensor_label": "qsRLA",
+            "unreduced_denominator": 9997,
+            "unreduced_numerator": 9201
+          },
+          "median": {
+            "decimal_6": "0.855143",
+            "denominator": 20270682,
+            "middle_streams": [
+              {
+                "decimal_6": "0.855129",
+                "denominator": 7731,
+                "numerator": 6611,
+                "recording_id": "S48_A10_T02",
+                "sensor_label": "qsBACK",
+                "unreduced_denominator": 7731,
+                "unreduced_numerator": 6611
+              },
+              {
+                "decimal_6": "0.855157",
+                "denominator": 11799,
+                "numerator": 10090,
+                "recording_id": "S47_A05_T02",
+                "sensor_label": "qsBACK",
+                "unreduced_denominator": 11799,
+                "unreduced_numerator": 10090
+              }
+            ],
+            "numerator": 17334331
+          },
+          "minimum": {
+            "decimal_6": "0.797315",
+            "denominator": 3799,
+            "numerator": 3029,
+            "recording_id": "S56_A05_T01",
+            "sensor_label": "qsLLA",
+            "unreduced_denominator": 7598,
+            "unreduced_numerator": 6058
+          },
+          "stream_count": 1040
+        },
+        "npose_nonzero_timestamp_record_count": 11,
+        "npose_zero_timestamp_record_count": 197,
+        "raw_asset_manifest_sha256": "4974b0c05e91a2d5ca631541cb34b76ebeee6fdc8e466cdbc0f752e0e93ff9b6",
+        "raw_recording_count": 208,
+        "raw_source_bytes": 545308276,
+        "raw_source_row_count_including_npose": 10184045,
+        "source_timestamp_token_duplicate_count": 0,
+        "source_timestamp_token_reversal_count": 0,
+        "stream_count": 1040,
+        "timestamp_unit_interpreted_by_audit": false
+      },
+      "recording_count": 208,
+      "snapshot_manifest_sha256": "a6e2194aee5478718e6f92cf9306214e361b08bb61363998f1e6e59e7378f1eb",
+      "source_inventory_sha256": "9f328fec92c9921733ba94fd74602bdb6e1edb99ff27ab3025191a6889123b08"
+    },
+    "v04_frame_evidence": {
+      "decoded_frame_count": 179076,
+      "release_audit_sha256": "d24863d20347cf2c9ab092a9f7771ada3a88ec8fbc77a7b33788df5c0637a10e",
+      "valid_pts_frame_count": 179076
+    },
+    "vidimu_tools": {
+      "archive_sha256": "bc8820d5f79fcc2e58233474ed15aa2191faf2463e82b3d4d1ddacf44eaf9e27",
+      "authoritative_document_scope": {
+        "complete_release_file_count": 15,
+        "readme_sha256": "c8fc6a34bf55288b5c125f435029fd6de1ac9b52832b0596ed3548ac281a00ff",
+        "semantic_review_status": "PINNED_CONTENT_MANUALLY_REVIEWED"
+      },
+      "commit": "19beec4156f0109d46341a08f06b035d772afaec",
+      "release_kind": "PINNED_V1_0_ARCHIVE",
+      "required_member_hashes": {
+        ".gitignore": "0cd064765b740a9d791f15266ee55d644b4b0cf40294754c21d5901ed9c781c3",
+        "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "README.md": "c8fc6a34bf55288b5c125f435029fd6de1ac9b52832b0596ed3548ac281a00ff",
+        "imus/PlotImusIkJointAngles.ipynb": "8c76fb8a02498cf3b72ca024c217636d4d2b2851ee120d200a82db5e59e38dc3",
+        "imus/PlotImusRawQuats.ipynb": "622ef9c2a0513b1a0dcbd97625c6522474a2aaef62991f882e9118d18119b6e5",
+        "synchronize/EstimateFileSynchronization.ipynb": "a88c3bb86a27587ca30d99f820643bb48e27500e58f62b035174143e9c1e4865",
+        "synchronize/ModifyFilesToSync.ipynb": "5b719a4e6b80419df18f0711dc62f44e0d7cbdb6bb4337847f3281be097d5fbf",
+        "utils/fileProcessing.py": "2b534daa9887934824e0034ce7af42414ab1884743a581a598300949693f4331",
+        "utils/plotUtilities.py": "fcea1a34b5e8709ec05ef4cda82b2a53d2e3862b846f04f2e1aa0442ba049d72",
+        "utils/signalProcessing.py": "88e4701b71e7b7c048f64f1698220d22ee0887b97624aa2c38fae8d37861c591",
+        "utils/syncUtilities.py": "f2674ded71f19a837c9e7cb5f6678ae7944ad8f09932e029845d0766b55f139d",
+        "video/ConvertBodytrackToCSV.ipynb": "2f644ee17b2e5fa0d2ca60b9d583097a80df68f0abb6046062b155ace2f9159b",
+        "video/PlotVideoEstimatedJointAngles.ipynb": "f036d2d976196c889cfaf9a400ef4af44bf9d9a1859f94dd3974c16dac60d579",
+        "video/RecodeMP4toSmallsizefiles.ipynb": "b15a5f06a26a701c6c066b8c23ff06e3d4654b13df4fc726ca64871f1f64e2c7",
+        "video/ScriptsToBodyTrack.ipynb": "fcd622e674fff2342495f24ae7730ea87beecde5a4c34e1e68eab94912fe2f58"
+      },
+      "required_member_manifest_sha256": "22668e7886c5545e3a54d48e34a0125dae2c652db208c1dd2adaba95144d6012",
+      "transform_contract": {
+        "affine_drift_estimation": false,
+        "comparison_grid_hz": 30,
+        "csv_removed_rows": "cut_frames",
+        "imu_input_hz": 50,
+        "log_behavior": "LOGS_EACH_POSITIVE_DIRECTIONAL_CANDIDATE",
+        "maximum_tested_shift_samples": 14,
+        "mot_removed_rows": "floor(cut_frames*50/30)",
+        "mp4_transform": "SKIPPED",
+        "raw_removed_rows": "floor(cut_frames*5*50/30)",
+        "selected_direction_count_per_record": 1,
+        "selection_rule": "LOWER_DIRECTIONAL_RMSE"
+      }
+    },
+    "vidimu_v2_native_source_audit": {
+      "audit_sha256": "41277661f9e248da2f42c0703b69beec92bcaf0037b5d46264f64852ab22ecf1",
+      "raw_recording_count": 208,
+      "raw_source_row_count_including_npose": 10184045,
+      "source_parser_sha256": "244685dcb6a0de1910b23d729c644b91dc807c314690ddc7400ab7d99c3699ae",
+      "source_parser_version": "vidimu-native-source-v0.1.0"
+    }
+  },
+  "source_mapping_ambiguities": [
+    {
+      "ambiguity_type": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "applied_imu_cut_frames": 1,
+      "applied_mot_removed_rows": 1,
+      "applied_override_types": [
+        "csv",
+        "mot",
+        "raw"
+      ],
+      "applied_raw_removed_rows": 8,
+      "applied_video_cut_frames": 2,
+      "pairing_status": "AMBIGUOUS_SOURCE_MAPPING",
+      "plot_selected_direction": "VIDEO",
+      "recording_id": "S53_A13_T03"
+    },
+    {
+      "ambiguity_type": "DUAL_DIRECTION_APPLIED_OVERRIDE",
+      "applied_imu_cut_frames": 14,
+      "applied_mot_removed_rows": 23,
+      "applied_override_types": [
+        "csv",
+        "mot",
+        "raw"
+      ],
+      "applied_raw_removed_rows": 116,
+      "applied_video_cut_frames": 11,
+      "pairing_status": "AMBIGUOUS_SOURCE_MAPPING",
+      "plot_selected_direction": "VIDEO",
+      "recording_id": "S57_A07_T01"
+    }
+  ]
+}

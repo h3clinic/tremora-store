@@ -1,0 +1,21 @@
+{
+  "association_contract_version": "tremora-pose-frame-association-1.0.0",
+  "code_commit": "4503dec6fb3fe63b61222833fe5b4bfeaf7ed5b7",
+  "container_digest": null,
+  "deterministic_mode": false,
+  "inference_delegate_thread_count": null,
+  "inference_device": "cpu",
+  "manifest_version": "tremora-production-cv-model-manifest-1.0.0",
+  "model_family": "mediapipe.tasks.vision.HandLandmarker",
+  "model_id": "google-mediapipe-hand-landmarker-full-v1-float16",
+  "model_weights_dtype": "float16",
+  "model_weights_sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1",
+  "model_weights_size_bytes": 7819105,
+  "persisted_detection_coordinate_space": "DISPLAY_PIXEL",
+  "persisted_detection_dtype": "float32",
+  "preprocessing_config_sha256": "604ae12c25123b947f2eaba058ef9b689fe0dd7668cb08a0143dab893b38ea74",
+  "raw_detection_coordinate_space": "NORMALIZED_CV_INPUT",
+  "runtime_lock_sha256": "6f4ea7f65701cb149c92fedc58127ac7f2b6af384b4eb33dcd327f146e31e128",
+  "runtime_worker_concurrency_observed": 11,
+  "thread_count": null
+}
