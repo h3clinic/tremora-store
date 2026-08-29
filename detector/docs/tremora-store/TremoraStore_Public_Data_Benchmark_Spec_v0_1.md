@@ -380,9 +380,13 @@ The [PADS PhysioNet release](https://physionet.org/content/parkinsons-disease-sm
 
 Use it only for raw-axis schema coverage, tremor-band metadata, spectral round-trip preservation, and high-rate window-query performance. Do not use it for video–IMU alignment claims.
 
+**PADS-P0.1 ingest is `PASS`.** All fourteen conditions are satisfied against the real release: 469/469 participants, 5,159/5,159 assessment steps and 10,318/10,318 device files reconcile from the source metadata; 11,256 referenced files verify against the release's own `SHA256SUMS.txt`; 13,447,168 samples parse with every one of their 80,683,008 sensor values usable, no duplicate or non-monotonic Time, and no cadence or span deviation from the declared 100 Hz. Two separate processes writing to inode-disjoint empty roots produced the identical evidence hash `e25ce02f…`. See [`pads_p01_release_audit.json`](../../benchmarks/pads_p01_release_audit.json).
+
+The timing contract is `SOURCE_RELATIVE_UNIMODAL_CLOCK` with `relative_time_basis = SOURCE_TIME_COLUMN`: the release publishes a per-sample `Time` channel and the declared rate validates that timeline rather than generating it. The published clock is a real device clock — intervals in the first file run from 7.13 ms to 12.90 ms around a 9.99 ms median — so only the median interval is compared against the declared period. No window, spectral feature or video association is produced, and PADS-P0.2 stays closed until it is opened as its own milestone.
+
 ### Optional datasets
 
-EgoInertia-MI may be used for motor-analytics stress testing only after release, access, modalities, and license are independently verified. Simulated impairment in healthy volunteers is not clinical validation.
+EgoInertia-MI is a verified release: [arXiv:2607.03934](https://arxiv.org/abs/2607.03934), *EgoInertia-MI: A Multimodal Egocentric Vision and IMU Benchmark for Motor Impairment Assessment* (Alhamdoosh, Pala, Mohamed, Arvind), submitted 4 July 2026, with synchronized egocentric video and wearable IMU over 19 activities and three simulated severity levels. An earlier pass in this project recorded it as unverifiable and excluded it; that was a search failure, not a fact, and the exclusion is withdrawn. Simulated impairment in healthy volunteers is still not clinical validation, so it remains optional, off the critical path, and subject to the same audit path as any other dataset.
 
 ## 7. Research questions and measurements
 
@@ -556,9 +560,12 @@ Current status:
 | VIDIMU trust-anchored source snapshot v0.4 | `PASS`; three source objects and 624 assets hash-verified and exactly reconciled across all 208 records |
 | VIDIMU production CV finalization v0.4 | Gate B `PASS`; two clean, process/root/inode-disjoint all-208 executions produced byte-identical per-record Parquet and canonical hash `60c106a2…`; proof is bounded to the frozen observed environment |
 | VIDIMU synchronization and canonical materialization | Unopened; raw-to-video clocks, accepted continuity, frame–IMU indexes, windows, and spectra remain unresolved |
+| Cross-dataset timing-authority model | Implemented and frozen; VIDIMU binds `UNRESOLVED`, Ego4D `SOURCE_CANONICAL_TIMESTAMP`, PADS `SOURCE_RELATIVE_UNIMODAL_CLOCK` |
+| E4D-P0.1 Ego4D timing-authority audit | Machinery implemented; empirical gate not evaluated — the CLI returns `BLOCKED_INPUT_DATA_UNAVAILABLE` pending the signed licence and pinned assets |
+| PADS-P0.1 ingest audit | `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`; 14/14 conditions on the real release, reproduced across two processes |
 | MMAct scale benchmark | Pending access and ingestion |
 | Ego4D irregularity benchmark | Pending ingestion |
-| PADS spectral/schema benchmark | Pending ingestion |
+| PADS storage/spectral benchmark | Closed pending its own milestone; P0.1 emits no window or spectrum |
 | Comparative systems results | None yet |
 | BigData Healthcare | Conditional on benchmark completion |
 | MLBD | Strong backup; conditional on benchmark completion |

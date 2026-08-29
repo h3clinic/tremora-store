@@ -1,0 +1,312 @@
+{
+  "artifact_kind": "TREMORA_PADS_P01_INGEST_AUDIT",
+  "audit_execution_status": "PASS",
+  "authority": {
+    "assumption": "the published per-sample Time column is the task-local timeline; the declared sampling rate validates it and never generates it",
+    "contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+    "cross_wrist_alignment": "SOURCE_DECLARED_TASK_SIMULTANEITY",
+    "cross_wrist_uncertainty": "NOT_QUANTIFIED",
+    "dataset_id": "PADS",
+    "derived_under_assumption": true,
+    "hardware_sync_claim": false,
+    "modality": "INERTIAL_ONLY_NO_VIDEO",
+    "raw_shared_clock": false,
+    "relative_time_basis": "SOURCE_TIME_COLUMN",
+    "timeline_origin": "TASK_LOCAL_ZERO",
+    "timing_authority": "SOURCE_RELATIVE_UNIMODAL_CLOCK",
+    "video_pairing": "NOT_APPLICABLE"
+  },
+  "canonical_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+  "contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+  "gate_conditions": [
+    {
+      "condition": "PADS_ALL_SOURCE_FILES_HASH_VERIFIED",
+      "detail": "11256/11256 verified, 0 failed",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_RELEASE_STRUCTURE_RECONCILED",
+      "detail": "PADS_RELEASE_STRUCTURE_RECONCILED",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_EVERY_DECLARED_STREAM_PARSED",
+      "detail": "10318/10318 parsed, 0 refused",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_ROW_COUNTS_METADATA_DIRECTED",
+      "detail": "0 streams disagree with their own declared row count",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_SOURCE_TIME_IS_THE_TIMELINE",
+      "detail": "basis SOURCE_TIME_COLUMN, 0 streams with unusable Time",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_CADENCE_AGREES_WITH_DECLARED_RATE",
+      "detail": "0 cadence and 0 span deviations",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_SOURCE_ORDER_AND_UNITS_PRESERVED",
+      "detail": "0 canonicalization failures",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_NO_AMBIGUOUS_DECLARATION",
+      "detail": "0 ambiguous declarations",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_DEVICE_LOCATIONS_RECOGNIZED",
+      "detail": "0 unrecognized device locations",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_NO_BLANK_ROW_DISCARDED",
+      "detail": "0 streams with a blank source row",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_USABLE_VALUES_PRESENT",
+      "detail": "0 streams with no usable value",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_NO_VIDEO_ASSOCIATION_EMITTED",
+      "detail": "0 video-bearing field names",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_INDEPENDENT_REPRODUCTION_VERIFIED",
+      "detail": "PADS_INDEPENDENT_REPRODUCTION_VERIFIED",
+      "satisfied": true
+    },
+    {
+      "condition": "PADS_NO_INDEX_OR_WINDOW_ARTIFACT_EMITTED",
+      "detail": "0 forbidden artifacts emitted",
+      "satisfied": true
+    }
+  ],
+  "gate_conditions_satisfied": 14,
+  "gate_conditions_total": 14,
+  "gate_evaluated": true,
+  "gate_status": "PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK",
+  "implementation_version": "pads-p01-unimodal-ingest-audit-1.0.0",
+  "materialized_release_artifacts": 0,
+  "parser_version": "tremora-pads-movement-parser-0.1.0",
+  "per_task": {
+    "CrossArms": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "DrinkGlas": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "Entrainment": {
+      "declared_rows": 2048,
+      "expected_first_to_last_span_seconds": 20.47,
+      "expected_sample_support_seconds": 20.48,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 1921024,
+      "streams": 938
+    },
+    "HoldWeight": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "LiftHold": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "PointFinger": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "Relaxed": {
+      "declared_rows": 2048,
+      "expected_first_to_last_span_seconds": 20.47,
+      "expected_sample_support_seconds": 20.48,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 1921024,
+      "streams": 938
+    },
+    "RelaxedTask": {
+      "declared_rows": 2048,
+      "expected_first_to_last_span_seconds": 20.47,
+      "expected_sample_support_seconds": 20.48,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 1921024,
+      "streams": 938
+    },
+    "StretchHold": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "TouchIndex": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    },
+    "TouchNose": {
+      "declared_rows": 1024,
+      "expected_first_to_last_span_seconds": 10.23,
+      "expected_sample_support_seconds": 10.24,
+      "parsed": 938,
+      "refused": 0,
+      "samples": 960512,
+      "streams": 938
+    }
+  },
+  "release_contract_version": "tremora-pads-release-structure-1.0.0",
+  "release_gate_contract_version": "tremora-p01-release-gate-0.1.0",
+  "release_status": "EVALUATED",
+  "release_structure": {
+    "expected_assessments": 5159,
+    "expected_participants": 469,
+    "expected_streams": 10318,
+    "expected_tasks": [
+      "Relaxed",
+      "RelaxedTask",
+      "StretchHold",
+      "LiftHold",
+      "HoldWeight",
+      "PointFinger",
+      "DrinkGlas",
+      "CrossArms",
+      "TouchIndex",
+      "TouchNose",
+      "Entrainment"
+    ],
+    "failure_count": 0,
+    "failures": [],
+    "observed_assessments": 5159,
+    "observed_participants": 469,
+    "observed_streams": 10318,
+    "release_contract_version": "tremora-pads-release-structure-1.0.0",
+    "release_structure_status": "PADS_RELEASE_STRUCTURE_RECONCILED",
+    "release_version": "1.0.0",
+    "tasks_observed": [
+      "CrossArms",
+      "DrinkGlas",
+      "Entrainment",
+      "HoldWeight",
+      "LiftHold",
+      "PointFinger",
+      "Relaxed",
+      "RelaxedTask",
+      "StretchHold",
+      "TouchIndex",
+      "TouchNose"
+    ]
+  },
+  "release_version": "1.0.0",
+  "reproduction_receipts": {
+    "note": "Absolute roots and command arguments are reduced to their final component; the unredacted receipts are written beside the dataset root, not into this repository. The reproduction proof rests on the differing run ids, process ids and output-root device/inode identities together with the identical canonical evidence hash.",
+    "run_a": {
+      "canonical_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+      "contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p01-unimodal-ingest-audit-1.0.0",
+      "output_root_basename": "run_a",
+      "output_root_identity": "16777233:131504856",
+      "process_id": 15974,
+      "run_id": "d1de8edd88634c258a573d3fc597b9bf",
+      "schema_version": "pads-p0.1.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_b": {
+      "canonical_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+      "contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p01-unimodal-ingest-audit-1.0.0",
+      "output_root_basename": "run_b",
+      "output_root_identity": "16777233:131504857",
+      "process_id": 16018,
+      "run_id": "87d2d6580976411e8cf5f77957746ff7",
+      "schema_version": "pads-p0.1.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    }
+  },
+  "run_receipt": {
+    "canonical_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+    "contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+    "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+    "implementation_version": "pads-p01-unimodal-ingest-audit-1.0.0",
+    "output_root_basename": "run_b",
+    "output_root_identity": "16777233:131504857",
+    "process_id": 16018,
+    "run_id": "87d2d6580976411e8cf5f77957746ff7",
+    "schema_version": "pads-p0.1.0",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+  },
+  "samples": {
+    "duplicate_time": 0,
+    "nonmonotonic_time": 0,
+    "total": 13447168,
+    "usable_sensor_values": 80683008
+  },
+  "schema_version": "pads-p0.1.0",
+  "source_failure_count": 0,
+  "source_failures": [],
+  "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+  "streams": {
+    "cadence_deviating": 0,
+    "declared": 10318,
+    "failure_count": 0,
+    "failures": [],
+    "hash_failed": 0,
+    "hash_verified": 11256,
+    "noncanonical_source_order": 0,
+    "parsed": 10318,
+    "refused": 0,
+    "span_deviating": 0
+  },
+  "withheld_artifacts": {
+    "contiguous_window_tables": 0,
+    "frame_imu_index_tables": 0,
+    "spectral_feature_tables": 0,
+    "storage_benchmark_result_tables": 0,
+    "success_markers": 0
+  }
+}

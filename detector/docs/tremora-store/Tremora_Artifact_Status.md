@@ -1,16 +1,18 @@
 # Tremora artifact status
 
-**Status date:** 2026-08-28  
+**Status date:** 2026-08-29  
 **Authority:** This registry records scope status without modifying historical
 artifacts.
 
 | Artifact | Status | SHA-256 |
 |---|---|---|
-| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed | `dc8b54ce42792a5b88585a9fee78bde6604befa5898c9c447d785d0d3129cd83` |
+| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest is `PASS` and E4D-P0.1 is implemented but unevaluated | `338de96e74f4d0bda2f0d449585976e3a305adacca3f7249b56366f4d037f4f9` |
+| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1 and PADS-P0.1 contracts | `c91c9be294b682518c8c21a7f3b08f228e1cd84773e5d1da79459949fe30aa83` |
 | `fullmotion/detector/benchmarks/vidimu_v2_release_audit.json` | **Current implementation evidence**: deterministic `PASS` audit of all 208 pinned VIDIMU CSV/RAW pairs plus central-directory-only original-video candidate inventory | `41277661f9e248da2f42c0703b69beec92bcaf0037b5d46264f64852ab22ecf1` |
 | `fullmotion/detector/benchmarks/vidimu_v04_gate_b_release_audit.json` | **Current Gate-B empirical evidence**: `BYTE_IDENTICAL_SOURCE_TO_CV_PASS` / `PASS` for two clean, process/root/inode-disjoint all-208 executions in the frozen observed environment | `d24863d20347cf2c9ab092a9f7771ada3a88ec8fbc77a7b33788df5c0637a10e` |
 | `fullmotion/detector/benchmarks/vidimu_v05_sync_authority_audit.json` | **Current v0.5 authority evidence**: audit execution `PASS`, gate `NO_GO_RAW_NATIVE_CLOCK_AUTHORITY`; all 208 original RAW assets and all 217 released synchronization overrides reconcile, two records are `AMBIGUOUS_SOURCE_MAPPING`, and no canonical clocks or v0.6 artifacts were emitted | `3d4492f984ddffaed579da2e107aaf9f7d1e9cdae1ddc83629f8708d8e75bdec` |
 | `fullmotion/detector/benchmarks/vidimu_v05d_derived_alignment_release_audit.json` | **Current v0.5D evidence**: audit execution `PASS`, source-derived materialization gate `NO_GO`; all 217 source transformations reproduce byte-for-byte, but 2,036,601 RAW polling groups do not map one-to-one to 299,711 50 Hz STO/MOT ordinals, 30/34 RAW trims end mid group, and no alignment Parquet or success marker was emitted | `131a6110d699ed8d0ebd7611c820112f1fe6af5c0e44f116181bd4a8495ac1b0` |
+| `fullmotion/detector/benchmarks/pads_p01_release_audit.json` | **Current PADS-P0.1 empirical evidence**: audit execution `PASS`, gate `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`, 14/14 conditions; 469 participants, 5,159 assessment steps and 10,318 device files reconciled, 11,256 files hash-verified against the release's own `SHA256SUMS.txt`, 13,447,168 samples parsed, evidence hash `e25ce02f…` reproduced by two inode-disjoint processes | `6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749` |
 | `Tremora_IEEE_BigData_2026_research_brief.md` | **Superseded historical record**: abandoned participant-study and privileged-supervision scope; do not use for current claims or venue gates | `e28c563796816cb80febe1b9420b65230cc8de640e955ed98609865bda1d4c65` |
 | `Tremora_Engineering_Calibration_Manifest_v0_2.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `2aff25acc3025be7b04d67f6181deb443b878de423112d1175d45080b44f34db` |
 | `Tremora_Dataset_Audit_Manifest.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `3182d6813d4fbe18cf1606a28055b198f6314570746d0b5d9fccbb6ac9d97969` |
@@ -84,3 +86,43 @@ the source modifier skips MP4. No `sto_alignment_contracts.parquet`,
 generic success marker, or `_STO_DERIVED_ALIGNMENT_SUCCESS` marker was
 materialized. The requested final success commit was withheld, and v0.6D
 remains closed pending a newly versioned, semantically corrected contract.
+
+
+## Cross-dataset P0.1 branch
+
+The cross-dataset timing-authority model, the Ego4D E4D-P0.1 machinery and the
+PADS-P0.1 ingest audit are implemented on branch `e4d-p0.1-timing-authority`.
+Eight frozen tiers decide in code what may be materialized; VIDIMU binds
+`UNRESOLVED`, so excluding it from paired indexing is a type error rather than
+a policy, and the v0.5/v0.5D reports stay hash-pinned by
+`detector/tests/test_timing_authority_contract.py`.
+
+**E4D-P0.1 is machinery only.** Ego4D requires a signed licence and pinned
+assets that this project does not hold, so the audit has never been evaluated
+against Ego4D data: the CLI returns `BLOCKED_INPUT_DATA_UNAVAILABLE` and exits
+4. No Ego4D verdict, evidence hash, subset manifest, frame–IMU index or window
+exists, and none may be cited.
+
+**PADS-P0.1 is `PASS`.** The audit ran against the extracted PhysioNet 1.0.0
+release and satisfied all fourteen conditions, including the two that bind the
+whole release: structural reconciliation of 469 x 11 x 2 from the source
+metadata, and independent reproduction across two child processes writing to
+inode-disjoint empty output roots. Both conditions were part of the contract
+before the first authoritative run, not added after seeing a result. As with
+the v0.4 Gate-B and v0.5D receipts, the reproduction proof is execution
+receipts under a trusted procedure in one frozen environment; it is not
+cryptographic remote attestation. PADS-P0.2 — indexes, windows, spectra,
+resampling ablations — remains closed.
+
+**Provenance.** This branch is a re-derivation. An earlier build of the same
+design was produced in an ephemeral environment and lost with it, together with
+the adversarial reviews it had passed. The code here was rebuilt from the
+architecture and has not carried those reviews; its commit messages say so.
+
+**Correction.** An earlier pass recorded EgoInertia-MI as `UNVERIFIED_SOURCE`
+and excluded it as probably fabricated. That was a search failure, not a fact.
+arXiv:2607.03934 resolves to *EgoInertia-MI: A Multimodal Egocentric Vision and
+IMU Benchmark for Motor Impairment Assessment* (Alhamdoosh, Pala, Mohamed,
+Arvind), submitted 4 July 2026. The exclusion is withdrawn; the dataset remains
+optional and off the critical path because its impairment is simulated by
+healthy volunteers.

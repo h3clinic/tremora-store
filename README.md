@@ -16,6 +16,12 @@ validation data, or redistributed VIDIMU source archives.
 - No canonical clocks, frame-to-IMU indexes, multimodal windows, alignment
   Parquet tables, or synchronization success markers are claimed by v0.5 or
   v0.5D.
+- PADS-P0.1: ingest audit `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`, 14/14
+  conditions against the published PhysioNet release, reproduced across two
+  processes.
+- E4D-P0.1: machinery only. Ego4D needs a signed licence and pinned assets, so
+  the audit has never run against Ego4D data -- the CLI returns
+  `BLOCKED_INPUT_DATA_UNAVAILABLE` and exits 4.
 
 The v0.5D audit reproduced all 217 published non-MP4 source transformations
 byte-for-byte. It withheld materialization because the released evidence does
