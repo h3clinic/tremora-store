@@ -117,6 +117,10 @@ class DependencyVerification:
     observed_report_sha256: str | None = None
     observed_evidence_sha256: str | None = None
     observed_manifest_sha256: str | None = None
+    #: The pin actually read from the supplied file.  The audit uses this
+    #: rather than the code constant, so the file is a real input and a
+    #: substituted pin is visible in the published evidence.
+    pinned: PinnedDependency | None = None
 
     @property
     def verified(self) -> bool:
@@ -199,10 +203,12 @@ def verify_dependency(
         pinned = load_dependency(dependency_path)
     except PadsDependencyError as exc:
         return DependencyVerification(DEPENDENCY_FILE_MALFORMED, str(exc))
+    carry = {"pinned": pinned}
 
     if not report_path.is_file():
         return DependencyVerification(
-            P01_REPORT_ABSENT, f"{P01_REPORT_FILENAME} is not present"
+            P01_REPORT_ABSENT, f"{P01_REPORT_FILENAME} is not present",
+            **carry,
         )
     observed_report = _sha256_file(report_path)
     if observed_report != pinned.p01_report_sha256:
@@ -210,13 +216,15 @@ def verify_dependency(
             P01_REPORT_HASH_MISMATCH,
             "the published P0.1 report is not the pinned one",
             observed_report_sha256=observed_report,
+            **carry,
         )
 
     try:
         report = json.loads(report_path.read_bytes().decode("utf-8"))
     except (OSError, ValueError) as exc:  # pragma: no cover - hash already matched
         return DependencyVerification(
-            DEPENDENCY_FILE_MALFORMED, f"P0.1 report unreadable: {exc}"
+            DEPENDENCY_FILE_MALFORMED, f"P0.1 report unreadable: {exc}",
+            **carry,
         )
 
     if report.get("gate_status") != pinned.p01_gate_status:
@@ -224,6 +232,7 @@ def verify_dependency(
             P01_GATE_NOT_PASS,
             f"P0.1 gate is {report.get('gate_status')!r}",
             observed_report_sha256=observed_report,
+            **carry,
         )
     observed_evidence = report.get("canonical_evidence_sha256")
     if observed_evidence != pinned.p01_evidence_sha256:
@@ -232,12 +241,14 @@ def verify_dependency(
             "the P0.1 evidence hash is not the pinned one",
             observed_report_sha256=observed_report,
             observed_evidence_sha256=observed_evidence,
+            **carry,
         )
     if report.get("contract_version") != pinned.p01_contract_version:
         return DependencyVerification(
             P01_CONTRACT_MISMATCH,
             "the P0.1 contract version is not the pinned one",
             observed_report_sha256=observed_report,
+            **carry,
         )
 
     structure = report.get("release_structure", {})
@@ -259,6 +270,7 @@ def verify_dependency(
             f"P0.1 reports {observed_counts} against pinned {expected_counts}",
             observed_report_sha256=observed_report,
             observed_evidence_sha256=observed_evidence,
+            **carry,
         )
 
     checksum_path = release_root / CHECKSUM_FILENAME
@@ -268,6 +280,7 @@ def verify_dependency(
             "the pinned release root or its checksum list is not present",
             observed_report_sha256=observed_report,
             observed_evidence_sha256=observed_evidence,
+            **carry,
         )
     observed_manifest = _sha256_file(checksum_path)
     if observed_manifest != pinned.source_manifest_sha256:
@@ -277,6 +290,7 @@ def verify_dependency(
             observed_report_sha256=observed_report,
             observed_evidence_sha256=observed_evidence,
             observed_manifest_sha256=observed_manifest,
+            **carry,
         )
 
     return DependencyVerification(
@@ -285,6 +299,7 @@ def verify_dependency(
         observed_report_sha256=observed_report,
         observed_evidence_sha256=observed_evidence,
         observed_manifest_sha256=observed_manifest,
+        **carry,
     )
 
 
