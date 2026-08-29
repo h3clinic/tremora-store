@@ -233,6 +233,7 @@ def pads_bilateral_window_pairs_schema() -> pa.Schema:
         pa.field("right_window_id", pa.string(), nullable=False),
         pa.field("pairing_status", pa.string(), nullable=False),
         pa.field("pairing_authority", pa.string(), nullable=False),
+        pa.field("cross_wrist_clock_alignment", pa.string(), nullable=False),
         pa.field("sample_level_fusion_allowed", pa.bool_(), nullable=False),
         pa.field("split_group_id", pa.string(), nullable=False),
         pa.field("outer_fold", pa.int32(), nullable=False),
