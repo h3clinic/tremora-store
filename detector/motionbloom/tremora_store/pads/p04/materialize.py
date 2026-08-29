@@ -7,6 +7,7 @@ import statistics
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +35,11 @@ from .contract import (
     band_of,
 )
 from .filters import FILTER_SPECS, design, filter_sha256, group_delay_taps
-from .rational_time import grid_for
+from .rational_time import (
+    grid_for,
+    polyphase_anchor,
+    supported_output_ordinals,
+)
 from .resample import (
     WINDOW_ELIGIBLE,
     derive_support,
@@ -80,6 +85,19 @@ class P04Result:
     sample_count_by_rate: dict[str, dict[str, int]] = field(
         default_factory=dict
     )
+    segments_derived: int = 0
+    derived_samples_written: int = 0
+    derived_sample_count_mismatches: int = 0
+    rational_timing_ordinals_checked: int = 0
+    rational_timing_mismatches: int = 0
+    rounded_thirty_hz_ordinals: int = 0
+    parent_ordinals_unbracketed: int = 0
+    ordinals_removed_by_parent_stage: int = 0
+    ordinals_admitted_over_unbracketed_parent: int = 0
+    ordinals_admitted_by_filter_guard_alone: int = 0
+    core_summary_rows: int = 0
+    edge_summary_rows: int = 0
+    rates_materialized: list[int] = field(default_factory=list)
     spectral_table_content_sha256: str = ""
     failures: list[str] = field(default_factory=list)
 
@@ -119,6 +137,29 @@ class P04Result:
                 rate: dict(sorted(counts.items()))
                 for rate, counts in sorted(self.sample_count_by_rate.items())
             },
+            "segments_derived": self.segments_derived,
+            "derived_samples_written": self.derived_samples_written,
+            "derived_sample_count_mismatches": (
+                self.derived_sample_count_mismatches
+            ),
+            "rational_timing_ordinals_checked": (
+                self.rational_timing_ordinals_checked
+            ),
+            "rational_timing_mismatches": self.rational_timing_mismatches,
+            "rounded_thirty_hz_ordinals": self.rounded_thirty_hz_ordinals,
+            "parent_ordinals_unbracketed": self.parent_ordinals_unbracketed,
+            "ordinals_removed_by_parent_stage": (
+                self.ordinals_removed_by_parent_stage
+            ),
+            "ordinals_admitted_over_unbracketed_parent": (
+                self.ordinals_admitted_over_unbracketed_parent
+            ),
+            "ordinals_admitted_by_filter_guard_alone": (
+                self.ordinals_admitted_by_filter_guard_alone
+            ),
+            "core_summary_rows": self.core_summary_rows,
+            "edge_summary_rows": self.edge_summary_rows,
+            "rates_materialized": sorted(self.rates_materialized),
             "spectral_table_content_sha256": (
                 self.spectral_table_content_sha256
             ),
@@ -284,10 +325,38 @@ def materialize(
             support = derive_support(times, rate)
             if (segment_id, rate) not in seen_grids:
                 seen_grids.add((segment_id, rate))
+                result.segments_derived += 1
+                if rate not in result.rates_materialized:
+                    result.rates_materialized.append(rate)
                 grid = grid_for(rate)
                 has_filter = rate in FILTER_SPECS
                 taps = design(rate).size if has_filter else 0
                 spec = FILTER_SPECS.get(rate)
+                # What the FIR guard alone would have admitted, had it
+                # believed the parent ran from the task-local origin rather
+                # than from where this segment can actually bracket it.  The
+                # difference is what the first stage removed, and it is the
+                # evidence that the intersection is taken in that order.
+                if support.parent.empty:
+                    guard_only = range(0)
+                    unbracketed = 0
+                else:
+                    guard_only = (
+                        supported_output_ordinals(
+                            rate, taps=taps, parent_first=0,
+                            parent_last=support.parent.last_ordinal,
+                        )
+                        if has_filter
+                        else range(support.parent.last_ordinal + 1)
+                    )
+                    unbracketed = support.parent.first_ordinal
+                result.parent_ordinals_unbracketed += unbracketed
+                result.ordinals_admitted_by_filter_guard_alone += len(
+                    guard_only
+                )
+                result.ordinals_removed_by_parent_stage += max(
+                    0, len(guard_only) - len(support.supported)
+                )
                 grid_records.append({
                     "segment_id": segment_id,
                     "stream_id": stream_id,
@@ -338,7 +407,7 @@ def materialize(
                     ),
                     "parent_samples": support.parent.count,
                     "parent_samples_interpolated": support.parent.count,
-                    "parent_samples_unbracketed": 0,
+                    "parent_samples_unbracketed": unbracketed,
                     "first_supported_ordinal": (
                         support.supported.start if support.supported else 0
                     ),
@@ -390,6 +459,39 @@ def materialize(
                 name: derived[position] for position, name in enumerate(names)
             }
             times_s = window_times_seconds(rate, ordinals)
+            result.derived_samples_written += len(ordinals)
+            if len(ordinals) != round(rate * WINDOW_DURATION_S):
+                result.derived_sample_count_mismatches += 1
+            grid = grid_for(rate)
+            kernel_taps = design(rate).size if rate in FILTER_SPECS else 0
+            for ordinal in ordinals:
+                result.rational_timing_ordinals_checked += 1
+                # Independently re-derive this output's own kernel support
+                # and check it against the bracketable parent, rather than
+                # trusting that derive_support produced the right set.
+                if kernel_taps:
+                    _, anchor, branch = polyphase_anchor(
+                        rate, ordinal, taps=kernel_taps
+                    )
+                    if (
+                        anchor - branch + 1 < support.parent.first_ordinal
+                        or anchor > support.parent.last_ordinal
+                    ):
+                        result.ordinals_admitted_over_unbracketed_parent += 1
+                elif not (
+                    support.parent.first_ordinal
+                    <= ordinal
+                    <= support.parent.last_ordinal
+                ):
+                    result.ordinals_admitted_over_unbracketed_parent += 1
+                if grid.sample_seconds(ordinal) != Fraction(ordinal, rate):
+                    result.rational_timing_mismatches += 1
+                if rate == 30 and grid.sample_picoseconds_exact(
+                    ordinal
+                ) is None and grid.sample_picoseconds(
+                    ordinal
+                ).denominator == 1:
+                    result.rounded_thirty_hz_ordinals += 1
             counts = result.sample_count_by_rate.setdefault(key, {})
             counts[str(len(ordinals))] = counts.get(str(len(ordinals)), 0) + 1
             spectra = _spectra_for(times_s, derived_channels)
@@ -621,6 +723,12 @@ def materialize(
 
     summary_records = _summarize(per_participant, participants)
     result.participant_summary_rows = len(summary_records)
+    result.core_summary_rows = sum(
+        1 for row in summary_records if row["band"] == CORE_BAND
+    )
+    result.edge_summary_rows = sum(
+        1 for row in summary_records if row["band"] == EDGE_BAND
+    )
 
     grid_records.sort(key=lambda item: (item["segment_id"], item["rate_hz"]))
     spectra_records.sort(

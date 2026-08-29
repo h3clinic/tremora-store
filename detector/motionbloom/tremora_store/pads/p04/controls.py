@@ -26,10 +26,15 @@ from .contract import (
 )
 from .filters import (
     FILTER_SPECS,
+    design,
     frequency_response,
     polyphase_dc_gains,
 )
-from .rational_time import grid_for
+from .rational_time import (
+    grid_for,
+    polyphase_anchor,
+    supported_output_ordinals,
+)
 from .resample import (
     ResampleError,
     derive_support,
@@ -86,6 +91,12 @@ def _derive(times_ps: np.ndarray, signal: np.ndarray, rate_hz: int):
     return window_times_seconds(rate_hz, ordinals), values
 
 
+def _spread_db(low: float, high: float) -> float:
+    """The max-to-min gain spread in dB, or 0.0 for a non-positive gain."""
+
+    return 20.0 * math.log10(high / low) if low > 0.0 else 0.0
+
+
 def run_controls() -> dict[str, Any]:
     """Run every resampling control and report each outcome individually."""
 
@@ -111,6 +122,14 @@ def run_controls() -> dict[str, Any]:
             "max": float(values.max()),
             "observed_ripple": observed_ripple,
             "published_branch_ripple": published_ripple,
+            # Also in dB, because that is the unit the ripple budget and the
+            # published branch spread are stated in.
+            "observed_ripple_db": _spread_db(
+                float(values.min()), float(values.max())
+            ),
+            "published_branch_ripple_db": _spread_db(
+                min(published), max(published)
+            ),
         }
         constant_ok &= abs(float(values.mean()) - 1.0) < 1e-6
         ripple_match &= abs(observed_ripple - published_ripple) < 1e-9
@@ -225,6 +244,49 @@ def run_controls() -> dict[str, Any]:
     except (ResampleError, Exception):  # noqa: BLE001 - any refusal counts
         padding_refused = True
     outcomes["unsupported_output_is_refused_not_padded"] = padding_refused
+
+    # --- the intersection is taken parent-first ----------------------------
+    # Whether a real corpus happens to exercise this is a property of the
+    # corpus.  That the implementation enforces it is a property of the code,
+    # so it is decided here: a segment offset from the task-local origin
+    # cannot bracket the early parent ordinals, and the derived support must
+    # already exclude the outputs those ordinals feed -- before the filter
+    # guard is consulted.
+    offset = _segment() + 5_000_000_000_000
+    intersection_ok = True
+    removals = {}
+    for rate in DERIVED_RATES_HZ:
+        support = derive_support(offset, rate)
+        taps = design(rate).size if rate in FILTER_SPECS else 0
+        guard_only = (
+            supported_output_ordinals(
+                rate, taps=taps, parent_first=0,
+                parent_last=support.parent.last_ordinal,
+            )
+            if taps
+            else range(support.parent.last_ordinal + 1)
+        )
+        removed = len(guard_only) - len(support.supported)
+        removals[str(rate)] = removed
+        # The guard alone would have admitted these; the parent stage did not.
+        intersection_ok &= removed > 0
+        intersection_ok &= support.parent.first_ordinal > 0
+        # The earliest surviving output is compared in parent ordinals, via
+        # its own kernel support, not in its own grid's ordinals.
+        first = support.supported.start
+        if taps:
+            _, anchor, branch = polyphase_anchor(rate, first, taps=taps)
+            reaches = anchor - branch + 1
+        else:
+            reaches = first
+        intersection_ok &= reaches >= support.parent.first_ordinal
+    measured["support_intersection"] = {
+        "offset_picoseconds": 5_000_000_000_000,
+        "ordinals_removed_by_parent_stage": removals,
+    }
+    outcomes["support_intersection_precedes_the_filter_guard"] = (
+        intersection_ok
+    )
 
     passed = all(outcomes.values())
     return {

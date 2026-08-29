@@ -303,7 +303,7 @@ def controls() -> dict:
 
 def test_every_resampling_control_passes(controls: dict) -> None:
     assert controls["status"] == "RESAMPLING_CONTROLS_PASS"
-    assert controls["controls_passed"] == controls["controls_total"] == 10
+    assert controls["controls_passed"] == controls["controls_total"] == 11
 
 
 def test_the_constant_input_control_pins_the_branch_gains(
