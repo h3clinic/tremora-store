@@ -172,6 +172,34 @@ def _band_power(power: np.ndarray, mask: np.ndarray) -> float:
     return float(np.sum(power[mask]))
 
 
+def _band_power_ratio(
+    derived: np.ndarray,
+    native: np.ndarray,
+    mask: np.ndarray,
+    *,
+    derived_samples: int,
+    native_samples: int,
+) -> float:
+    """Derived-over-native band power, per sample.
+
+    The P0.3 kernel's ``|X(f)|^2 / sum(w^2)`` grows linearly with the number
+    of samples transformed.  Within P0.3 that never mattered: every window was
+    only ever compared with itself at its own length.  Here it does, because a
+    4 s window carries 400 samples at 100 Hz and 100 at 25 Hz, and an
+    unnormalized ratio would report 0.25 for a signal that was perfectly
+    preserved -- a sample count wearing the costume of a loss.  Dividing each
+    side by its own sample count makes the two estimates of the same physical
+    quantity comparable.  The unnormalized band powers and both sample counts
+    are published beside this, so the raw numbers remain recoverable.
+    """
+
+    if derived_samples <= 0 or native_samples <= 0:
+        return 0.0
+    numerator = _band_power(derived, mask) / derived_samples
+    denominator = _band_power(native, mask) / native_samples
+    return numerator / max(denominator, 1e-300)
+
+
 def _total_variation(derived: np.ndarray, native: np.ndarray,
                      mask: np.ndarray) -> float:
     """Half the L1 distance between the two band-normalized shapes."""
@@ -539,13 +567,15 @@ def materialize(
                         spectrum.dominant_frequency_hz
                         - float(reference["dominant_frequency_hz"])
                     ),
-                    "core_band_power_ratio": (
-                        _band_power(spectrum.aggregate, _CORE)
-                        / max(_band_power(native_power, _CORE), 1e-300)
+                    "core_band_power_ratio": _band_power_ratio(
+                        spectrum.aggregate, native_power, _CORE,
+                        derived_samples=len(ordinals),
+                        native_samples=int(reference["sample_count"]),
                     ),
-                    "edge_band_power_ratio": (
-                        _band_power(spectrum.aggregate, _EDGE)
-                        / max(_band_power(native_power, _EDGE), 1e-300)
+                    "edge_band_power_ratio": _band_power_ratio(
+                        spectrum.aggregate, native_power, _EDGE,
+                        derived_samples=len(ordinals),
+                        native_samples=int(reference["sample_count"]),
                     ),
                     "core_normalized_spectral_distance": _total_variation(
                         spectrum.aggregate, native_power, _CORE

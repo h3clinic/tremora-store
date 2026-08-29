@@ -294,7 +294,7 @@ def test_the_resampling_controls_ran_in_this_process(two_runs) -> None:
     _, second = two_runs
     controls = second["resampling_controls"]
     assert controls["status"] == "RESAMPLING_CONTROLS_PASS"
-    assert controls["controls_passed"] == controls["controls_total"] == 11
+    assert controls["controls_passed"] == controls["controls_total"] == 12
     assert (
         controls["measured"]["constant_input_30"]["within_phase_spread"] == 0.0
     )

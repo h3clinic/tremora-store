@@ -303,7 +303,7 @@ def controls() -> dict:
 
 def test_every_resampling_control_passes(controls: dict) -> None:
     assert controls["status"] == "RESAMPLING_CONTROLS_PASS"
-    assert controls["controls_passed"] == controls["controls_total"] == 11
+    assert controls["controls_passed"] == controls["controls_total"] == 12
 
 
 def test_the_constant_input_control_pins_the_branch_gains(
@@ -350,3 +350,16 @@ def test_the_controls_show_the_preservation_band_surviving(
         assert abs(
             controls["measured"][f"preserved_{rate}"]["db"] - parent
         ) < 0.02
+
+
+def test_a_band_power_ratio_does_not_measure_the_sample_count(
+    controls: dict,
+) -> None:
+    # The P0.3 kernel's power grows with the number of samples transformed.
+    # Left unnormalized, a perfectly preserved 5 Hz tone would report 0.50,
+    # 0.30 and 0.25 at 50, 30 and 25 Hz -- a sample count read as a loss.
+    assert controls["controls"]["band_power_ratio_is_independent_of_sample_count"]
+    ratios = controls["measured"]["core_band_power_ratio_by_rate"]
+    assert set(ratios) == {"100", "50", "30", "25"}
+    for rate, ratio in ratios.items():
+        assert 0.95 <= ratio <= 1.05, (rate, ratio)

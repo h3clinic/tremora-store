@@ -16,13 +16,17 @@ from typing import Any
 
 import numpy as np
 
+from ..p03.grid import frequency_values
+from ..p03.kernel import family_spectrum
 from .contract import (
+    CORE_BAND,
     DERIVED_RATES_HZ,
     PARENT_RATE_HZ,
     PASSBAND_MAX_HZ,
     PASSBAND_RIPPLE_MAX_DB,
     STOPBAND_ATTENUATION_MIN_DB,
     STOPBAND_START_HZ,
+    band_of,
 )
 from .filters import (
     FILTER_SPECS,
@@ -72,6 +76,23 @@ def _amplitude(times_s: list[float], values: np.ndarray, hz: float) -> float:
     ])
     coefficients, *_ = np.linalg.lstsq(design, values, rcond=None)
     return float(np.hypot(*coefficients))
+
+
+_TWO_PI = 2.0 * math.pi
+_CORE_MASK = np.array(
+    [band_of(value) == CORE_BAND for value in frequency_values()]
+)
+
+
+def _spectrum(times_s, values: np.ndarray, rate_hz: int) -> np.ndarray:
+    """The P0.3 aggregate spectrum of one derived signal, unmodified kernel."""
+
+    return family_spectrum(
+        "GYROSCOPE",
+        [round(second * 1e12) for second in times_s],
+        [values, values, values],
+        duration_s=values.size / rate_hz,
+    ).aggregate
 
 
 def _derive(times_ps: np.ndarray, signal: np.ndarray, rate_hz: int):
@@ -287,6 +308,33 @@ def run_controls() -> dict[str, Any]:
     outcomes["support_intersection_precedes_the_filter_guard"] = (
         intersection_ok
     )
+
+    # --- a band-power ratio must not measure the sample count --------------
+    # The P0.3 kernel's power grows linearly with the number of samples
+    # transformed, so comparing a 100-sample derived spectrum against a
+    # 400-sample native one without normalizing reports 0.25 for a perfectly
+    # preserved signal.  A 5 Hz tone is squarely inside every rate's passband,
+    # so its core-band ratio must come out near one at every rate.
+    tone = np.sin(_TWO_PI * 5.0 * (times_ps / 1e12))
+    native_times, native_values = _derive(times_ps, tone, PARENT_RATE_HZ)
+    ratio_ok = native_values is not None
+    ratios = {}
+    if native_values is not None:
+        native = _spectrum(native_times, native_values, PARENT_RATE_HZ)
+        native_band = float(np.sum(native[_CORE_MASK]))
+        for rate in DERIVED_RATES_HZ:
+            derived_times, derived_values = _derive(times_ps, tone, rate)
+            if derived_values is None:
+                ratio_ok = False
+                continue
+            derived = _spectrum(derived_times, derived_values, rate)
+            ratio = (
+                float(np.sum(derived[_CORE_MASK])) / derived_values.size
+            ) / (native_band / native_values.size)
+            ratios[str(rate)] = ratio
+            ratio_ok &= 0.95 <= ratio <= 1.05
+    measured["core_band_power_ratio_by_rate"] = ratios
+    outcomes["band_power_ratio_is_independent_of_sample_count"] = ratio_ok
 
     passed = all(outcomes.values())
     return {
