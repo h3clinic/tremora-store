@@ -20,6 +20,7 @@ decimated into it.
 from __future__ import annotations
 
 import hashlib
+import math
 from dataclasses import dataclass
 from functools import cache
 from typing import Any
@@ -246,15 +247,45 @@ def stage_a_reference_response(
 def polyphase_dc_gains(rate_hz: int) -> list[float]:
     """Each polyphase branch's DC sum.
 
+    For a constant input the chain's gain at output ordinal ``k`` is exactly
+    the branch sum of the phase ``k`` falls in, so these *are* the realized
+    per-output DC gains, not an internal detail.
+
     They are not identical: at 30 Hz they differ by about 5.6e-6, which is
-    0.000049 dB and far inside the ripple budget.  Reported rather than
-    normalized away, because normalizing each branch would replace one frozen
-    transfer function with three.
+    0.000049 dB and four orders of magnitude inside the ripple budget.
+    Reported rather than normalized away -- normalizing each branch would make
+    the executed gain depend on output phase, replacing the single frozen
+    transfer function whose response is published with three.
     """
 
     taps = design(rate_hz)
     upsample = FILTER_SPECS[rate_hz].upsample
     return [float(taps[phase::upsample].sum()) for phase in range(upsample)]
+
+
+def dc_terminology(rate_hz: int) -> dict[str, Any]:
+    """Separate the prototype's normalization from the realized DC gain.
+
+    The high-rate prototype sums to the upsampling factor, so at 30 Hz it sums
+    to 3 while each of its three branches sums to about 1.  Publishing only
+    "unit DC gain" beside three branch gains near one reads as inconsistent
+    arithmetic; these fields say which quantity is which.
+    """
+
+    taps = design(rate_hz)
+    upsample = FILTER_SPECS[rate_hz].upsample
+    gains = polyphase_dc_gains(rate_hz)
+    spread_db = (
+        20.0 * math.log10(max(gains) / min(gains)) if min(gains) > 0 else 0.0
+    )
+    return {
+        "prototype_coefficient_sum": float(taps.sum()),
+        "upsampling_factor": upsample,
+        "effective_dc_gain": float(taps.sum()) / upsample,
+        "polyphase_dc_gains": gains,
+        "polyphase_dc_gain_spread_db": spread_db,
+        "per_phase_normalization": False,
+    }
 
 
 def filter_manifest() -> dict[str, Any]:
@@ -271,7 +302,7 @@ def filter_manifest() -> dict[str, Any]:
             "stopband_start_hz": spec.stopband_start_hz,
             "cutoff_hz": spec.cutoff_hz,
             "coefficients_sha256": filter_sha256(rate),
-            "polyphase_dc_gains": polyphase_dc_gains(rate),
+            **dc_terminology(rate),
             **measured,
         }
     return {
@@ -294,6 +325,7 @@ __all__ = [
     "FilterSpec",
     "assert_meets_specification",
     "coefficients_sha256",
+    "dc_terminology",
     "design",
     "filter_manifest",
     "filter_sha256",

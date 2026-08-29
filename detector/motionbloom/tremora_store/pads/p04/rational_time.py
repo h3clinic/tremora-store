@@ -145,6 +145,28 @@ def parent_span_for_output(
     return first, last
 
 
+def polyphase_anchor(
+    rate_hz: int, ordinal: int, *, taps: int
+) -> tuple[int, int, int]:
+    """``(phase, anchor, branch_taps)`` for one derived output ordinal.
+
+    ``y[k] = sum_q h[p + L*q] x[n0 - q]`` where ``p`` is the phase, ``n0`` the
+    anchor and ``q`` runs over that branch's taps.  Expressing support this
+    way makes it exact rather than a conservative bound, and it is the form
+    the resampler actually evaluates.
+    """
+
+    upsample, decimate = RESAMPLING_RATIOS[rate_hz]
+    if taps % 2 == 0:
+        raise RationalTimeError("a linear-phase Type I filter has odd length")
+    delay = (taps - 1) // 2
+    working = decimate * ordinal + delay
+    phase = working % upsample
+    anchor = (working - phase) // upsample
+    branch_taps = len(range(phase, taps, upsample))
+    return phase, anchor, branch_taps
+
+
 def supported_output_ordinals(
     rate_hz: int,
     *,
@@ -155,17 +177,34 @@ def supported_output_ordinals(
     """Output ordinals whose whole kernel support lies inside the parent.
 
     Nothing is padded, reflected, repeated or renormalized: an ordinal whose
-    kernel would run off the end simply produces no output.
+    kernel would run off either end simply produces no output.  The bound is
+    exact, and a test checks it against a brute-force scan.
     """
 
     if parent_last < parent_first:
         return range(0)
     upsample, decimate = RESAMPLING_RATIOS[rate_hz]
-    delay = (taps - 1) // 2
-    first = -((-(upsample * parent_first + delay)) // decimate)
-    last = (upsample * parent_last - delay) // decimate
-    first = max(first, 0)
-    return range(first, last + 1) if last >= first else range(0)
+    # No output ordinal past this can have its anchor inside the parent, so
+    # scanning to here cannot miss one.
+    upper = max(0, (upsample * (parent_last + 1)) // decimate + 1)
+
+    def supported(ordinal: int) -> bool:
+        _, anchor, branch = polyphase_anchor(rate_hz, ordinal, taps=taps)
+        return anchor - branch + 1 >= parent_first and anchor <= parent_last
+
+    first = None
+    for ordinal in range(upper + 1):
+        if supported(ordinal):
+            first = ordinal
+            break
+    if first is None:
+        return range(0)
+    last = first
+    for ordinal in range(upper, first - 1, -1):
+        if supported(ordinal):
+            last = ordinal
+            break
+    return range(first, last + 1)
 
 
 def assert_declared_exactness() -> None:
@@ -190,5 +229,6 @@ __all__ = [
     "grid_for",
     "parent_grid",
     "parent_span_for_output",
+    "polyphase_anchor",
     "supported_output_ordinals",
 ]
