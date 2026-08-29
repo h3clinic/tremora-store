@@ -16,10 +16,19 @@ Boundaries that are part of the contract rather than of the implementation:
 * 30 Hz has no exact picosecond period (1/30 s is 100000000000/3 ps), so grid
   timing is carried as exact rationals and the exactness is stated per rate
   rather than assumed;
-* anti-alias coefficients are tabulated, frozen and hashed;
-* at 25 Hz the 3-10 Hz core band and the 10-12 Hz edge-stress band are
-  reported separately, because the cutoff falls exactly at 10 Hz and the edge
-  band sits inside the filter transition;
+* resampling is two-stage: irregular source to an exact 100 Hz parent by
+  deterministic linear interpolation, then parent to 50/30/25 Hz by a frozen
+  linear time-invariant polyphase FIR.  A per-output normalized irregular-sinc
+  would have a transfer function that changes with the local timestamp
+  configuration, so the published response would not be the one the samples
+  experienced;
+* filters are specified by what each output rate must *preserve*, never by a
+  universal cutoff fraction.  A universal fraction attenuated 12 Hz by 6 dB at
+  30 Hz, which would have made "30 Hz loses 12 Hz content" partly an artefact
+  of the filter rather than of the rate;
+* at 25 Hz the 3-10 Hz preservation band and the 10-12 Hz edge-stress band are
+  reported separately, because 25 Hz is the rate at which full-band
+  preservation stops being physically available;
 * source-direct and replay-derived outputs must agree exactly;
 * summaries are participant-level.
 
@@ -29,7 +38,6 @@ retrieval benchmark result.
 
 from __future__ import annotations
 
-from fractions import Fraction
 from typing import Any
 
 from ..authority import PADS_DATASET_ID, RELATIVE_TIME_BASIS, VIDEO_PAIRING
@@ -85,37 +93,88 @@ GRID_ORIGIN = "TASK_LOCAL_ZERO"
 #: inside a window would filter the window's own edges.
 RESAMPLING_DOMAIN = "P02_CONTIGUOUS_SEGMENT"
 
-# --- anti-alias filter ----------------------------------------------------
+# --- stage A: irregular source to a uniform parent ------------------------
 
-#: One rate-independent kernel expressed in zero-crossings, applied with a
-#: per-rate cutoff.  The tabulated coefficients are the filter; the analytic
-#: form is how they were produced, not how they are used.
-ANTI_ALIAS_KERNEL = "KAISER_WINDOWED_SINC"
-KAISER_BETA = 8.6
-HALF_WIDTH_ZERO_CROSSINGS = 8
-TAPS_PER_ZERO_CROSSING = 128
-COEFFICIENT_TABLE_LENGTH = HALF_WIDTH_ZERO_CROSSINGS * TAPS_PER_ZERO_CROSSING + 1
+#: Deterministic linear interpolation between the two source samples that
+#: bracket the target time, inside one P0.2.1 segment.  Never extrapolation.
+SOURCE_TO_PARENT = "SOURCE_TIME_LINEAR_INTERPOLATION"
+PARENT_RATE_HZ = 100
 
-#: ``f_cutoff = CUTOFF_FRACTION * rate / 2``.  At 0.8 this puts the 25 Hz
-#: cutoff at exactly 10.0 Hz -- the core/edge boundary -- and the 30 Hz cutoff
-#: at exactly 12.0 Hz, the top of the analysis grid.  Both facts are declared
-#: rather than discovered later.
-CUTOFF_FRACTION = Fraction(4, 5)
+#: 100 Hz carries no anti-alias filter: nothing is being decimated.  What it
+#: measures instead is the cost of uniformizing an irregular clock, which is a
+#: distinct ablation and is why it is a rate in its own right.
+PARENT_HAS_ANTI_ALIAS_FILTER = False
 
-#: Irregular input means local sample density varies, so applied weights are
-#: normalized to unit sum per output sample.  Without it the passband would
-#: ripple with the input spacing rather than with the filter.
-WEIGHT_NORMALIZATION = "UNIT_SUM_PER_OUTPUT_SAMPLE"
+#: Linear interpolation is not transparent.  On an ideal uniform grid its
+#: reference response is sinc^2(f / f_parent): about -0.03 dB at 3 Hz, -0.29 dB
+#: at 10 Hz and -0.41 dB at 12 Hz.  The irregular case differs; the figure is
+#: published as a labelled reference so the 100 Hz result is read as the
+#: uniformization ablation it is.
+STAGE_A_REFERENCE_RESPONSE = "SINC_SQUARED_IDEAL_UNIFORM"
 
-#: A derived sample is refused rather than invented when its support holds too
-#: few input samples to normalize meaningfully.
-MINIMUM_TAPS_PER_OUTPUT_SAMPLE = 4
+# --- stage B: parent to derived rate --------------------------------------
+
+#: One frozen linear time-invariant transfer function per derived rate.  100 to
+#: 50 and 100 to 25 are integer decimations; 100 to 30 is a rational 3/10
+#: polyphase conversion, which puts every 30 Hz output exactly on a 300 Hz grid
+#: point and so gives that path a single explicit transfer function rather than
+#: a filter followed by a second interpolation.
+DERIVED_RATE_METHOD = "FROZEN_POLYPHASE_FIR"
+
+#: Rejected: the effective filter would change with the local timestamp
+#: configuration, so a published fixed response would not be the response the
+#: samples experienced, and density correction would be mixed into the
+#: anti-alias claim.
+PER_OUTPUT_WEIGHT_NORMALIZATION = False
+
+#: ``rate -> (upsample, decimate)`` from the 100 Hz parent.
+RESAMPLING_RATIOS: dict[int, tuple[int, int]] = {
+    50: (1, 2),
+    30: (3, 10),
+    25: (1, 4),
+}
+
+#: Each derived rate's preservation band and where its stopband begins.  The
+#: stopband starts at the output Nyquist, so nothing above it survives to fold
+#: anywhere in the output band -- stricter than merely protecting the
+#: passband, and simpler to state.
+PASSBAND_MAX_HZ: dict[int, float] = {50: 12.0, 30: 12.0, 25: 10.0}
+STOPBAND_START_HZ: dict[int, float] = {50: 25.0, 30: 15.0, 25: 12.5}
+
+#: 25 Hz is the rate at which the analysis band stops fitting inside the
+#: preservation band; 10-12 Hz is then explicitly stressed rather than claimed.
+STRESS_BAND_HZ: dict[int, tuple[float, float]] = {25: (10.0, 12.0)}
+
+PASSBAND_RIPPLE_MAX_DB = 0.25
+STOPBAND_ATTENUATION_MIN_DB = 60.0
+FILTER_DESIGN_ATTENUATION_TARGET_DB = 65.0
+FILTER_DESIGN = "KAISER_WINDOW_METHOD_LINEAR_PHASE_TYPE_I"
+
+# --- edges ----------------------------------------------------------------
+
+#: A symmetric kernel that lacks its context at a segment edge produces no
+#: output there.  Padding, reflection, endpoint repetition or renormalizing the
+#: truncated taps would all keep the sample at the cost of changing the
+#: transfer function, which is the one thing this milestone cannot afford.
+EDGE_POLICY = "REFUSE_UNSUPPORTED_OUTPUT_SAMPLES"
+EDGE_PADDING_ALLOWED = False
+TRUNCATED_KERNEL_RENORMALIZATION_ALLOWED = False
+
+#: A derived window is eligible only when its whole four-second interval lies
+#: inside supported filtered output.
+WINDOW_ELIGIBILITY = "FULLY_INSIDE_SUPPORTED_OUTPUT"
 
 
-def cutoff_hz(rate_hz: int) -> Fraction:
-    """The exact anti-alias cutoff for one derived rate."""
+def passband_hz(rate_hz: int) -> float:
+    """The band this derived rate is required to preserve."""
 
-    return CUTOFF_FRACTION * Fraction(rate_hz, 2)
+    return PASSBAND_MAX_HZ[rate_hz]
+
+
+def stopband_start_hz(rate_hz: int) -> float:
+    """Where this derived rate's stopband begins: its own Nyquist."""
+
+    return STOPBAND_START_HZ[rate_hz]
 
 
 # --- analysis bands -------------------------------------------------------
@@ -125,6 +184,9 @@ CORE_BAND_MAX_HZ = 10.0
 EDGE_BAND_MIN_HZ = 10.0
 EDGE_BAND_MAX_HZ = FREQUENCY_MAX_HZ
 
+#: The reporting split.  At 50 and 30 Hz both bands sit inside the
+#: preservation band, so the split is descriptive; at 25 Hz it is physical,
+#: because only the core band is preserved.
 CORE_BAND = "CORE_3_TO_10_HZ"
 EDGE_BAND = "EDGE_STRESS_10_TO_12_HZ"
 BANDS: tuple[str, ...] = (CORE_BAND, EDGE_BAND)
@@ -214,8 +276,14 @@ def authority_block() -> dict[str, Any]:
         "reference_milestone": REFERENCE_MILESTONE,
         "resampling_domain": RESAMPLING_DOMAIN,
         "grid_origin": GRID_ORIGIN,
-        "anti_alias_kernel": ANTI_ALIAS_KERNEL,
-        "weight_normalization": WEIGHT_NORMALIZATION,
+        "source_to_parent": SOURCE_TO_PARENT,
+        "parent_rate_hz": PARENT_RATE_HZ,
+        "derived_rate_method": DERIVED_RATE_METHOD,
+        "per_output_weight_normalization": (
+            PER_OUTPUT_WEIGHT_NORMALIZATION
+        ),
+        "edge_policy": EDGE_POLICY,
+        "window_eligibility": WINDOW_ELIGIBILITY,
         "derived_rates_hz": list(DERIVED_RATES_HZ),
         "analysis_bands": list(BANDS),
         "contract_version": P04_CONTRACT_VERSION,
@@ -224,20 +292,22 @@ def authority_block() -> dict[str, Any]:
 
 
 __all__ = [
-    "ANTI_ALIAS_KERNEL",
     "BANDS",
     "BLOCKED_DEPENDENCY",
-    "COEFFICIENT_TABLE_LENGTH",
     "CORE_BAND",
     "CORE_BAND_MAX_HZ",
     "CORE_BAND_MIN_HZ",
     "CORE_BIN_COUNT",
-    "CUTOFF_FRACTION",
     "DERIVED_RATES_HZ",
+    "DERIVED_RATE_METHOD",
     "EDGE_BAND",
     "EDGE_BAND_MAX_HZ",
     "EDGE_BAND_MIN_HZ",
     "EDGE_BIN_COUNT",
+    "EDGE_PADDING_ALLOWED",
+    "EDGE_POLICY",
+    "FILTER_DESIGN",
+    "FILTER_DESIGN_ATTENUATION_TARGET_DB",
     "FORBIDDEN_P04_SUBSTRINGS",
     "FREQUENCY_BIN_COUNT",
     "FREQUENCY_MAX_HZ",
@@ -247,28 +317,37 @@ __all__ = [
     "GATE_PASS",
     "GENERIC_SUCCESS_MARKER",
     "GRID_ORIGIN",
-    "HALF_WIDTH_ZERO_CROSSINGS",
-    "KAISER_BETA",
-    "MINIMUM_TAPS_PER_OUTPUT_SAMPLE",
     "NATIVE_RATE_LABEL",
     "P04_ARTIFACT_KIND",
     "P04_CONTRACT_VERSION",
     "P04_IMPLEMENTATION_VERSION",
     "P04_SCHEMA_VERSION",
+    "PARENT_HAS_ANTI_ALIAS_FILTER",
+    "PARENT_RATE_HZ",
+    "PASSBAND_MAX_HZ",
+    "PASSBAND_RIPPLE_MAX_DB",
+    "PER_OUTPUT_WEIGHT_NORMALIZATION",
     "RATES_WITH_EXACT_PICOSECOND_PERIOD",
     "REFERENCE_MILESTONE",
     "RESAMPLING_CONTRACT_VERSION",
     "RESAMPLING_DOMAIN",
+    "RESAMPLING_RATIOS",
     "SENSOR_FAMILIES",
+    "SOURCE_TO_PARENT",
+    "STAGE_A_REFERENCE_RESPONSE",
+    "STOPBAND_ATTENUATION_MIN_DB",
+    "STOPBAND_START_HZ",
+    "STRESS_BAND_HZ",
     "SUCCESS_MARKER",
-    "TAPS_PER_ZERO_CROSSING",
-    "WEIGHT_NORMALIZATION",
+    "TRUNCATED_KERNEL_RENORMALIZATION_ALLOWED",
     "WINDOW_DURATION_S",
+    "WINDOW_ELIGIBILITY",
     "WITHHELD_P04_ARTIFACTS",
     "PadsP04ContractError",
     "assert_no_clinical_or_benchmark_claim",
     "assert_p04_names",
     "authority_block",
     "band_of",
-    "cutoff_hz",
+    "passband_hz",
+    "stopband_start_hz",
 ]

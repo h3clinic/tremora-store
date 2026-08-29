@@ -64,12 +64,24 @@ def pads_p04_rate_grids_schema() -> pa.Schema:
             "segment_start_task_local_ps", pa.int64(), nullable=False
         ),
         pa.field("segment_end_task_local_ps", pa.int64(), nullable=False),
-        pa.field("cutoff_hz", pa.float64(), nullable=False),
-        pa.field("support_seconds", pa.float64(), nullable=False),
-        pa.field("minimum_taps_observed", pa.int32(), nullable=False),
-        pa.field("samples_refused_for_support", pa.int32(), nullable=False),
+        pa.field("parent_rate_hz", pa.int32(), nullable=False),
+        pa.field("upsample", pa.int32(), nullable=False),
+        pa.field("decimate", pa.int32(), nullable=False),
+        pa.field("working_rate_hz", pa.int32(), nullable=False),
+        pa.field("has_anti_alias_filter", pa.bool_(), nullable=False),
+        pa.field("passband_hz", pa.float64()),
+        pa.field("stopband_start_hz", pa.float64()),
+        pa.field("filter_taps", pa.int32(), nullable=False),
+        pa.field("filter_group_delay_taps", pa.int32(), nullable=False),
+        pa.field("filter_sha256", pa.string(), nullable=False),
+        pa.field("parent_samples", pa.int32(), nullable=False),
+        pa.field("parent_samples_interpolated", pa.int32(), nullable=False),
+        pa.field("parent_samples_unbracketed", pa.int32(), nullable=False),
+        pa.field("first_supported_ordinal", pa.int64(), nullable=False),
+        pa.field("last_supported_ordinal", pa.int64(), nullable=False),
+        pa.field("supported_sample_count", pa.int32(), nullable=False),
         pa.field(
-            "anti_alias_coefficients_sha256", pa.string(), nullable=False
+            "unsupported_sample_count_at_edges", pa.int32(), nullable=False
         ),
         pa.field("grid_status", pa.string(), nullable=False),
     ], "pads_p04_rate_grids")

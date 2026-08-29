@@ -1,204 +1,305 @@
-"""Frozen, hashed anti-alias coefficients.
+"""Frozen, hashed anti-alias filters, one per derived rate.
 
-One rate-independent kernel, expressed in zero-crossings, applied with a
-per-rate cutoff.  Writing it that way means there is a single coefficient table
-to freeze and hash rather than four, and the only thing that varies with rate
-is the mapping from elapsed time to kernel argument.
+Each filter is specified by what its output rate must *preserve*, never by a
+universal cutoff fraction:
 
-The tabulated coefficients *are* the filter.  The analytic Kaiser-windowed sinc
-is how the table was produced; it is not consulted when resampling, so the
-frozen bytes fully determine the result.
+    50 Hz   pass 0-12 Hz,  stop from 25 Hz    (decimate 2 at 100 Hz)
+    30 Hz   pass 0-12 Hz,  stop from 15 Hz    (3/10 polyphase at 300 Hz)
+    25 Hz   pass 0-10 Hz,  stop from 12.5 Hz  (decimate 4 at 100 Hz)
 
-Applied weights are normalized to unit sum per output sample.  With irregular
-input the local sample density varies, and without normalization the passband
-would ripple with the input spacing rather than with the filter.
+The stopband starts at the output Nyquist, so nothing above it survives to fold
+anywhere in the output band.  Each is a linear-phase Type I FIR designed by the
+Kaiser window method with unit DC gain, so the coefficients are symmetric, the
+group delay is an exact integer, and the transfer function is fixed for every
+output sample.  Nothing is renormalized at run time.
+
+100 Hz has no filter here: it is the uniformized parent, and nothing is being
+decimated into it.
 """
 
 from __future__ import annotations
 
 import hashlib
-from fractions import Fraction
-from functools import lru_cache
+from dataclasses import dataclass
+from functools import cache
 from typing import Any
 
 import numpy as np
 
 from .contract import (
-    ANTI_ALIAS_KERNEL,
-    COEFFICIENT_TABLE_LENGTH,
-    CORE_BAND_MAX_HZ,
-    CORE_BAND_MIN_HZ,
-    CUTOFF_FRACTION,
-    DERIVED_RATES_HZ,
-    EDGE_BAND_MAX_HZ,
-    HALF_WIDTH_ZERO_CROSSINGS,
-    KAISER_BETA,
-    TAPS_PER_ZERO_CROSSING,
-    WEIGHT_NORMALIZATION,
-    cutoff_hz,
+    FILTER_DESIGN,
+    FILTER_DESIGN_ATTENUATION_TARGET_DB,
+    PARENT_RATE_HZ,
+    PASSBAND_MAX_HZ,
+    PASSBAND_RIPPLE_MAX_DB,
+    RESAMPLING_RATIOS,
+    STOPBAND_ATTENUATION_MIN_DB,
+    STOPBAND_START_HZ,
+    STRESS_BAND_HZ,
 )
 
 
 class AntiAliasError(ValueError):
-    """Raised when the frozen filter is asked for something it cannot give."""
+    """Raised when a frozen filter would not meet its own specification."""
 
 
-@lru_cache(maxsize=1)
-def coefficient_table() -> np.ndarray:
-    """The frozen half-kernel, sampled every 1/128 of a zero crossing.
+@dataclass(frozen=True, slots=True)
+class FilterSpec:
+    """What one derived rate's filter has to do."""
 
-    Index ``j`` holds the kernel at ``u = j / TAPS_PER_ZERO_CROSSING`` zero
-    crossings from the centre.  The kernel is symmetric, so only ``u >= 0`` is
-    stored.
+    rate_hz: int
+    upsample: int
+    decimate: int
+    passband_hz: float
+    stopband_start_hz: float
+    attenuation_target_db: float = FILTER_DESIGN_ATTENUATION_TARGET_DB
+
+    @property
+    def working_rate_hz(self) -> int:
+        """The rate the filter actually runs at, after any upsampling."""
+
+        return PARENT_RATE_HZ * self.upsample
+
+    @property
+    def cutoff_hz(self) -> float:
+        """Midpoint of the transition band; a design detail, not a target."""
+
+        return (self.passband_hz + self.stopband_start_hz) / 2.0
+
+    @property
+    def transition_hz(self) -> float:
+        return self.stopband_start_hz - self.passband_hz
+
+
+FILTER_SPECS: dict[int, FilterSpec] = {
+    rate: FilterSpec(
+        rate_hz=rate,
+        upsample=RESAMPLING_RATIOS[rate][0],
+        decimate=RESAMPLING_RATIOS[rate][1],
+        passband_hz=PASSBAND_MAX_HZ[rate],
+        stopband_start_hz=STOPBAND_START_HZ[rate],
+    )
+    for rate in sorted(RESAMPLING_RATIOS, reverse=True)
+}
+
+
+def _kaiser_beta(attenuation_db: float) -> float:
+    if attenuation_db > 50.0:
+        return 0.1102 * (attenuation_db - 8.7)
+    if attenuation_db >= 21.0:  # pragma: no cover - designs here exceed 50 dB
+        return (
+            0.5842 * (attenuation_db - 21.0) ** 0.4
+            + 0.07886 * (attenuation_db - 21.0)
+        )
+    return 0.0  # pragma: no cover
+
+
+def _tap_count(spec: FilterSpec, beta_attenuation: float) -> int:
+    transition = 2.0 * np.pi * spec.transition_hz / spec.working_rate_hz
+    count = int(np.ceil((beta_attenuation - 8.0) / (2.285 * transition))) + 1
+    return count + 1 if count % 2 == 0 else count
+
+
+@cache
+def design(rate_hz: int) -> np.ndarray:
+    """The frozen coefficients for one derived rate.
+
+    Unit DC gain before the upsampling gain, then scaled by the interpolation
+    factor so the whole chain has unit DC gain.
     """
 
-    indices = np.arange(COEFFICIENT_TABLE_LENGTH, dtype=np.float64)
-    u = indices / TAPS_PER_ZERO_CROSSING
-    sinc = np.sinc(u)
-    window = np.i0(
-        KAISER_BETA * np.sqrt(
-            np.maximum(0.0, 1.0 - (u / HALF_WIDTH_ZERO_CROSSINGS) ** 2)
-        )
-    ) / np.i0(KAISER_BETA)
-    table = sinc * window
-    table.setflags(write=False)
-    return table
+    try:
+        spec = FILTER_SPECS[rate_hz]
+    except KeyError as exc:
+        raise AntiAliasError(f"{rate_hz} Hz has no frozen filter") from exc
+    beta = _kaiser_beta(spec.attenuation_target_db)
+    count = _tap_count(spec, spec.attenuation_target_db)
+    half = (count - 1) // 2
+    offsets = np.arange(-half, half + 1, dtype=np.float64)
+    taps = np.sinc(
+        2.0 * spec.cutoff_hz * offsets / spec.working_rate_hz
+    ) * np.kaiser(count, beta)
+    taps = taps / taps.sum() * spec.upsample
+    taps.setflags(write=False)
+    return taps
 
 
-def coefficients_sha256() -> str:
-    """Hash the exact float bytes of the frozen table."""
+def group_delay_taps(rate_hz: int) -> int:
+    """Exact integer group delay, in working-rate samples."""
+
+    return (design(rate_hz).size - 1) // 2
+
+
+def filter_sha256(rate_hz: int) -> str:
+    """Hash the exact float bytes of one frozen coefficient set."""
 
     return hashlib.sha256(
-        np.ascontiguousarray(coefficient_table(), dtype=np.float64).tobytes()
+        np.ascontiguousarray(design(rate_hz), dtype=np.float64).tobytes()
     ).hexdigest()
 
 
-def kernel_weight(u: float) -> float:
-    """The frozen kernel at ``u`` zero crossings, by table lookup.
+def coefficients_sha256() -> str:
+    """One hash binding every frozen coefficient set."""
 
-    Lookup, not interpolation: the table is the filter, and the quantization
-    of ``u`` to 1/128 of a zero crossing is part of its definition.
-    """
-
-    index = round(float(abs(u)) * TAPS_PER_ZERO_CROSSING)
-    if index >= COEFFICIENT_TABLE_LENGTH:
-        return 0.0
-    return float(coefficient_table()[index])
-
-
-def kernel_weights(u: np.ndarray) -> np.ndarray:
-    """Vectorized table lookup for many kernel arguments at once."""
-
-    indices = np.rint(np.abs(u) * TAPS_PER_ZERO_CROSSING).astype(np.int64)
-    inside = indices < COEFFICIENT_TABLE_LENGTH
-    weights = np.zeros(indices.shape, dtype=np.float64)
-    weights[inside] = coefficient_table()[indices[inside]]
-    return weights
-
-
-def support_seconds(rate_hz: int | Fraction) -> Fraction:
-    """Half-width of the kernel in seconds at one derived rate.
-
-    ``u = 2 f_c dt``, so the kernel reaches zero at
-    ``dt = HALF_WIDTH / (2 f_c)``.
-    """
-
-    return Fraction(HALF_WIDTH_ZERO_CROSSINGS, 2) / cutoff_hz(int(rate_hz))
-
-
-def kernel_argument(
-    delta_seconds: np.ndarray, rate_hz: int | Fraction
-) -> np.ndarray:
-    """Convert elapsed seconds to kernel zero-crossings for one rate."""
-
-    return 2.0 * float(cutoff_hz(int(rate_hz))) * delta_seconds
+    digest = hashlib.sha256()
+    for rate in sorted(FILTER_SPECS):
+        digest.update(str(rate).encode("ascii"))
+        digest.update(b"\x1f")
+        digest.update(filter_sha256(rate).encode("ascii"))
+        digest.update(b"\x1e")
+    return digest.hexdigest()
 
 
 def frequency_response(
-    frequencies_hz: np.ndarray, rate_hz: int | Fraction
+    frequencies_hz: np.ndarray, rate_hz: int
 ) -> np.ndarray:
-    """The frozen filter's magnitude response, for reporting and controls."""
+    """Magnitude response of one frozen filter at its working rate."""
 
-    table = coefficient_table()
-    offsets = np.arange(
-        -(COEFFICIENT_TABLE_LENGTH - 1), COEFFICIENT_TABLE_LENGTH
-    ) / TAPS_PER_ZERO_CROSSING
-    taps = np.concatenate([table[:0:-1], table])
-    seconds = offsets / (2.0 * float(cutoff_hz(int(rate_hz))))
+    taps = design(rate_hz)
+    spec = FILTER_SPECS[rate_hz]
+    offsets = np.arange(taps.size) - (taps.size - 1) // 2
     phase = np.exp(
-        -2j * np.pi * np.outer(np.asarray(frequencies_hz, np.float64), seconds)
+        -2j * np.pi
+        * np.outer(
+            np.asarray(frequencies_hz, dtype=np.float64)
+            / spec.working_rate_hz,
+            offsets,
+        )
     )
-    response = np.abs(np.sum(phase * taps, axis=1))
-    return response / np.sum(taps)
+    return np.abs(phase @ taps) / spec.upsample
 
 
-def declared_band_response() -> dict[str, dict[str, float]]:
-    """The frozen filter's response at the band edges, per derived rate.
+def measured_specification(rate_hz: int) -> dict[str, float]:
+    """What the frozen coefficients actually do, measured not asserted."""
 
-    Published as measured evidence rather than prose.  At 25 Hz the cutoff
-    coincides with the 10 Hz core/edge split, so the topmost core bin is
-    already 6 dB down and the edge band runs from -6 to -28 dB; at 30 Hz the
-    top of the analysis grid sits at the cutoff.  Both are properties of the
-    frozen coefficients, and a control checks them rather than trusting this
-    comment.
+    spec = FILTER_SPECS[rate_hz]
+    passband = frequency_response(
+        np.linspace(0.0, spec.passband_hz, 512), rate_hz
+    )
+    stopband = frequency_response(
+        np.linspace(
+            spec.stopband_start_hz, spec.working_rate_hz / 2.0, 4096
+        ),
+        rate_hz,
+    )
+    taps = design(rate_hz)
+    return {
+        "taps": int(taps.size),
+        "group_delay_taps": float(group_delay_taps(rate_hz)),
+        "dc_gain": float(frequency_response(np.array([0.0]), rate_hz)[0]),
+        "passband_ripple_db": float(
+            20.0 * np.log10(passband.max() / passband.min())
+        ),
+        "passband_edge_db": float(
+            20.0 * np.log10(
+                frequency_response(
+                    np.array([spec.passband_hz]), rate_hz
+                )[0]
+            )
+        ),
+        "stopband_attenuation_db": float(
+            -20.0 * np.log10(max(float(stopband.max()), 1e-16))
+        ),
+        "symmetric": bool(np.array_equal(taps, taps[::-1])),
+    }
+
+
+def assert_meets_specification(rate_hz: int) -> None:
+    """Refuse a filter that does not meet the frozen contract."""
+
+    measured = measured_specification(rate_hz)
+    if abs(measured["dc_gain"] - 1.0) > 1e-9:
+        raise AntiAliasError(f"{rate_hz} Hz filter has no unit DC gain")
+    if not measured["symmetric"]:
+        raise AntiAliasError(f"{rate_hz} Hz filter is not symmetric")
+    if measured["passband_ripple_db"] > PASSBAND_RIPPLE_MAX_DB:
+        raise AntiAliasError(
+            f"{rate_hz} Hz passband ripple exceeds "
+            f"{PASSBAND_RIPPLE_MAX_DB} dB")
+    if measured["stopband_attenuation_db"] < STOPBAND_ATTENUATION_MIN_DB:
+        raise AntiAliasError(
+            f"{rate_hz} Hz stopband is under "
+            f"{STOPBAND_ATTENUATION_MIN_DB} dB")
+
+
+def stage_a_reference_response(
+    frequencies_hz: np.ndarray | None = None,
+) -> dict[str, float]:
+    """Linear interpolation's response on an ideal uniform parent grid.
+
+    Published as a labelled reference, not as a claim about the irregular
+    case: it is why 100 Hz is an ablation in its own right rather than a
+    transparent pass-through.
     """
 
-    edges = np.array(
-        [CORE_BAND_MIN_HZ, CORE_BAND_MAX_HZ, EDGE_BAND_MAX_HZ],
-        dtype=np.float64,
+    probe = (
+        np.array([3.0, 10.0, 12.0])
+        if frequencies_hz is None else np.asarray(frequencies_hz)
     )
-    labels = ("core_min_hz", "core_max_hz", "edge_max_hz")
-    response: dict[str, dict[str, float]] = {}
-    for rate in DERIVED_RATES_HZ:
-        magnitudes = frequency_response(edges, rate)
-        response[str(rate)] = {
-            label: float(20.0 * np.log10(max(float(value), 1e-12)))
-            for label, value in zip(labels, magnitudes, strict=True)
-        }
-        response[str(rate)]["own_nyquist_hz"] = float(rate) / 2.0
-        response[str(rate)]["own_nyquist_db"] = float(
-            20.0 * np.log10(
-                max(float(frequency_response(
-                    np.array([rate / 2.0]), rate
-                )[0]), 1e-12)
-            )
-        )
-    return response
-
-
-def anti_alias_manifest() -> dict[str, Any]:
-    """The frozen filter definition published in every P0.4 record."""
-
+    magnitude = np.sinc(probe / PARENT_RATE_HZ) ** 2
     return {
-        "kernel": ANTI_ALIAS_KERNEL,
-        "kaiser_beta": KAISER_BETA,
-        "half_width_zero_crossings": HALF_WIDTH_ZERO_CROSSINGS,
-        "taps_per_zero_crossing": TAPS_PER_ZERO_CROSSING,
-        "coefficient_table_length": COEFFICIENT_TABLE_LENGTH,
+        f"{float(frequency):g}_hz_db": float(20.0 * np.log10(value))
+        for frequency, value in zip(probe, magnitude, strict=True)
+    }
+
+
+def polyphase_dc_gains(rate_hz: int) -> list[float]:
+    """Each polyphase branch's DC sum.
+
+    They are not identical: at 30 Hz they differ by about 5.6e-6, which is
+    0.000049 dB and far inside the ripple budget.  Reported rather than
+    normalized away, because normalizing each branch would replace one frozen
+    transfer function with three.
+    """
+
+    taps = design(rate_hz)
+    upsample = FILTER_SPECS[rate_hz].upsample
+    return [float(taps[phase::upsample].sum()) for phase in range(upsample)]
+
+
+def filter_manifest() -> dict[str, Any]:
+    """The frozen filter definitions published in every P0.4 record."""
+
+    entries: dict[str, Any] = {}
+    for rate, spec in sorted(FILTER_SPECS.items()):
+        measured = measured_specification(rate)
+        entries[str(rate)] = {
+            "upsample": spec.upsample,
+            "decimate": spec.decimate,
+            "working_rate_hz": spec.working_rate_hz,
+            "passband_hz": spec.passband_hz,
+            "stopband_start_hz": spec.stopband_start_hz,
+            "cutoff_hz": spec.cutoff_hz,
+            "coefficients_sha256": filter_sha256(rate),
+            "polyphase_dc_gains": polyphase_dc_gains(rate),
+            **measured,
+        }
+    return {
+        "design": FILTER_DESIGN,
+        "attenuation_target_db": FILTER_DESIGN_ATTENUATION_TARGET_DB,
+        "passband_ripple_max_db": PASSBAND_RIPPLE_MAX_DB,
+        "stopband_attenuation_min_db": STOPBAND_ATTENUATION_MIN_DB,
         "coefficients_sha256": coefficients_sha256(),
-        "cutoff_fraction_num": CUTOFF_FRACTION.numerator,
-        "cutoff_fraction_den": CUTOFF_FRACTION.denominator,
-        "weight_normalization": WEIGHT_NORMALIZATION,
-        "cutoff_hz": {
-            str(rate): float(cutoff_hz(rate)) for rate in DERIVED_RATES_HZ
+        "stress_band_hz": {
+            str(rate): list(band) for rate, band in STRESS_BAND_HZ.items()
         },
-        "support_seconds": {
-            str(rate): float(support_seconds(rate))
-            for rate in DERIVED_RATES_HZ
-        },
-        "declared_band_response_db": declared_band_response(),
+        "stage_a_reference_response_db": stage_a_reference_response(),
+        "filters": entries,
     }
 
 
 __all__ = [
+    "FILTER_SPECS",
     "AntiAliasError",
-    "anti_alias_manifest",
-    "coefficient_table",
+    "FilterSpec",
+    "assert_meets_specification",
     "coefficients_sha256",
-    "declared_band_response",
+    "design",
+    "filter_manifest",
+    "filter_sha256",
     "frequency_response",
-    "kernel_argument",
-    "kernel_weight",
-    "kernel_weights",
-    "support_seconds",
+    "group_delay_taps",
+    "measured_specification",
+    "polyphase_dc_gains",
+    "stage_a_reference_response",
 ]

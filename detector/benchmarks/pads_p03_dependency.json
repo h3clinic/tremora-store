@@ -1,7 +1,7 @@
 {
   "artifact_kind": "TREMORA_PADS_P04_P03_DEPENDENCY",
   "pinned": {
-    "anti_alias_coefficients_sha256": "ad041db76fa87977f10fcc355ddfba9f4e1a556966afb049d585d0b8d9236f35",
+    "anti_alias_coefficients_sha256": "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81",
     "expected_audit_windows": 6077,
     "expected_spectral_rows": 19920,
     "expected_workload_windows": 9960,

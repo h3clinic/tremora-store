@@ -20,7 +20,9 @@ from fractions import Fraction
 from .contract import (
     DERIVED_RATES_HZ,
     GRID_ORIGIN,
+    PARENT_RATE_HZ,
     RATES_WITH_EXACT_PICOSECOND_PERIOD,
+    RESAMPLING_RATIOS,
 )
 
 PICOSECONDS_PER_SECOND = 10**12
@@ -116,6 +118,56 @@ def grid_for(rate_hz: int | Fraction) -> RateGrid:
     return RateGrid(rate_hz=rate)
 
 
+def parent_grid() -> RateGrid:
+    """The uniform 100 Hz parent every derived rate is built from."""
+
+    return grid_for(PARENT_RATE_HZ)
+
+
+def parent_span_for_output(
+    rate_hz: int, ordinal: int, *, taps: int
+) -> tuple[int, int]:
+    """The inclusive parent indices one derived output sample needs.
+
+    ``y[k] = sum_n h[M*k + D - L*n] x[n]`` for a symmetric filter of odd
+    length with group delay ``D``, so the required parent range is
+    ``[ceil((M*k - D)/L), floor((M*k + D)/L)]``.  For an integer decimation
+    (``L == 1``) that is simply ``M*k +/- D``.
+    """
+
+    upsample, decimate = RESAMPLING_RATIOS[rate_hz]
+    if taps % 2 == 0:
+        raise RationalTimeError("a linear-phase Type I filter has odd length")
+    delay = (taps - 1) // 2
+    working = decimate * ordinal
+    first = -((-(working - delay)) // upsample)
+    last = (working + delay) // upsample
+    return first, last
+
+
+def supported_output_ordinals(
+    rate_hz: int,
+    *,
+    taps: int,
+    parent_first: int,
+    parent_last: int,
+) -> range:
+    """Output ordinals whose whole kernel support lies inside the parent.
+
+    Nothing is padded, reflected, repeated or renormalized: an ordinal whose
+    kernel would run off the end simply produces no output.
+    """
+
+    if parent_last < parent_first:
+        return range(0)
+    upsample, decimate = RESAMPLING_RATIOS[rate_hz]
+    delay = (taps - 1) // 2
+    first = -((-(upsample * parent_first + delay)) // decimate)
+    last = (upsample * parent_last - delay) // decimate
+    first = max(first, 0)
+    return range(first, last + 1) if last >= first else range(0)
+
+
 def assert_declared_exactness() -> None:
     """The contract's exactness claim must match the arithmetic.
 
@@ -136,4 +188,7 @@ __all__ = [
     "RationalTimeError",
     "assert_declared_exactness",
     "grid_for",
+    "parent_grid",
+    "parent_span_for_output",
+    "supported_output_ordinals",
 ]

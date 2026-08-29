@@ -114,7 +114,7 @@ FROZEN_DEPENDENCY = PinnedDependency(
         "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
     ),
     anti_alias_coefficients_sha256=(
-        "ad041db76fa87977f10fcc355ddfba9f4e1a556966afb049d585d0b8d9236f35"
+        "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81"
     ),
     resampling_contract_version=RESAMPLING_CONTRACT_VERSION,
     rate_ablation_contract_version=P04_CONTRACT_VERSION,

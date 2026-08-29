@@ -19,11 +19,9 @@ from motionbloom.tremora_store.pads.p03.grid import frequency_values, grid_hash
 from motionbloom.tremora_store.pads.p04 import contract, dependency, filters
 from motionbloom.tremora_store.pads.p04.contract import (
     CORE_BIN_COUNT,
-    CUTOFF_FRACTION,
     DERIVED_RATES_HZ,
     EDGE_BIN_COUNT,
     band_of,
-    cutoff_hz,
 )
 from motionbloom.tremora_store.pads.p04.dependency import (
     FROZEN_DEPENDENCY,
@@ -35,6 +33,9 @@ from motionbloom.tremora_store.pads.p04.rational_time import (
     RationalTimeError,
     assert_declared_exactness,
     grid_for,
+    parent_grid,
+    parent_span_for_output,
+    supported_output_ordinals,
 )
 from motionbloom.tremora_store.pads.p04.schemas import (
     P04_TABLE_FILES,
@@ -109,95 +110,203 @@ def test_the_bands_partition_the_analysis_grid_at_ten_hertz() -> None:
     assert edge[-1] == 12.0
 
 
-# --- the frozen filter ----------------------------------------------------
+# --- the frozen filters ---------------------------------------------------
 
 
-def test_the_cutoff_is_exact_and_lands_on_the_band_split_at_25_hz() -> None:
-    assert CUTOFF_FRACTION == Fraction(4, 5)
-    assert cutoff_hz(25) == Fraction(10)
-    assert cutoff_hz(25) == Fraction(str(contract.CORE_BAND_MAX_HZ))
-    assert cutoff_hz(30) == Fraction(12)
-    assert cutoff_hz(50) == Fraction(20)
-    assert cutoff_hz(100) == Fraction(40)
+def test_the_filters_are_specified_by_what_each_rate_preserves() -> None:
+    # No universal cutoff fraction: a shared 4/5 attenuated 12 Hz by 6 dB at
+    # 30 Hz, which would have made "30 Hz loses 12 Hz" partly an artefact of
+    # the filter rather than of the rate.
+    assert not hasattr(contract, "CUTOFF_FRACTION")
+    assert not hasattr(contract, "WEIGHT_NORMALIZATION")
+    assert contract.PER_OUTPUT_WEIGHT_NORMALIZATION is False
+    assert contract.PASSBAND_MAX_HZ == {50: 12.0, 30: 12.0, 25: 10.0}
+    assert contract.STOPBAND_START_HZ == {50: 25.0, 30: 15.0, 25: 12.5}
+    for rate, start in contract.STOPBAND_START_HZ.items():
+        # The stopband begins at the output Nyquist, so nothing above it
+        # survives to fold anywhere in the output band.
+        assert start == rate / 2.0
 
 
-def test_the_coefficient_table_is_frozen_and_hashed() -> None:
-    table = filters.coefficient_table()
-    assert table.shape == (contract.COEFFICIENT_TABLE_LENGTH,) == (1025,)
-    assert table.dtype == np.float64
-    assert table[0] == pytest.approx(1.0)
-    assert filters.coefficients_sha256() == (
-        "ad041db76fa87977f10fcc355ddfba9f4e1a556966afb049d585d0b8d9236f35"
+@pytest.mark.parametrize(
+    ("rate", "preserved_hz", "stopband_hz"),
+    ((50, 12.0, 25.0), (30, 12.0, 15.0), (25, 10.0, 12.5)),
+)
+def test_each_rate_preserves_its_band_and_stops_its_stopband(
+    rate: int, preserved_hz: float, stopband_hz: float
+) -> None:
+    attenuation_at_edge = -20.0 * np.log10(
+        filters.frequency_response(np.array([preserved_hz]), rate)[0]
     )
-    # The table is the filter: the same bytes on every call.
+    assert abs(attenuation_at_edge) <= contract.PASSBAND_RIPPLE_MAX_DB
+    working = filters.FILTER_SPECS[rate].working_rate_hz
+    stopband = filters.frequency_response(
+        np.linspace(stopband_hz, working / 2.0, 4096), rate
+    )
+    assert -20.0 * np.log10(stopband.max()) >= (
+        contract.STOPBAND_ATTENUATION_MIN_DB
+    )
+
+
+@pytest.mark.parametrize("rate", (50, 30, 25))
+def test_every_filter_meets_the_frozen_specification(rate: int) -> None:
+    filters.assert_meets_specification(rate)
+    measured = filters.measured_specification(rate)
+    assert measured["dc_gain"] == pytest.approx(1.0, abs=1e-9)
+    assert measured["symmetric"] is True
+    assert measured["taps"] % 2 == 1
+    assert measured["passband_ripple_db"] <= contract.PASSBAND_RIPPLE_MAX_DB
+    assert measured["stopband_attenuation_db"] >= (
+        contract.STOPBAND_ATTENUATION_MIN_DB
+    )
+
+
+def test_twelve_hertz_at_thirty_is_no_longer_attenuated_by_design() -> None:
+    # The whole point of the correction: -6.02 dB became -0.003 dB.
+    edge = filters.measured_specification(30)["passband_edge_db"]
+    assert abs(edge) < 0.01
+    ten = filters.measured_specification(25)["passband_edge_db"]
+    assert abs(ten) < 0.01
+
+
+@pytest.mark.parametrize("rate", (50, 30, 25))
+def test_the_coefficient_hashes_are_pinned(rate: int) -> None:
+    taps = filters.design(rate)
     assert hashlib.sha256(
-        np.ascontiguousarray(filters.coefficient_table()).tobytes()
-    ).hexdigest() == filters.coefficients_sha256()
+        np.ascontiguousarray(taps, dtype=np.float64).tobytes()
+    ).hexdigest() == filters.filter_sha256(rate)
+    assert filters.design(rate) is filters.design(rate)
 
 
-def test_the_kernel_is_used_by_lookup_not_interpolation() -> None:
-    table = filters.coefficient_table()
-    taps = contract.TAPS_PER_ZERO_CROSSING
-    assert filters.kernel_weight(0.0) == table[0]
-    assert filters.kernel_weight(1.0) == table[taps]
-    assert filters.kernel_weight(-1.0) == table[taps]
-    # Beyond the half width the kernel is exactly zero, not extrapolated.
-    assert filters.kernel_weight(
-        contract.HALF_WIDTH_ZERO_CROSSINGS + 0.5
-    ) == 0.0
-    assert np.array_equal(
-        filters.kernel_weights(np.array([0.0, 1.0, -1.0, 99.0])),
-        np.array([table[0], table[taps], table[taps], 0.0]),
+def test_the_combined_coefficient_hash_is_pinned() -> None:
+    assert filters.coefficients_sha256() == (
+        "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81"
+    )
+    assert FROZEN_DEPENDENCY.anti_alias_coefficients_sha256 == (
+        filters.coefficients_sha256()
     )
 
 
-def test_the_kernel_support_shrinks_as_the_rate_falls() -> None:
-    supports = [float(filters.support_seconds(r)) for r in DERIVED_RATES_HZ]
-    assert supports == pytest.approx([0.1, 0.2, 1 / 3, 0.4])
-    # Lower rate, lower cutoff, wider kernel in time.
-    assert supports == sorted(supports)
+def test_the_polyphase_branch_gains_are_reported_not_normalized() -> None:
+    gains = filters.polyphase_dc_gains(30)
+    assert len(gains) == 3
+    spread = max(gains) - min(gains)
+    # Reported: normalizing each branch would replace one frozen transfer
+    # function with three.
+    assert spread < 1e-5
+    assert 20.0 * np.log10(max(gains) / min(gains)) < 0.001
+    assert filters.polyphase_dc_gains(50) == [pytest.approx(1.0)]
 
 
-@pytest.mark.parametrize("rate", DERIVED_RATES_HZ)
-def test_the_filter_passes_dc_and_stops_above_its_cutoff(rate: int) -> None:
-    cutoff = float(cutoff_hz(rate))
-    response = filters.frequency_response(
-        np.array([0.0, cutoff, 1.5 * cutoff, 2.0 * cutoff]), rate
-    )
-    assert response[0] == pytest.approx(1.0, abs=1e-9)
-    # A windowed sinc is 6 dB down at its own cutoff, by construction.
-    assert response[1] == pytest.approx(0.5, rel=0.02)
-    assert 20 * np.log10(response[2]) < -80.0
-    assert 20 * np.log10(response[3]) < -100.0
+def test_the_parent_rate_carries_no_anti_alias_filter() -> None:
+    assert contract.PARENT_RATE_HZ == 100
+    assert contract.PARENT_HAS_ANTI_ALIAS_FILTER is False
+    assert 100 not in filters.FILTER_SPECS
+    with pytest.raises(filters.AntiAliasError):
+        filters.design(100)
 
 
-def test_the_band_edge_response_is_published_as_measured_evidence() -> None:
-    response = filters.declared_band_response()
-    assert set(response) == {str(rate) for rate in DERIVED_RATES_HZ}
-    # 100 and 50 Hz carry the whole analysis band unattenuated.
-    for rate in ("100", "50"):
-        assert response[rate]["edge_max_hz"] == pytest.approx(0.0, abs=0.01)
-    # At 30 Hz the top of the grid sits at the cutoff.
-    assert response["30"]["edge_max_hz"] == pytest.approx(-6.02, abs=0.05)
-    # At 25 Hz the cutoff is the core/edge split itself, so the topmost core
-    # bin is already 6 dB down and the edge band is deep in the transition.
-    assert response["25"]["core_max_hz"] == pytest.approx(-6.02, abs=0.05)
-    assert response["25"]["edge_max_hz"] == pytest.approx(-28.36, abs=0.1)
-    assert response["25"]["core_min_hz"] == pytest.approx(0.0, abs=0.01)
+def test_linear_interpolation_is_declared_as_not_transparent() -> None:
+    assert contract.SOURCE_TO_PARENT == "SOURCE_TIME_LINEAR_INTERPOLATION"
+    reference = filters.stage_a_reference_response()
+    # 100 Hz is an ablation in its own right; the reference says why.
+    assert reference["12_hz_db"] == pytest.approx(-0.4135, abs=0.001)
+    assert reference["10_hz_db"] == pytest.approx(-0.2867, abs=0.001)
+    assert reference["3_hz_db"] == pytest.approx(-0.0257, abs=0.001)
 
 
-def test_the_manifest_publishes_the_whole_filter_definition() -> None:
-    manifest = filters.anti_alias_manifest()
-    assert manifest["kernel"] == "KAISER_WINDOWED_SINC"
-    assert manifest["kaiser_beta"] == 8.6
-    assert manifest["half_width_zero_crossings"] == 8
-    assert manifest["taps_per_zero_crossing"] == 128
-    assert manifest["coefficient_table_length"] == 1025
-    assert manifest["weight_normalization"] == "UNIT_SUM_PER_OUTPUT_SAMPLE"
-    assert manifest["coefficients_sha256"] == filters.coefficients_sha256()
-    assert manifest["cutoff_hz"] == {
-        "100": 40.0, "50": 20.0, "30": 12.0, "25": 10.0,
+def test_the_stress_band_is_structurally_labelled() -> None:
+    assert contract.STRESS_BAND_HZ == {25: (10.0, 12.0)}
+    assert contract.EDGE_BAND == "EDGE_STRESS_10_TO_12_HZ"
+    assert band_of(10.25) == contract.EDGE_BAND
+    assert band_of(12.0) == contract.EDGE_BAND
+    assert band_of(10.0) == contract.CORE_BAND
+    # Only 25 Hz has a stress band: at 50 and 30 Hz the whole analysis grid
+    # sits inside the preservation band.
+    assert 50 not in contract.STRESS_BAND_HZ
+    assert 30 not in contract.STRESS_BAND_HZ
+
+
+# --- exact derived timing -------------------------------------------------
+
+
+@pytest.mark.parametrize(("rate", "decimate"), ((50, 2), (25, 4)))
+def test_integer_decimation_lands_on_exact_parent_samples(
+    rate: int, decimate: int
+) -> None:
+    parent = parent_grid()
+    derived = grid_for(rate)
+    assert contract.RESAMPLING_RATIOS[rate] == (1, decimate)
+    for ordinal in (0, 1, 97, 1000):
+        assert derived.sample_seconds(ordinal) == Fraction(ordinal, rate)
+        assert derived.sample_picoseconds_exact(ordinal) == (
+            parent.sample_picoseconds_exact(decimate * ordinal)
+        )
+
+
+def test_thirty_hertz_lands_on_an_exact_rational_grid_without_drift() -> None:
+    derived = grid_for(30)
+    upsample, decimate = contract.RESAMPLING_RATIOS[30]
+    assert (upsample, decimate) == (3, 10)
+    working = Fraction(contract.PARENT_RATE_HZ * upsample)
+    for ordinal in (0, 1, 7, 599, 10_000):
+        # Ordinal k sits on working index 10k, which is exactly k/30 s.
+        assert Fraction(decimate * ordinal) / working == Fraction(ordinal, 30)
+        assert derived.sample_seconds(ordinal) == Fraction(ordinal, 30)
+    # No cumulative drift: the exact time is a single multiplication, and the
+    # step between consecutive ordinals never varies.
+    steps = {
+        derived.sample_seconds(k + 1) - derived.sample_seconds(k)
+        for k in range(0, 10_000, 997)
     }
+    assert steps == {Fraction(1, 30)}
+    assert derived.sample_picoseconds_exact(1) is None
+
+
+# --- segment edges --------------------------------------------------------
+
+
+@pytest.mark.parametrize("rate", (50, 30, 25))
+def test_insufficient_filter_support_refuses_output(rate: int) -> None:
+    taps = filters.design(rate).size
+    supported = supported_output_ordinals(
+        rate, taps=taps, parent_first=0, parent_last=1999
+    )
+    assert supported.start > 0
+    assert supported.stop - 1 < (1999 * rate) // 100
+    for ordinal in supported:
+        first, last = parent_span_for_output(rate, ordinal, taps=taps)
+        assert first >= 0
+        assert last <= 1999
+    # The ordinal just before the first supported one would need parent
+    # samples that do not exist, so it produces nothing rather than padding.
+    first, _ = parent_span_for_output(rate, supported.start - 1, taps=taps)
+    assert first < 0
+
+
+@pytest.mark.parametrize("rate", (50, 30, 25))
+def test_a_segment_shorter_than_the_kernel_yields_no_output(
+    rate: int,
+) -> None:
+    taps = filters.design(rate).size
+    assert supported_output_ordinals(
+        rate, taps=taps, parent_first=0, parent_last=10
+    ) == range(0)
+    assert supported_output_ordinals(
+        rate, taps=taps, parent_first=5, parent_last=4
+    ) == range(0)
+
+
+def test_no_padding_or_renormalization_is_permitted() -> None:
+    assert contract.EDGE_POLICY == "REFUSE_UNSUPPORTED_OUTPUT_SAMPLES"
+    assert contract.EDGE_PADDING_ALLOWED is False
+    assert contract.TRUNCATED_KERNEL_RENORMALIZATION_ALLOWED is False
+    assert contract.WINDOW_ELIGIBILITY == "FULLY_INSIDE_SUPPORTED_OUTPUT"
+
+
+def test_an_even_length_kernel_is_refused() -> None:
+    with pytest.raises(RationalTimeError):
+        parent_span_for_output(50, 0, taps=32)
 
 
 # --- screens and claim boundary ------------------------------------------
