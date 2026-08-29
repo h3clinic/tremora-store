@@ -484,7 +484,185 @@ v0.5D, this is not remote attestation.
 records' gate as `UNRECOGNIZED_DEVICE_LOCATION` rather than parse; widening the
 set is a separately versioned contract change.
 
-## 7. Milestones after P0.1
+## 7. PADS-P0.2 — authoritative indexing and gap-aware replay
+
+### 7.1 What it materializes, and what it refuses to
+
+P0.2 materializes a compact deterministic representation supporting participant
+lookup, assessment and task lookup, left- and right-wrist stream retrieval,
+exact task-local sample ranges, gap-aware contiguous segments, four-second
+window indexes, participant-disjoint fold assignment and byte-exact replay.
+
+It calculates no spectrum, tremor frequency, band power, resampled signal,
+anti-aliasing output, classification, video association or comparative
+benchmark result.  Those are P0.3, P0.4 and P0.5.  Every table and field name
+passes two substring screens — the inherited video screen and a P0.2 screen for
+spectral, resampling and classification names — and the audit checks the screen
+against the files it actually wrote, not against its own prose.
+
+The success marker is `_PADS_P02_INDEX_SUCCESS`, never a generic `_SUCCESS`: an
+index materialization must not be mistakable for a synchronization result.
+
+### 7.2 The P0.1 dependency
+
+P0.2 refuses to run without the exact P0.1 authority, pinned in code and
+generated into `pads_p01_dependency.json`, so editing the file alone cannot
+move the dependency.  P0.2 never regenerates P0.1 inside itself.
+
+Absence and disagreement are separated the way the project separates them
+elsewhere.  A missing dependency, report or release root means there is nothing
+to depend on: `BLOCKED_P01_DEPENDENCY_UNAVAILABLE`, exit 4.  A changed evidence
+hash, a changed report, a P0.1 verdict that is not `PASS`, or a different
+source manifest is evidence about a broken authority chain: the gate is
+evaluated, `P01_AUTHORITY_DEPENDENCY_VERIFIED` fails, nothing is materialized,
+and the run exits 3.  Reporting a disagreement as unavailability would hide a
+broken authority chain behind an availability notice.
+
+### 7.3 Time is exact only in picoseconds
+
+Every `Time` token in the release carries exactly ten decimal places, so its
+resolution is 1e-10 s.  An integer nanosecond count cannot represent that:
+`0.0099029541` s is 9,902,954.1 ns but exactly 9,902,954,100 ps.  Every
+source-derived time in P0.2 is therefore an int64 picosecond count, a schema
+test rejects any field named `_ns`, and a token finer than the declared scale
+raises rather than rounding.
+
+Task-local time is a convenience view derived from an explicitly stored origin;
+source time remains the authority.
+
+Sensor values are stored as float64 and their exact source token is rebuilt
+through a declared `{:.10f}` format — but the round-trip is verified for every
+value as it is materialized and the stream is refused on the first value that
+does not rebuild its token.  That is what makes byte-exact replay a proven
+property of this corpus rather than an assumption about it.
+
+### 7.4 The bilateral boundary
+
+The release establishes that two wrist streams belong to the same participant
+and task.  It establishes nothing about a common hardware clock, so:
+
+```text
+bilateral_pairing_authority           = SOURCE_PROTOCOL_PAIR
+cross_wrist_clock_alignment           = UNRESOLVED
+sample_level_bilateral_fusion_allowed = false
+```
+
+P0.2 may retrieve both wrists for one task, and windows are paired by their
+shared task-local grid offset.  It may never claim that left sample 400 is
+simultaneous with right sample 400.  Every published bilateral row carries
+`UNRESOLVED` on its own row rather than leaving it to a sibling table.
+
+### 7.5 Storage
+
+Every sample is stored exactly once, packed by stream: streams in ascending
+`stream_id` order, 256 per part file, exactly one row group per stream so a
+stream is one contiguous read, under one pinned writer configuration.  10,318
+tiny text files are not a runtime representation, and copying samples into task
+or window records would store the corpus several times over.
+
+### 7.6 Segments and windows
+
+Segments are recomputed from the stored samples every time rather than trusted
+from P0.1, and break at `min(100 ms, 3 x dt_ref)` — about 30 ms at the
+release's ~9.99 ms median interval.  Breaks also fire on a non-positive delta,
+an ordinal discontinuity and an invalid sample, and the result is checked to
+partition its stream exactly.
+
+Windows sit on a 2 s grid anchored at task-local zero and span 4 s.  Membership
+is a half-open source-time interval searched inside the owning segment, never a
+fixed forward count: the device clock jitters from 13.8 us to 58.8 ms across the
+corpus, so `first_sample + 400` would silently mean a different duration in
+every window.  Containment is verified on the built windows, not assumed from
+the construction that made them.
+
+### 7.7 Folds
+
+`split_group_id` is the participant, so all 22 of a participant's device streams
+land in one fold.  Assignment is stratified by the release's six condition
+groups, ordered inside each group by a keyed digest of seed 20260829, and dealt
+round-robin across five folds — no RNG, so two clean roots agree.  P0.2 assigns
+outer-fold identity only; train, validation and test labels belong to whatever
+milestone actually trains something.
+
+### 7.8 The gate
+
+Sixteen conditions, all required:
+
+```text
+P01_AUTHORITY_DEPENDENCY_VERIFIED
+ALL_SOURCE_ASSETS_HASH_VERIFIED
+PARTICIPANT_INDEX_RECONCILED
+ASSESSMENT_INDEX_RECONCILED
+STREAM_INDEX_RECONCILED
+ALL_SOURCE_SAMPLES_STORED_EXACTLY_ONCE
+SOURCE_TIME_TOKENS_PRESERVED
+STREAM_ROW_GROUP_INDEX_COMPLETE
+SEGMENTS_PARTITION_STREAMS_EXACTLY
+WINDOWS_NEVER_CROSS_SEGMENT_BOUNDARIES
+WINDOW_SAMPLE_RANGES_REPLAY_EXACTLY
+BILATERAL_TASK_PAIRS_COMPLETE
+NO_SAMPLE_LEVEL_BILATERAL_SYNC_CLAIM
+PARTICIPANT_FOLDS_DISJOINT
+INDEPENDENT_MATERIALIZATION_REPRODUCED
+NO_VIDEO_SPECTRAL_OR_RESAMPLING_ARTIFACTS
+```
+
+Gate status is `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY` or
+`NO_GO_PADS_INDEX_AND_WINDOW_MATERIALIZATION`, with
+`BLOCKED_P01_DEPENDENCY_UNAVAILABLE` below both.  Exit codes are 0 for an
+empirical pass, 3 for a no-go, 4 for a missing authoritative dependency and 2
+for an execution error.
+
+Several conditions are checked against something the materializer did not
+produce: the sample total against the pinned P0.1 count, replay against the
+release's own asset hashes read back from disk, and window ranges against rows
+the store actually returned.  Verification is a separate pass over what was
+written, not over the arrays that wrote it.
+
+Reproduction reuses the P0.1 receipt split: two child processes materialize
+into two empty output roots, and the second is handed the first's receipt.  A
+CLI cannot reproduce itself in one process because the receipts would share a
+PID — a test asserts exactly that.  As with P0.1 and v0.5D, this establishes two
+executions under a trusted procedure and is not remote attestation.
+
+### 7.9 Result
+
+The gate is `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY` on all sixteen conditions,
+run against the frozen PhysioNet 1.0.0 release.
+
+| | |
+|---|---|
+| Participants / assessments / streams | 469 / 5,159 / 10,318 |
+| Samples stored | 13,447,168, none duplicated |
+| Files re-verified against `SHA256SUMS.txt` | 11,256 |
+| Sample store | 41 part files, 10,318 row groups, one per stream, ~910 MB |
+| Segments | 14,729 |
+| Time gaps above the threshold | **4,411** |
+| Four-second windows | 50,676, none crossing a segment |
+| Bilateral task pairs | 5,159 (complete) |
+| Bilateral window pairs | 23,928 |
+| Sample-level alignment claims | 0 |
+| Outer folds | 5, sized 96 / 94 / 94 / 93 / 92 |
+| Streams replaying byte-exactly | **10,318 / 10,318** |
+| Windows replayed from the store | 50,676, no failures |
+| Evidence hash | `fdfb43cf…`, identical across both processes |
+| Storage-index content hash | `22aeeb03…` |
+
+Two numbers deserve reading carefully.
+
+**4,411 gaps.** Fourteen thousand seven hundred and twenty-nine segments over
+ten thousand three hundred and eighteen streams means the release contains
+4,411 intervals longer than `3 x dt_ref`.  Gap-aware windowing is not a
+formality on this corpus: a fixed 4 s slicer anchored on sample counts would
+have silently produced windows spanning a discontinuity.
+
+**23,928 bilateral window pairs, against 50,676 windows.** Half of 50,676 is
+25,338, so 1,410 windows have no partner: a gap on one wrist removes a window
+that still exists on the other.  Those windows stay in the window index and
+simply go unpaired.  Inventing a partner would be the sample-level alignment
+claim this milestone exists to refuse.
+
+## 8. Milestones after P0.2
 
 **E4D-P0.2 — frame-to-IMU range index.** Opens only on a passing P0.1 gate. For
 each frame interval `[t_i, t_(i+1))`, store the contiguous range of eligible IMU
@@ -508,7 +686,7 @@ retrieval, four-second gap-aware windows, participant-disjoint grouping and
 deterministic replay. Spectral features and resampling ablations are a separate
 milestone and are not combined into the ingest work.
 
-## 8. What the paper says about VIDIMU
+## 9. What the paper says about VIDIMU
 
 > Of the evaluated multimodal source structures, reproducibility of a
 > publisher-provided transformation was not sufficient to establish temporal
@@ -519,7 +697,7 @@ milestone and are not combined into the ingest work.
 That is not an embarrassing failure. It is the direct evidence for why the
 authority model is necessary.
 
-## 9. Provenance of this branch
+## 10. Provenance of this branch
 
 The E4D-P0.1 and PADS-P0.1 implementation on this branch is a **re-derivation**.
 An earlier build of the same design was produced in an ephemeral environment and
@@ -527,7 +705,7 @@ lost with it, together with the adversarial reviews it had passed. This code was
 rebuilt from the architecture and has not carried those reviews. It is a new
 artifact and the commit messages say so.
 
-## 10. Current status
+## 11. Current status
 
 | Component | Status |
 |---|---|
@@ -538,7 +716,9 @@ artifact and the commit messages say so.
 | E4D-P0.1 empirical gate | Not evaluated; requires the signed Ego4D licence and pinned assets |
 | E4D-P0.2 / P0.3 / P0.4 | Closed pending a passing P0.1 gate |
 | PADS-P0.1 contract, schemas, parser, audit | Implemented and executed against PADS 1.0.0 |
-| PADS-P0.1 empirical gate | See `pads_p01_release_audit.json` |
-| PADS storage/spectral benchmarks | Closed pending a passing PADS-P0.1 gate |
+| PADS-P0.1 empirical gate | `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`; 14/14 |
+| PADS-P0.2 storage, indexes, windows, folds, replay | Implemented and executed against PADS 1.0.0 |
+| PADS-P0.2 empirical gate | `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`; 16/16, reproduced across two processes |
+| PADS-P0.3 / P0.4 / P0.5 | Closed; P0.2 emits no spectrum, resampled signal or benchmark result |
 | EgoInertia-MI | Verified real (arXiv:2607.03934); optional, off the critical path |
 | Comparative systems results | None yet |

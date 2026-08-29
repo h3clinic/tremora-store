@@ -6,13 +6,15 @@ artifacts.
 
 | Artifact | Status | SHA-256 |
 |---|---|---|
-| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest is `PASS` and E4D-P0.1 is implemented but unevaluated | `338de96e74f4d0bda2f0d449585976e3a305adacca3f7249b56366f4d037f4f9` |
-| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1 and PADS-P0.1 contracts | `c91c9be294b682518c8c21a7f3b08f228e1cd84773e5d1da79459949fe30aa83` |
+| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest and PADS-P0.2 indexing are both `PASS`, and E4D-P0.1 is implemented but unevaluated | `0878b6e5366d1f62c19f7fbf089de2840dfa5b965c4dbf3f99298d79c6e6e4bc` |
+| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1, PADS-P0.1 and PADS-P0.2 contracts | `255e94b2287ed36fef2c17b086c8d9874f1a101a8eabc2fd3bb64a66896bb7c7` |
 | `fullmotion/detector/benchmarks/vidimu_v2_release_audit.json` | **Current implementation evidence**: deterministic `PASS` audit of all 208 pinned VIDIMU CSV/RAW pairs plus central-directory-only original-video candidate inventory | `41277661f9e248da2f42c0703b69beec92bcaf0037b5d46264f64852ab22ecf1` |
 | `fullmotion/detector/benchmarks/vidimu_v04_gate_b_release_audit.json` | **Current Gate-B empirical evidence**: `BYTE_IDENTICAL_SOURCE_TO_CV_PASS` / `PASS` for two clean, process/root/inode-disjoint all-208 executions in the frozen observed environment | `d24863d20347cf2c9ab092a9f7771ada3a88ec8fbc77a7b33788df5c0637a10e` |
 | `fullmotion/detector/benchmarks/vidimu_v05_sync_authority_audit.json` | **Current v0.5 authority evidence**: audit execution `PASS`, gate `NO_GO_RAW_NATIVE_CLOCK_AUTHORITY`; all 208 original RAW assets and all 217 released synchronization overrides reconcile, two records are `AMBIGUOUS_SOURCE_MAPPING`, and no canonical clocks or v0.6 artifacts were emitted | `3d4492f984ddffaed579da2e107aaf9f7d1e9cdae1ddc83629f8708d8e75bdec` |
 | `fullmotion/detector/benchmarks/vidimu_v05d_derived_alignment_release_audit.json` | **Current v0.5D evidence**: audit execution `PASS`, source-derived materialization gate `NO_GO`; all 217 source transformations reproduce byte-for-byte, but 2,036,601 RAW polling groups do not map one-to-one to 299,711 50 Hz STO/MOT ordinals, 30/34 RAW trims end mid group, and no alignment Parquet or success marker was emitted | `131a6110d699ed8d0ebd7611c820112f1fe6af5c0e44f116181bd4a8495ac1b0` |
 | `fullmotion/detector/benchmarks/pads_p01_release_audit.json` | **Current PADS-P0.1 empirical evidence**: audit execution `PASS`, gate `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`, 14/14 conditions; 469 participants, 5,159 assessment steps and 10,318 device files reconciled, 11,256 files hash-verified against the release's own `SHA256SUMS.txt`, 13,447,168 samples parsed, evidence hash `e25ce02f…` reproduced by two inode-disjoint processes | `6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749` |
+| `fullmotion/detector/benchmarks/pads_p02_release_audit.json` | **Current PADS-P0.2 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`, 16/16 conditions; 13,447,168 samples stored exactly once in 10,318 single-row-group streams, 14,729 segments over 4,411 detected gaps, 50,676 windows none crossing a segment, 23,928 bilateral window pairs with no sample-level alignment claim, five participant-disjoint folds, and byte-exact replay of all 10,318 streams read back from the store; evidence `fdfb43cf…` reproduced by two inode-disjoint processes | `c0031e78615e1d6bf69fc9349476b46c5d90d2567941df2f89b24cf16935e9bb` |
+| `fullmotion/detector/benchmarks/pads_p01_dependency.json` | **Current P0.2 authority pin**: the exact P0.1 verdict, report bytes, source manifest and release counts P0.2 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p02_contract.py` |
 | `Tremora_IEEE_BigData_2026_research_brief.md` | **Superseded historical record**: abandoned participant-study and privileged-supervision scope; do not use for current claims or venue gates | `e28c563796816cb80febe1b9420b65230cc8de640e955ed98609865bda1d4c65` |
 | `Tremora_Engineering_Calibration_Manifest_v0_2.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `2aff25acc3025be7b04d67f6181deb443b878de423112d1175d45080b44f34db` |
 | `Tremora_Dataset_Audit_Manifest.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `3182d6813d4fbe18cf1606a28055b198f6314570746d0b5d9fccbb6ac9d97969` |
@@ -126,3 +128,41 @@ IMU Benchmark for Motor Impairment Assessment* (Alhamdoosh, Pala, Mohamed,
 Arvind), submitted 4 July 2026. The exclusion is withdrawn; the dataset remains
 optional and off the critical path because its impairment is simulated by
 healthy volunteers.
+
+
+## PADS-P0.2 — authoritative indexing and gap-aware replay
+
+PADS-P0.2 is `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY` on all sixteen conditions,
+materialized twice in separate processes against the frozen PhysioNet 1.0.0
+release. Every source sample is stored exactly once; every one of the 10,318
+streams replays byte-exactly when read back from the store, so the
+reconstructed file hashes to the source asset's own SHA-256 for the whole
+corpus rather than a frozen subset.
+
+Two findings from the real corpus. The release contains **4,411 time gaps**
+above `min(100 ms, 3 x dt_ref)`, so 10,318 streams yield 14,729 segments: a
+fixed slicer anchored on sample counts would have produced windows spanning a
+discontinuity. And of 50,676 windows only 23,928 bilateral pairs exist, because
+a gap on one wrist removes a window that still exists on the other; those
+windows stay unpaired rather than acquiring an invented partner.
+
+Source time is stored in exact **picoseconds**. Every `Time` token in the
+release carries ten decimal places, so `0.0099029541` s is 9,902,954.1 ns —
+not representable as an integer nanosecond count. The requested `_ns` fields
+would have rounded away a digit the source actually wrote.
+
+Bilateral retrieval is `SOURCE_PROTOCOL_PAIR` with
+`cross_wrist_clock_alignment = UNRESOLVED` and sample-level fusion refused on
+every published row. P0.2 emits no spectrum, tremor frequency, band power,
+resampled signal, anti-aliasing output, classification, video association or
+comparative benchmark result, and publishes a zero count for each. Its success
+marker is `_PADS_P02_INDEX_SUCCESS`, never a generic `_SUCCESS`.
+
+The reproduction proof is two child processes writing to inode-disjoint empty
+output roots and agreeing on the evidence hash. As with P0.1, v0.4 Gate B and
+v0.5D, that is execution receipts under a trusted procedure in one frozen
+environment; it is not cryptographic remote attestation.
+
+The materialized store itself — about 910 MB of Parquet per run — lives beside
+the dataset and is not committed to this repository. PADS-P0.3, P0.4 and P0.5
+remain closed.

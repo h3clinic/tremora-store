@@ -15,6 +15,7 @@ checked against a list of exact names, because a deny-list would refuse
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from fractions import Fraction
 from typing import Any
@@ -88,6 +89,17 @@ VIDEO_BEARING_SUBSTRINGS: tuple[str, ...] = (
     "video",
 )
 
+#: ``pts`` is matched on letter boundaries rather than as a bare substring.
+#: The substring rule exists to catch *extensions* of a video-bearing name --
+#: ``video_uid_ref``, ``camera_stream_uid`` -- not arbitrary infixes, and a
+#: bare substring refuses ``reproduction_receipts``, which is about execution
+#: provenance and has nothing to do with presentation timestamps.  The
+#: boundary form still refuses ``pts``, ``pts_ns``, ``video_pts`` and
+#: ``frame_pts0``.
+_BOUNDARY_TOKENS: dict[str, re.Pattern[str]] = {
+    "pts": re.compile(r"(?<![a-z])pts(?![a-z])"),
+}
+
 NONCANONICAL_SOURCE_ORDER = "NONCANONICAL_SOURCE_ORDER"
 
 
@@ -114,11 +126,18 @@ def assert_unimodal_authority(
 def assert_no_paired_claim(names: Iterable[str]) -> None:
     """Refuse any table or field name that implies a video association."""
 
-    offending = sorted({
-        name
-        for name in names
-        if any(token in name.casefold() for token in VIDEO_BEARING_SUBSTRINGS)
-    })
+    def bears_video(name: str) -> bool:
+        folded = name.casefold()
+        for token in VIDEO_BEARING_SUBSTRINGS:
+            pattern = _BOUNDARY_TOKENS.get(token)
+            if pattern is not None:
+                if pattern.search(folded):
+                    return True
+            elif token in folded:
+                return True
+        return False
+
+    offending = sorted({name for name in names if bears_video(name)})
     if offending:
         raise PadsAuthorityError(
             f"PADS is inertial-only; {offending!r} implies a video association"

@@ -382,7 +382,9 @@ Use it only for raw-axis schema coverage, tremor-band metadata, spectral round-t
 
 **PADS-P0.1 ingest is `PASS`.** All fourteen conditions are satisfied against the real release: 469/469 participants, 5,159/5,159 assessment steps and 10,318/10,318 device files reconcile from the source metadata; 11,256 referenced files verify against the release's own `SHA256SUMS.txt`; 13,447,168 samples parse with every one of their 80,683,008 sensor values usable, no duplicate or non-monotonic Time, and no cadence or span deviation from the declared 100 Hz. Two separate processes writing to inode-disjoint empty roots produced the identical evidence hash `e25ce02f…`. See [`pads_p01_release_audit.json`](../../benchmarks/pads_p01_release_audit.json).
 
-The timing contract is `SOURCE_RELATIVE_UNIMODAL_CLOCK` with `relative_time_basis = SOURCE_TIME_COLUMN`: the release publishes a per-sample `Time` channel and the declared rate validates that timeline rather than generating it. The published clock is a real device clock — intervals in the first file run from 7.13 ms to 12.90 ms around a 9.99 ms median — so only the median interval is compared against the declared period. No window, spectral feature or video association is produced, and PADS-P0.2 stays closed until it is opened as its own milestone.
+**PADS-P0.2 indexing is `PASS`.** All sixteen conditions are satisfied: 13,447,168 samples stored exactly once across 41 Parquet parts with one row group per stream, 14,729 gap-aware segments revealing 4,411 real time gaps, 50,676 four-second windows none of which cross a segment, 5,159 complete bilateral task pairs and 23,928 window pairs, five participant-disjoint folds, and byte-exact replay of all 10,318 streams read back from the store. Two processes produced the identical evidence hash `fdfb43cf…`. Source time is stored in exact picoseconds, because the release's ten-decimal `Time` tokens cannot be represented in integer nanoseconds. See [`pads_p02_release_audit.json`](../../benchmarks/pads_p02_release_audit.json).
+
+The timing contract is `SOURCE_RELATIVE_UNIMODAL_CLOCK` with `relative_time_basis = SOURCE_TIME_COLUMN`: the release publishes a per-sample `Time` channel and the declared rate validates that timeline rather than generating it. The published clock is a real device clock — intervals in the first file run from 7.13 ms to 12.90 ms around a 9.99 ms median — so only the median interval is compared against the declared period. Bilateral retrieval is protocol-paired and never clock-aligned: `cross_wrist_clock_alignment` is `UNRESOLVED` and sample-level fusion is refused on every published row. No spectrum, resampled signal or benchmark result is produced; PADS-P0.3, P0.4 and P0.5 stay closed until each is opened as its own milestone.
 
 ### Optional datasets
 
@@ -563,9 +565,10 @@ Current status:
 | Cross-dataset timing-authority model | Implemented and frozen; VIDIMU binds `UNRESOLVED`, Ego4D `SOURCE_CANONICAL_TIMESTAMP`, PADS `SOURCE_RELATIVE_UNIMODAL_CLOCK` |
 | E4D-P0.1 Ego4D timing-authority audit | Machinery implemented; empirical gate not evaluated — the CLI returns `BLOCKED_INPUT_DATA_UNAVAILABLE` pending the signed licence and pinned assets |
 | PADS-P0.1 ingest audit | `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`; 14/14 conditions on the real release, reproduced across two processes |
+| PADS-P0.2 index and window audit | `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`; 16/16, 13,447,168 samples stored once, 50,676 gap-aware windows, whole-corpus byte-exact replay |
 | MMAct scale benchmark | Pending access and ingestion |
 | Ego4D irregularity benchmark | Pending ingestion |
-| PADS storage/spectral benchmark | Closed pending its own milestone; P0.1 emits no window or spectrum |
+| PADS spectral / rate-ablation / storage benchmarks | Closed; P0.3, P0.4 and P0.5 each open on their own gate |
 | Comparative systems results | None yet |
 | BigData Healthcare | Conditional on benchmark completion |
 | MLBD | Strong backup; conditional on benchmark completion |

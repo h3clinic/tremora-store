@@ -1,0 +1,250 @@
+{
+  "artifact_kind": "TREMORA_PADS_P02_INDEX_RELEASE_AUDIT",
+  "audit_execution_status": "PASS",
+  "authority": {
+    "bilateral_pairing_authority": "SOURCE_PROTOCOL_PAIR",
+    "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+    "cross_wrist_clock_alignment": "UNRESOLVED",
+    "dataset_id": "PADS",
+    "hardware_sync_claim": false,
+    "sample_level_bilateral_fusion_allowed": false,
+    "source_time_decimals": 10,
+    "time_basis": "SOURCE_TIME_COLUMN",
+    "time_scale_decimals": 12,
+    "timing_authority": "SOURCE_RELATIVE_UNIMODAL_CLOCK",
+    "video_pairing": "NOT_APPLICABLE"
+  },
+  "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
+  "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+  "expected": {
+    "assessments": 5159,
+    "participants": 469,
+    "samples": 13447168,
+    "streams": 10318
+  },
+  "gate_conditions": [
+    {
+      "condition": "P01_AUTHORITY_DEPENDENCY_VERIFIED",
+      "detail": "P01_AUTHORITY_DEPENDENCY_VERIFIED",
+      "satisfied": true
+    },
+    {
+      "condition": "ALL_SOURCE_ASSETS_HASH_VERIFIED",
+      "detail": "11256/11256 verified, 0 failed",
+      "satisfied": true
+    },
+    {
+      "condition": "PARTICIPANT_INDEX_RECONCILED",
+      "detail": "469/469",
+      "satisfied": true
+    },
+    {
+      "condition": "ASSESSMENT_INDEX_RECONCILED",
+      "detail": "5159/5159",
+      "satisfied": true
+    },
+    {
+      "condition": "STREAM_INDEX_RECONCILED",
+      "detail": "10318/10318, 0 refused",
+      "satisfied": true
+    },
+    {
+      "condition": "ALL_SOURCE_SAMPLES_STORED_EXACTLY_ONCE",
+      "detail": "13447168/13447168 stored, 0 duplicated",
+      "satisfied": true
+    },
+    {
+      "condition": "SOURCE_TIME_TOKENS_PRESERVED",
+      "detail": "10318/10318 streams replay byte exactly, 0 token disagreements",
+      "satisfied": true
+    },
+    {
+      "condition": "STREAM_ROW_GROUP_INDEX_COMPLETE",
+      "detail": "10318 row groups for 10318 streams",
+      "satisfied": true
+    },
+    {
+      "condition": "SEGMENTS_PARTITION_STREAMS_EXACTLY",
+      "detail": "0 partition failures",
+      "satisfied": true
+    },
+    {
+      "condition": "WINDOWS_NEVER_CROSS_SEGMENT_BOUNDARIES",
+      "detail": "0 of 50676 windows cross a segment",
+      "satisfied": true
+    },
+    {
+      "condition": "WINDOW_SAMPLE_RANGES_REPLAY_EXACTLY",
+      "detail": "50676/50676 windows replayed, 0 failures",
+      "satisfied": true
+    },
+    {
+      "condition": "BILATERAL_TASK_PAIRS_COMPLETE",
+      "detail": "5159/5159",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_SAMPLE_LEVEL_BILATERAL_SYNC_CLAIM",
+      "detail": "0 rows claim sample-level alignment",
+      "satisfied": true
+    },
+    {
+      "condition": "PARTICIPANT_FOLDS_DISJOINT",
+      "detail": "5 folds, 0 participants in more than one, 0 unassigned",
+      "satisfied": true
+    },
+    {
+      "condition": "INDEPENDENT_MATERIALIZATION_REPRODUCED",
+      "detail": "BYTE_IDENTICAL_PADS_P02_PASS",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_VIDEO_SPECTRAL_OR_RESAMPLING_ARTIFACTS",
+      "detail": "0 forbidden artifacts emitted",
+      "satisfied": true
+    }
+  ],
+  "gate_conditions_satisfied": 16,
+  "gate_conditions_total": 16,
+  "gate_evaluated": true,
+  "gate_status": "PASS_PADS_INDEX_AND_WINDOW_AUTHORITY",
+  "implementation_version": "pads-p02-index-materialization-1.0.0",
+  "materialization": {
+    "assessments_materialized": 5159,
+    "bilateral_task_pairs": 5159,
+    "bilateral_window_pairs": 23928,
+    "detected_time_gaps": 4411,
+    "duplicate_materialized_samples": 0,
+    "failure_count": 0,
+    "failures": [],
+    "fold_count": 5,
+    "fold_sizes": {
+      "0": 96,
+      "1": 94,
+      "2": 94,
+      "3": 93,
+      "4": 92
+    },
+    "parquet_files": 41,
+    "participants_in_multiple_folds": 0,
+    "participants_materialized": 469,
+    "participants_without_fold": 0,
+    "per_task_windows": {
+      "CrossArms": 2957,
+      "DrinkGlas": 3317,
+      "Entrainment": 8316,
+      "HoldWeight": 3695,
+      "LiftHold": 3512,
+      "PointFinger": 2959,
+      "Relaxed": 8360,
+      "RelaxedTask": 8335,
+      "StretchHold": 3418,
+      "TouchIndex": 2418,
+      "TouchNose": 3389
+    },
+    "release_structure_status": "PADS_RELEASE_STRUCTURE_RECONCILED",
+    "replay_byte_exact_streams": 10318,
+    "replay_streams_checked": 10318,
+    "row_groups": 10318,
+    "sample_level_alignment_claims": 0,
+    "samples_materialized": 13447168,
+    "segment_partition_failures": 0,
+    "segments": 14729,
+    "source_files_expected": 11256,
+    "source_files_failed": 0,
+    "source_files_hash_verified": 11256,
+    "source_time_token_failures": 0,
+    "streams_materialized": 10318,
+    "streams_refused": 0,
+    "streams_with_exactly_one_row_group": 10318,
+    "window_replay_failures": 0,
+    "windows": 50676,
+    "windows_crossing_segments": 0
+  },
+  "materialized_release_artifacts": 10318,
+  "p01_dependency": {
+    "dependency_status": "P01_AUTHORITY_DEPENDENCY_VERIFIED",
+    "detail": "P0.1 authority, published report and release all reconcile",
+    "observed_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+    "observed_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+    "observed_report_sha256": "6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749",
+    "pinned": {
+      "dataset_version": "1.0.0",
+      "expected_assessments": 5159,
+      "expected_participants": 469,
+      "expected_samples": 13447168,
+      "expected_streams": 10318,
+      "p01_code_commit": "05fe4bfecf06a93fea2dcaf40311c4c86059993e",
+      "p01_contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+      "p01_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+      "p01_gate_status": "PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK",
+      "p01_report_sha256": "6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    }
+  },
+  "release_gate_contract_version": "tremora-p01-release-gate-0.1.0",
+  "release_status": "EVALUATED",
+  "release_structure_expected": "PADS_RELEASE_STRUCTURE_RECONCILED",
+  "replay_verification": {
+    "failure_count": 0,
+    "failures": [],
+    "source_time_token_failures": 0,
+    "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1",
+    "streams_byte_exact": 10318,
+    "streams_checked": 10318,
+    "streams_failed": 0,
+    "window_replay_failures": 0,
+    "windows_checked": 50676
+  },
+  "reproduction_receipts": {
+    "note": "Absolute roots and command arguments are reduced to their final component; the unredacted receipts are written beside the materialized store, not into this repository. The reproduction proof rests on the differing run ids, process ids and output-root device/inode identities together with the identical canonical evidence hash.",
+    "run_a": {
+      "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
+      "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p02-index-materialization-1.0.0",
+      "output_root_basename": "run_a",
+      "output_root_identity": "16777233:131526463",
+      "process_id": 17326,
+      "run_id": "36fca8153bd444ba99a67f76c6203ccb",
+      "schema_version": "pads-p0.2.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_b": {
+      "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
+      "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p02-index-materialization-1.0.0",
+      "output_root_basename": "run_b",
+      "output_root_identity": "16777233:131526464",
+      "process_id": 17542,
+      "run_id": "d0909d4977d644ab895f08a838043beb",
+      "schema_version": "pads-p0.2.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    }
+  },
+  "run_receipt": {
+    "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
+    "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+    "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+    "implementation_version": "pads-p02-index-materialization-1.0.0",
+    "output_root_basename": "run_b",
+    "output_root_identity": "16777233:131526464",
+    "process_id": 17542,
+    "run_id": "d0909d4977d644ab895f08a838043beb",
+    "schema_version": "pads-p0.2.0",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+  },
+  "schema_version": "pads-p0.2.0",
+  "withheld_artifacts": {
+    "anti_alias_filter_outputs": 0,
+    "band_power_tables": 0,
+    "classification_tables": 0,
+    "comparative_benchmark_tables": 0,
+    "generic_success_markers": 0,
+    "resampled_signal_tables": 0,
+    "spectral_feature_tables": 0,
+    "tremor_frequency_tables": 0,
+    "video_association_tables": 0
+  }
+}

@@ -107,6 +107,28 @@ def test_video_bearing_names_are_screened_by_substring(name: str) -> None:
         assert_no_paired_claim(["participant_id", name])
 
 
+@pytest.mark.parametrize(
+    "name",
+    ("pts", "pts_ns", "video_pts", "frame_pts0", "PTS", "imu_pts_ms"),
+)
+def test_presentation_timestamp_names_are_refused(name: str) -> None:
+    with pytest.raises(PadsAuthorityError):
+        assert_no_paired_claim(["participant_id", name])
+
+
+@pytest.mark.parametrize(
+    "name", ("reproduction_receipts", "run_receipt", "receipts", "scripts")
+)
+def test_pts_matches_on_letter_boundaries_not_as_a_bare_infix(
+    name: str,
+) -> None:
+    # A bare substring rule refuses "receipts", which is about execution
+    # provenance and has nothing to do with presentation timestamps.  The
+    # substring rule exists to catch extensions of a video-bearing name, not
+    # arbitrary infixes.
+    assert_no_paired_claim(["participant_id", name])
+
+
 def test_support_and_span_differ_by_one_sample_period() -> None:
     assert float(sample_support_seconds(2048, RATE)) == 20.48
     assert float(first_to_last_span_seconds(2048, RATE)) == 20.47

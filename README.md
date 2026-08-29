@@ -19,6 +19,11 @@ validation data, or redistributed VIDIMU source archives.
 - PADS-P0.1: ingest audit `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`, 14/14
   conditions against the published PhysioNet release, reproduced across two
   processes.
+- PADS-P0.2: index and window audit `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`,
+  16/16 conditions; 13,447,168 samples stored exactly once, 50,676 gap-aware
+  four-second windows, and byte-exact replay of all 10,318 streams read back
+  from the store. No spectrum, resampled signal or benchmark result is
+  claimed.
 - E4D-P0.1: machinery only. Ego4D needs a signed licence and pinned assets, so
   the audit has never run against Ego4D data -- the CLI returns
   `BLOCKED_INPUT_DATA_UNAVAILABLE` and exits 4.
