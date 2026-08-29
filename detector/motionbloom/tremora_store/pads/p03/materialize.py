@@ -79,6 +79,8 @@ class P03Result:
     streams_total: int = 0
     streams_with_valid_windows: int = 0
     workload_windows_selected: int = 0
+    workload_distinct_streams: int = 0
+    workload_selection_stable: bool = False
     audit_windows_selected: int = 0
     workload_windows_eligible: int = 0
     workload_windows_ineligible: int = 0
@@ -91,6 +93,12 @@ class P03Result:
     maximum_observed_bin_error: float = 0.0
     source_unreadable: int = 0
     nominal_grid_substitutions: int = 0
+    windows_differing_from_nominal_grid: int = 0
+    nyquist_derived_from_dt_ref_rows: int = 0
+    declared_rate_nyquist_rows: int = 0
+    raw_axis_sum_mismatches: int = 0
+    distinct_sample_counts: int = 0
+    windows_refused_for_length: int = 0
     vector_magnitude_uses: int = 0
     sample_count_histogram: dict[str, int] = field(default_factory=dict)
     dt_ref_ps_distribution: dict[str, int] = field(default_factory=dict)
@@ -104,6 +112,8 @@ class P03Result:
             "streams_total": self.streams_total,
             "streams_with_valid_windows": self.streams_with_valid_windows,
             "workload_windows_selected": self.workload_windows_selected,
+            "workload_distinct_streams": self.workload_distinct_streams,
+            "workload_selection_stable": self.workload_selection_stable,
             "audit_windows_selected": self.audit_windows_selected,
             "workload_windows_eligible": self.workload_windows_eligible,
             "workload_windows_ineligible": self.workload_windows_ineligible,
@@ -124,6 +134,16 @@ class P03Result:
             "maximum_observed_bin_error": self.maximum_observed_bin_error,
             "source_unreadable": self.source_unreadable,
             "nominal_grid_substitutions": self.nominal_grid_substitutions,
+            "windows_differing_from_nominal_grid": (
+                self.windows_differing_from_nominal_grid
+            ),
+            "nyquist_derived_from_dt_ref_rows": (
+                self.nyquist_derived_from_dt_ref_rows
+            ),
+            "declared_rate_nyquist_rows": self.declared_rate_nyquist_rows,
+            "raw_axis_sum_mismatches": self.raw_axis_sum_mismatches,
+            "distinct_sample_counts": self.distinct_sample_counts,
+            "windows_refused_for_length": self.windows_refused_for_length,
             "vector_magnitude_uses": self.vector_magnitude_uses,
             "sample_count_histogram": dict(
                 sorted(self.sample_count_histogram.items())
@@ -238,6 +258,10 @@ def materialize(
         stream_id: str(row["source_asset_sha256"])
         for stream_id, row in storage_index.items()
     }
+    declared_rate_by_stream = {
+        str(row["stream_id"]): float(row["declared_sampling_rate_hz"])
+        for row in streams
+    }
 
     result.streams_total = len(streams)
     facts = window_facts(windows, segments)
@@ -245,9 +269,19 @@ def materialize(
         {window.stream_id for window in facts}
     )
 
-    workload = select_workload(facts, stream_midpoints_ps(streams))
+    midpoints = stream_midpoints_ps(streams)
+    workload = select_workload(facts, midpoints)
+    # Selection is a pure function of the frozen index; running it twice is
+    # cheap and turns the determinism condition into a check rather than a
+    # claim about the code.
+    result.workload_selection_stable = [
+        window.window_id for window in select_workload(facts, midpoints)
+    ] == [window.window_id for window in workload]
     audit = select_audit_subset(facts)
     result.workload_windows_selected = len(workload)
+    result.workload_distinct_streams = len(
+        {window.stream_id for window in workload}
+    )
     result.audit_windows_selected = len(audit)
     result.selection_coverage = selection_coverage(audit)
 
@@ -326,6 +360,31 @@ def materialize(
             continue
         result.workload_windows_eligible += 1
 
+        # Positive probe: would a nominal ordinal/rate grid have produced the
+        # same timestamps?  If the implementation had substituted one, these
+        # vectors would be identical.
+        rate = declared_rate_by_stream.get(window.stream_id, 0.0)
+        if rate > 0.0:
+            period_ps = round(10**12 / rate)
+            origin = times[0] - window.first_sample_ordinal * period_ps
+            nominal = [
+                origin + ordinal * period_ps
+                for ordinal in range(
+                    window.first_sample_ordinal,
+                    window.last_sample_ordinal + 1,
+                )
+            ]
+            if nominal == list(times):
+                result.nominal_grid_substitutions += 1
+            else:
+                result.windows_differing_from_nominal_grid += 1
+
+        limit = nyquist_hz(window.dt_ref_ps)
+        if limit == 10**12 / (2.0 * window.dt_ref_ps):
+            result.nyquist_derived_from_dt_ref_rows += 1
+        if limit == 50.0:
+            result.declared_rate_nyquist_rows += 1
+
         for family in SENSOR_FAMILIES:
             family_axes = [axes[name] for name in FAMILY_AXES[family]]
             try:
@@ -350,6 +409,16 @@ def materialize(
                 "spectral_content_sha256": spectrum.content_sha256(),
                 "spectral_status": SPECTRUM_COMPUTED,
             })
+            # Raw axes are preserved and summed, never combined in
+            # quadrature and never taken from a vector magnitude.
+            if not np.allclose(
+                np.asarray(record["aggregate_power"]),
+                np.asarray(record["axis_x_power"])
+                + np.asarray(record["axis_y_power"])
+                + np.asarray(record["axis_z_power"]),
+                rtol=0.0, atol=0.0,
+            ):
+                result.raw_axis_sum_mismatches += 1
             spectra_rows.append(record)
             if family == "ACCELEROMETER":
                 result.accel_spectral_rows += 1
@@ -493,9 +562,17 @@ def materialize(
         key=lambda row: (row["window_id"], row["sensor_family"])
     )
     audit_rows.sort(key=lambda row: row["window_id"])
+    result.distinct_sample_counts = len(result.sample_count_histogram)
     result.spectral_table_content_sha256 = _spectral_table_hash(spectra_rows)
 
     output_root.mkdir(parents=True, exist_ok=True)
+    from ...release_gate import canonical_json_bytes
+    from .grid import grid_record
+    from .schemas import FREQUENCY_GRID_FILENAME
+
+    (output_root / FREQUENCY_GRID_FILENAME).write_bytes(
+        canonical_json_bytes(grid_record())
+    )
     _write_table(output_root, "pads_p03_workload_windows", workload_rows)
     _write_table(output_root, "pads_p03_spectra", spectra_rows)
     _write_table(output_root, "pads_p03_source_replay_audit", audit_rows)
