@@ -1,0 +1,20 @@
+{
+  "artifact_kind": "TREMORA_PADS_P04_P03_DEPENDENCY",
+  "pinned": {
+    "anti_alias_coefficients_sha256": "ad041db76fa87977f10fcc355ddfba9f4e1a556966afb049d585d0b8d9236f35",
+    "expected_audit_windows": 6077,
+    "expected_spectral_rows": 19920,
+    "expected_workload_windows": 9960,
+    "frequency_grid_sha256": "b7b18ff14e6ef93a159484abd7850c732851e63c69290213706381bb32f77b25",
+    "p02_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+    "p03_contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+    "p03_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+    "p03_gate_status": "PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION",
+    "p03_report_sha256": "a2b6dfa3f598dfe7e2821285c3262dd1f817b168cb81e62683ad796445faf615",
+    "p03_spectral_table_sha256": "27bb6444bdfcab77911134b1c4671f563c51084f69e6d587e339c0a00d76c97e",
+    "rate_ablation_contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+    "resampling_contract_version": "tremora-pads-bandlimited-nonuniform-resample-0.4.0",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+    "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1"
+  }
+}
