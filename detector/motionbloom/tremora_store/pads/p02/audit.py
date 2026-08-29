@@ -144,6 +144,7 @@ def audit_pads_p02(
             release_root=release_root,
             output_root=output_root,
             p01_evidence_sha256=pinned.p01_evidence_sha256,
+            expected_samples=pinned.expected_samples,
             progress=progress,
         )
         replayed = verify_stored_replay(
@@ -193,6 +194,7 @@ def audit_pads_p02(
         facts.window_replay_failures = replayed.window_replay_failures
         facts.replay_streams_checked = replayed.streams_checked
         facts.replay_byte_exact_streams = replayed.streams_byte_exact
+        facts.samples_replayed = replayed.samples_replayed
         facts.source_time_token_failures = replayed.source_time_token_failures
 
     evidence: dict[str, Any] = {
@@ -251,6 +253,9 @@ def audit_pads_p02(
     record["release_status"] = RELEASE_EVALUATED
     record["gate_evaluated"] = True
     record["canonical_evidence_sha256"] = evidence_sha256
+    # An execution fact, so it sits in the envelope rather than the evidence:
+    # two genuine runs must agree on the evidence and disagree on this.
+    record["independent_reproduction_status"] = facts.reproduction_status
     record["run_receipt"] = receipt
     gate = evaluate_gate(facts)
     record.update(gate.as_record())

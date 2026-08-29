@@ -29,6 +29,7 @@ class ReplayVerification:
 
     streams_checked: int = 0
     streams_byte_exact: int = 0
+    samples_replayed: int = 0
     streams_failed: int = 0
     windows_checked: int = 0
     window_replay_failures: int = 0
@@ -40,6 +41,9 @@ class ReplayVerification:
         return {
             "streams_checked": self.streams_checked,
             "streams_byte_exact": self.streams_byte_exact,
+            # The third term of the headline reconciliation: the samples the
+            # store actually handed back, not the samples it was told to hold.
+            "samples_replayed": self.samples_replayed,
             "streams_failed": self.streams_failed,
             "windows_checked": self.windows_checked,
             "window_replay_failures": self.window_replay_failures,
@@ -97,6 +101,7 @@ def verify_stored_replay(
             result.failures.append(f"{stream_id}: {exc}")
             continue
 
+        result.samples_replayed += table.num_rows
         rebuilt = source_bytes_for(table, channel_order)
         expected = source_sha256_by_stream.get(stream_id)
         if expected is not None and hashlib.sha256(

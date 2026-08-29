@@ -25,10 +25,10 @@ from motionbloom.tremora_store.pads.p02.gate import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REPORT = REPO_ROOT / "detector/benchmarks/pads_p02_release_audit.json"
 REPORT_SHA256 = (
-    "c0031e78615e1d6bf69fc9349476b46c5d90d2567941df2f89b24cf16935e9bb"
+    "8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb"
 )
 EVIDENCE_SHA256 = (
-    "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab"
+    "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139"
 )
 STORAGE_INDEX_SHA256 = (
     "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1"
@@ -67,10 +67,67 @@ def test_it_was_authorized_by_the_pinned_p01_pass(report: dict) -> None:
     )
 
 
+#: The release-audit counts the milestone specification requires.  Encoded
+#: as a test so a future report cannot quietly stop publishing one.
+REQUIRED_COUNTS = (
+    "participants_expected",
+    "participants_materialized",
+    "assessments_expected",
+    "assessments_materialized",
+    "streams_expected",
+    "streams_materialized",
+    "samples_expected",
+    "samples_materialized",
+    "duplicate_materialized_samples",
+    "missing_materialized_samples",
+    "parquet_files",
+    "row_groups",
+    "streams_with_exactly_one_row_group",
+    "segments",
+    "segment_partition_failures",
+    "detected_time_gaps",
+    "windows",
+    "windows_crossing_segments",
+    "window_replay_failures",
+    "bilateral_task_pairs",
+    "bilateral_window_pairs",
+    "sample_level_alignment_claims",
+    "fold_count",
+    "participants_in_multiple_folds",
+    "run_a_canonical_hash",
+    "run_b_canonical_hash",
+    "independent_reproduction_status",
+)
+
+
+def test_every_required_release_count_is_published(report: dict) -> None:
+    published = (
+        set(report)
+        | set(report["materialization"])
+        | set(report["replay_verification"])
+        | set(report["reproduction_receipts"])
+        | {f"{name}_expected" for name in report["expected"]}
+    )
+    missing = [name for name in REQUIRED_COUNTS if name not in published]
+    assert missing == []
+
+
+def test_the_headline_reconciliation_holds_in_all_three_terms(
+    report: dict,
+) -> None:
+    # 13,447,168 = source = stored = replayed.  The third term is the samples
+    # the store actually handed back, not the samples it was told to hold.
+    assert report["expected"]["samples"] == SAMPLES
+    assert report["materialization"]["samples_materialized"] == SAMPLES
+    assert report["replay_verification"]["samples_replayed"] == SAMPLES
+    assert report["materialization"]["missing_materialized_samples"] == 0
+
+
 def test_every_source_sample_is_stored_exactly_once(report: dict) -> None:
     materialization = report["materialization"]
     assert materialization["samples_materialized"] == SAMPLES
     assert materialization["duplicate_materialized_samples"] == 0
+    assert materialization["missing_materialized_samples"] == 0
     assert materialization["streams_materialized"] == STREAMS
     assert materialization["streams_refused"] == 0
     assert report["expected"]["samples"] == SAMPLES
@@ -153,11 +210,16 @@ def test_two_separate_processes_produced_the_same_evidence(
     receipts = report["reproduction_receipts"]
     run_a, run_b = receipts["run_a"], receipts["run_b"]
     assert report["canonical_evidence_sha256"] == EVIDENCE_SHA256
+    assert receipts["run_a_canonical_hash"] == EVIDENCE_SHA256
+    assert receipts["run_b_canonical_hash"] == EVIDENCE_SHA256
     assert run_a["canonical_evidence_sha256"] == EVIDENCE_SHA256
     assert run_b["canonical_evidence_sha256"] == EVIDENCE_SHA256
     assert run_a["run_id"] != run_b["run_id"]
     assert run_a["process_id"] != run_b["process_id"]
     assert run_a["output_root_identity"] != run_b["output_root_identity"]
+    assert report["independent_reproduction_status"] == (
+        "BYTE_IDENTICAL_PADS_P02_PASS"
+    )
 
 
 def test_source_time_is_published_in_picoseconds(report: dict) -> None:

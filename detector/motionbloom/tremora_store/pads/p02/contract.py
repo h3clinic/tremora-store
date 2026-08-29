@@ -37,9 +37,9 @@ from ..authority import (
     assert_no_paired_claim,
 )
 
-P02_CONTRACT_VERSION = "tremora-pads-index-and-window-authority-0.2.0"
+P02_CONTRACT_VERSION = "tremora-pads-index-and-window-authority-0.2.1"
 P02_SCHEMA_VERSION = "pads-p0.2.0"
-P02_IMPLEMENTATION_VERSION = "pads-p02-index-materialization-1.0.0"
+P02_IMPLEMENTATION_VERSION = "pads-p02-index-materialization-1.1.0"
 P02_ARTIFACT_KIND = "TREMORA_PADS_P02_INDEX_RELEASE_AUDIT"
 
 GATE_PASS = "PASS_PADS_INDEX_AND_WINDOW_AUTHORITY"

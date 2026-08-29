@@ -3,7 +3,7 @@
   "audit_execution_status": "PASS",
   "authority": {
     "bilateral_pairing_authority": "SOURCE_PROTOCOL_PAIR",
-    "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+    "contract_version": "tremora-pads-index-and-window-authority-0.2.1",
     "cross_wrist_clock_alignment": "UNRESOLVED",
     "dataset_id": "PADS",
     "hardware_sync_claim": false,
@@ -14,8 +14,8 @@
     "timing_authority": "SOURCE_RELATIVE_UNIMODAL_CLOCK",
     "video_pairing": "NOT_APPLICABLE"
   },
-  "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
-  "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+  "canonical_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+  "contract_version": "tremora-pads-index-and-window-authority-0.2.1",
   "expected": {
     "assessments": 5159,
     "participants": 469,
@@ -50,7 +50,7 @@
     },
     {
       "condition": "ALL_SOURCE_SAMPLES_STORED_EXACTLY_ONCE",
-      "detail": "13447168/13447168 stored, 0 duplicated",
+      "detail": "13447168/13447168 stored, 13447168 replayed, 0 duplicated",
       "satisfied": true
     },
     {
@@ -108,7 +108,8 @@
   "gate_conditions_total": 16,
   "gate_evaluated": true,
   "gate_status": "PASS_PADS_INDEX_AND_WINDOW_AUTHORITY",
-  "implementation_version": "pads-p02-index-materialization-1.0.0",
+  "implementation_version": "pads-p02-index-materialization-1.1.0",
+  "independent_reproduction_status": "BYTE_IDENTICAL_PADS_P02_PASS",
   "materialization": {
     "assessments_materialized": 5159,
     "bilateral_task_pairs": 5159,
@@ -125,6 +126,7 @@
       "3": 93,
       "4": 92
     },
+    "missing_materialized_samples": 0,
     "parquet_files": 41,
     "participants_in_multiple_folds": 0,
     "participants_materialized": 469,
@@ -188,6 +190,7 @@
   "replay_verification": {
     "failure_count": 0,
     "failures": [],
+    "samples_replayed": 13447168,
     "source_time_token_failures": 0,
     "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1",
     "streams_byte_exact": 10318,
@@ -199,39 +202,41 @@
   "reproduction_receipts": {
     "note": "Absolute roots and command arguments are reduced to their final component; the unredacted receipts are written beside the materialized store, not into this repository. The reproduction proof rests on the differing run ids, process ids and output-root device/inode identities together with the identical canonical evidence hash.",
     "run_a": {
-      "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
-      "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+      "canonical_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+      "contract_version": "tremora-pads-index-and-window-authority-0.2.1",
       "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
-      "implementation_version": "pads-p02-index-materialization-1.0.0",
+      "implementation_version": "pads-p02-index-materialization-1.1.0",
       "output_root_basename": "run_a",
-      "output_root_identity": "16777233:131526463",
-      "process_id": 17326,
-      "run_id": "36fca8153bd444ba99a67f76c6203ccb",
+      "output_root_identity": "16777233:131541002",
+      "process_id": 18384,
+      "run_id": "e9431d4f19f14d888dbdbb47879f24e4",
       "schema_version": "pads-p0.2.0",
       "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
     },
+    "run_a_canonical_hash": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
     "run_b": {
-      "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
-      "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+      "canonical_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+      "contract_version": "tremora-pads-index-and-window-authority-0.2.1",
       "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
-      "implementation_version": "pads-p02-index-materialization-1.0.0",
+      "implementation_version": "pads-p02-index-materialization-1.1.0",
       "output_root_basename": "run_b",
-      "output_root_identity": "16777233:131526464",
-      "process_id": 17542,
-      "run_id": "d0909d4977d644ab895f08a838043beb",
+      "output_root_identity": "16777233:131541003",
+      "process_id": 18494,
+      "run_id": "31e8797e8d164fdd8024bc7f014df70a",
       "schema_version": "pads-p0.2.0",
       "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
-    }
+    },
+    "run_b_canonical_hash": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139"
   },
   "run_receipt": {
-    "canonical_evidence_sha256": "fdfb43cf075cc2f6bb8a7aac4d20b2a8976feb64d9a92bfe6ece4060d690ceab",
-    "contract_version": "tremora-pads-index-and-window-authority-0.2.0",
+    "canonical_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+    "contract_version": "tremora-pads-index-and-window-authority-0.2.1",
     "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
-    "implementation_version": "pads-p02-index-materialization-1.0.0",
+    "implementation_version": "pads-p02-index-materialization-1.1.0",
     "output_root_basename": "run_b",
-    "output_root_identity": "16777233:131526464",
-    "process_id": 17542,
-    "run_id": "d0909d4977d644ab895f08a838043beb",
+    "output_root_identity": "16777233:131541003",
+    "process_id": 18494,
+    "run_id": "31e8797e8d164fdd8024bc7f014df70a",
     "schema_version": "pads-p0.2.0",
     "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
   },

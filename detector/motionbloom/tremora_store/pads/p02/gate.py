@@ -100,6 +100,7 @@ class PadsP02GateFacts:
     streams_refused: int = 0
     samples_expected: int = 0
     samples_materialized: int = 0
+    samples_replayed: int = 0
     duplicate_materialized_samples: int = 0
     source_time_token_failures: int = 0
     row_groups: int = 0
@@ -187,8 +188,10 @@ def evaluate_gate(facts: PadsP02GateFacts) -> GateResult:
             ALL_SOURCE_SAMPLES_STORED_EXACTLY_ONCE,
             facts.samples_expected > 0
             and facts.samples_materialized == facts.samples_expected
+            and facts.samples_replayed == facts.samples_expected
             and facts.duplicate_materialized_samples == 0,
             f"{facts.samples_materialized}/{facts.samples_expected} stored, "
+            f"{facts.samples_replayed} replayed, "
             f"{facts.duplicate_materialized_samples} duplicated",
         ),
         GateCondition(

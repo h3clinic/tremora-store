@@ -70,6 +70,7 @@ class MaterializationResult:
     streams_refused: int = 0
     samples_materialized: int = 0
     duplicate_materialized_samples: int = 0
+    samples_expected: int = 0
     parquet_files: int = 0
     row_groups: int = 0
     streams_with_exactly_one_row_group: int = 0
@@ -108,6 +109,10 @@ class MaterializationResult:
             "samples_materialized": self.samples_materialized,
             "duplicate_materialized_samples": (
                 self.duplicate_materialized_samples
+            ),
+            # Stated rather than left to be inferred from two other counts.
+            "missing_materialized_samples": max(
+                0, self.samples_expected - self.samples_materialized
             ),
             "parquet_files": self.parquet_files,
             "row_groups": self.row_groups,
@@ -218,6 +223,7 @@ def materialize(
     release_root: Path,
     output_root: Path,
     p01_evidence_sha256: str,
+    expected_samples: int = 0,
     progress: bool = False,
 ) -> MaterializationResult:
     """Read the release once and write the store and every index."""
@@ -226,7 +232,7 @@ def materialize(
 
     movement_root = release_root / MOVEMENT_DIRECTORY
     patients_root = release_root / PATIENTS_DIRECTORY
-    result = MaterializationResult()
+    result = MaterializationResult(samples_expected=expected_samples)
     checksums = read_checksums(release_root / CHECKSUM_FILENAME)
 
     def verify(relative: str, payload: bytes) -> None:

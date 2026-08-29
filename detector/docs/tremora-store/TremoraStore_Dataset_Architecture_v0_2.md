@@ -644,8 +644,9 @@ run against the frozen PhysioNet 1.0.0 release.
 | Sample-level alignment claims | 0 |
 | Outer folds | 5, sized 96 / 94 / 94 / 93 / 92 |
 | Streams replaying byte-exactly | **10,318 / 10,318** |
+| Samples read back from the store | **13,447,168** — source = stored = replayed |
 | Windows replayed from the store | 50,676, no failures |
-| Evidence hash | `fdfb43cf…`, identical across both processes |
+| Evidence hash | `7ca16981…`, identical across both processes |
 | Storage-index content hash | `22aeeb03…` |
 
 Two numbers deserve reading carefully.

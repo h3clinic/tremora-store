@@ -20,7 +20,8 @@ validation data, or redistributed VIDIMU source archives.
   conditions against the published PhysioNet release, reproduced across two
   processes.
 - PADS-P0.2: index and window audit `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`,
-  16/16 conditions; 13,447,168 samples stored exactly once, 50,676 gap-aware
+  16/16 conditions; 13,447,168 samples stored exactly once and all read back,
+  50,676 gap-aware
   four-second windows, and byte-exact replay of all 10,318 streams read back
   from the store. No spectrum, resampled signal or benchmark result is
   claimed.
