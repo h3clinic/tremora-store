@@ -24,6 +24,7 @@ import hashlib
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
+from itertools import pairwise
 from typing import Any
 
 import numpy as np
@@ -106,6 +107,25 @@ def relative_seconds(times_ps: Sequence[int]) -> np.ndarray:
 def assert_strictly_increasing(tau: np.ndarray) -> None:
     if not np.all(np.diff(tau) > 0.0):
         raise SpectralKernelError("sample times are not strictly increasing")
+
+
+def assert_no_gap(
+    times_ps: Sequence[int], gap_threshold_ps: int
+) -> None:
+    """Refuse a window whose samples straddle a discontinuity.
+
+    P0.2.1 already builds windows inside one contiguous segment, so this
+    should never fire on a materialized window.  It fires on anything handed
+    to the kernel directly, which is where a gap-crossing spectrum would
+    otherwise be computed without complaint.
+    """
+
+    if gap_threshold_ps <= 0:
+        raise SpectralKernelError("the gap threshold must be positive")
+    for earlier, later in pairwise(times_ps):
+        if later - earlier > gap_threshold_ps:
+            raise SpectralKernelError(
+                "the window crosses a gap larger than its stream threshold")
 
 
 def detrend_linear(tau: np.ndarray, values: np.ndarray) -> np.ndarray:
@@ -252,6 +272,7 @@ __all__ = [
     "AxisSpectrum",
     "FamilySpectrum",
     "SpectralKernelError",
+    "assert_no_gap",
     "assert_strictly_increasing",
     "axis_power",
     "detrend_linear",
