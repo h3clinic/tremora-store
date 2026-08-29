@@ -384,7 +384,9 @@ Use it only for raw-axis schema coverage, tremor-band metadata, spectral round-t
 
 **PADS-P0.2 indexing is `PASS`.** All sixteen conditions are satisfied: 13,447,168 samples stored exactly once across 41 Parquet parts with one row group per stream, 14,729 gap-aware segments revealing 4,411 real time gaps, 50,676 four-second windows none of which cross a segment, 5,159 complete bilateral task pairs and 23,928 window pairs, five participant-disjoint folds, and and byte-exact replay of all 10,318 streams read back from the store. The headline reconciliation holds in all three terms — 13,447,168 source samples, stored, and read back. Two processes produced the identical evidence hash `7ca16981…`. Source time is stored in exact picoseconds, because the release's ten-decimal `Time` tokens cannot be represented in integer nanoseconds. See [`pads_p02_release_audit.json`](../../benchmarks/pads_p02_release_audit.json).
 
-The timing contract is `SOURCE_RELATIVE_UNIMODAL_CLOCK` with `relative_time_basis = SOURCE_TIME_COLUMN`: the release publishes a per-sample `Time` channel and the declared rate validates that timeline rather than generating it. The published clock is a real device clock — intervals in the first file run from 7.13 ms to 12.90 ms around a 9.99 ms median — so only the median interval is compared against the declared period. Bilateral retrieval is protocol-paired and never clock-aligned: `cross_wrist_clock_alignment` is `UNRESOLVED` and sample-level fusion is refused on every published row. No spectrum, resampled signal or benchmark result is produced; PADS-P0.3, P0.4 and P0.5 stay closed until each is opened as its own milestone.
+The timing contract is `SOURCE_RELATIVE_UNIMODAL_CLOCK` with `relative_time_basis = SOURCE_TIME_COLUMN`: the release publishes a per-sample `Time` channel and the declared rate validates that timeline rather than generating it. The published clock is a real device clock — intervals in the first file run from 7.13 ms to 12.90 ms around a 9.99 ms median — so only the median interval is compared against the declared period. **PADS-P0.3 spectral preservation is `PASS`.** All sixteen conditions are satisfied: 9,960 workload windows carrying 19,920 spectra over the frozen 3–12 Hz, 37-bin grid, and 6,077 independently audited windows across 862 strata where the original device files are re-parsed without touching the replay API. Source and replay agree on every row, every input hash and every spectrum, with a maximum bin error of exactly 0.0 — bit equality, not a tolerance. No nominal ordinal/rate grid was substituted for the source timestamps, and every Nyquist limit came from the stream's own `dt_ref` rather than the declared 100 Hz. Two processes produced the identical evidence hash `a0be87d4…`. See [`pads_p03_release_audit.json`](../../benchmarks/pads_p03_release_audit.json).
+
+Bilateral retrieval is protocol-paired and never clock-aligned: `cross_wrist_clock_alignment` is `UNRESOLVED` and sample-level fusion is refused on every published row. P0.2 produces no spectrum; P0.3 produces spectra but no resampled signal, anti-aliasing output, classification or benchmark result, and P0.4 and P0.5 stay closed until each is opened as its own milestone.
 
 ### Optional datasets
 
@@ -566,9 +568,10 @@ Current status:
 | E4D-P0.1 Ego4D timing-authority audit | Machinery implemented; empirical gate not evaluated — the CLI returns `BLOCKED_INPUT_DATA_UNAVAILABLE` pending the signed licence and pinned assets |
 | PADS-P0.1 ingest audit | `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`; 14/14 conditions on the real release, reproduced across two processes |
 | PADS-P0.2 index and window audit | `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`; 16/16, 13,447,168 samples stored once, 50,676 gap-aware windows, whole-corpus byte-exact replay |
+| PADS-P0.3 spectral-preservation audit | `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`; 16/16, 19,920 spectra, 6,077 independently audited windows, maximum bin error 0.0 |
 | MMAct scale benchmark | Pending access and ingestion |
 | Ego4D irregularity benchmark | Pending ingestion |
-| PADS spectral / rate-ablation / storage benchmarks | Closed; P0.3, P0.4 and P0.5 each open on their own gate |
+| PADS rate-ablation / storage benchmarks | Closed; P0.4 and P0.5 each open on their own gate |
 | Comparative systems results | None yet |
 | BigData Healthcare | Conditional on benchmark completion |
 | MLBD | Strong backup; conditional on benchmark completion |

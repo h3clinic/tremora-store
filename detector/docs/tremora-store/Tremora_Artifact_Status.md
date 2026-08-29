@@ -6,8 +6,8 @@ artifacts.
 
 | Artifact | Status | SHA-256 |
 |---|---|---|
-| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest and PADS-P0.2 indexing are both `PASS`, and E4D-P0.1 is implemented but unevaluated | `0068a4fbbf6fed0b39461ff42cda0b442a0fbba5a2d8272cf0d86fbb67acd002` |
-| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1, PADS-P0.1 and PADS-P0.2 contracts | `c2389aab300e13997d702400cb03c277009c15ce6c7cd28e4a32cce21e8cd345` |
+| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest and PADS-P0.2 indexing are both `PASS`, and E4D-P0.1 is implemented but unevaluated | `a239e8cf7b99f2b062e5de0683c0742b5e7c5b2259f040363125ec30ca0e1640` |
+| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1, PADS-P0.1 and PADS-P0.2 contracts | `1d0c4388f76dace211b1b3c6dcd49153d68415af56dcca3a0624c65175dadf71` |
 | `fullmotion/detector/benchmarks/vidimu_v2_release_audit.json` | **Current implementation evidence**: deterministic `PASS` audit of all 208 pinned VIDIMU CSV/RAW pairs plus central-directory-only original-video candidate inventory | `41277661f9e248da2f42c0703b69beec92bcaf0037b5d46264f64852ab22ecf1` |
 | `fullmotion/detector/benchmarks/vidimu_v04_gate_b_release_audit.json` | **Current Gate-B empirical evidence**: `BYTE_IDENTICAL_SOURCE_TO_CV_PASS` / `PASS` for two clean, process/root/inode-disjoint all-208 executions in the frozen observed environment | `d24863d20347cf2c9ab092a9f7771ada3a88ec8fbc77a7b33788df5c0637a10e` |
 | `fullmotion/detector/benchmarks/vidimu_v05_sync_authority_audit.json` | **Current v0.5 authority evidence**: audit execution `PASS`, gate `NO_GO_RAW_NATIVE_CLOCK_AUTHORITY`; all 208 original RAW assets and all 217 released synchronization overrides reconcile, two records are `AMBIGUOUS_SOURCE_MAPPING`, and no canonical clocks or v0.6 artifacts were emitted | `3d4492f984ddffaed579da2e107aaf9f7d1e9cdae1ddc83629f8708d8e75bdec` |
@@ -15,6 +15,8 @@ artifacts.
 | `fullmotion/detector/benchmarks/pads_p01_release_audit.json` | **Current PADS-P0.1 empirical evidence**: audit execution `PASS`, gate `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`, 14/14 conditions; 469 participants, 5,159 assessment steps and 10,318 device files reconciled, 11,256 files hash-verified against the release's own `SHA256SUMS.txt`, 13,447,168 samples parsed, evidence hash `e25ce02f…` reproduced by two inode-disjoint processes | `6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749` |
 | `fullmotion/detector/benchmarks/pads_p02_release_audit.json` | **Current PADS-P0.2 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`, 16/16 conditions; 13,447,168 samples stored exactly once in 10,318 single-row-group streams and all 13,447,168 read back, 14,729 segments over 4,411 detected gaps, 50,676 windows none crossing a segment, 23,928 bilateral window pairs with no sample-level alignment claim, five participant-disjoint folds, and byte-exact replay of all 10,318 streams read back from the store; evidence `7ca16981…` reproduced by two inode-disjoint processes | `8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb` |
 | `fullmotion/detector/benchmarks/pads_p01_dependency.json` | **Current P0.2 authority pin**: the exact P0.1 verdict, report bytes, source manifest and release counts P0.2 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p02_contract.py` |
+| `fullmotion/detector/benchmarks/pads_p03_release_audit.json` | **Current PADS-P0.3 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`, 16/16 conditions; 9,960 workload windows carrying 19,920 spectra on the frozen 3-12 Hz 37-bin grid, 6,077 independently audited windows across 862 strata, source and replay agreeing on every row, input hash and spectrum with a maximum bin error of exactly 0.0; evidence `a0be87d4…` reproduced by two inode-disjoint processes | `a2b6dfa3f598dfe7e2821285c3262dd1f817b168cb81e62683ad796445faf615` |
+| `fullmotion/detector/benchmarks/pads_p02_dependency.json` | **Current P0.3 authority pin**: the exact P0.1 and P0.2.1 evidence hashes, published P0.2.1 report bytes, storage-index content hash, source manifest and both P0.2 schema fingerprints P0.3 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p03_contract.py` |
 | `Tremora_IEEE_BigData_2026_research_brief.md` | **Superseded historical record**: abandoned participant-study and privileged-supervision scope; do not use for current claims or venue gates | `e28c563796816cb80febe1b9420b65230cc8de640e955ed98609865bda1d4c65` |
 | `Tremora_Engineering_Calibration_Manifest_v0_2.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `2aff25acc3025be7b04d67f6181deb443b878de423112d1175d45080b44f34db` |
 | `Tremora_Dataset_Audit_Manifest.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `3182d6813d4fbe18cf1606a28055b198f6314570746d0b5d9fccbb6ac9d97969` |
@@ -167,3 +169,45 @@ environment; it is not cryptographic remote attestation.
 The materialized store itself — about 910 MB of Parquet per run — lives beside
 the dataset and is not committed to this repository. PADS-P0.3, P0.4 and P0.5
 remain closed.
+
+
+## PADS-P0.3 — source-time spectral preservation
+
+PADS-P0.3 is `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION` on all sixteen
+conditions, computed twice in separate processes against the frozen P0.2.1
+store and the original release files.
+
+The claim is narrow and it is a storage result: source-time, gap-aware storage
+and indexed replay preserve the frequency-domain content of irregularly sampled
+PADS wrist signals without interpolation, resampling or nominal-grid
+substitution. It is not a disease classification, a tremor-detection accuracy,
+a video–IMU or a rate-ablation result, and the report publishes a zero count
+for every artifact those milestones would produce.
+
+For 6,077 independently audited windows the original device files are re-parsed
+by a second implementation that never calls the replay API, and the two paths
+agree on every row, every time token, every value, every input hash and every
+spectrum. The maximum observed bin error is exactly **0.0** — bit equality, not
+a tolerance, because both paths feed identical float64 inputs into the identical
+kernel. A future non-zero would be a reproducibility incident to diagnose, not
+grounds to loosen the comparison.
+
+Two probes are built to be discriminating rather than confirmatory. The
+nominal-grid condition reports 0 substitutions *and* 9,960 windows whose stored
+timestamps genuinely differ from an ordinal/rate grid, so the zero cannot be
+vacuous. The Nyquist condition derives every limit from the stream's own
+`dt_ref` and reports 0 rows carrying the declared 100 Hz rate's 50 Hz value —
+possible here because no stream's `dt_ref` is exactly 10 ms.
+
+The frequency grid is frozen at 3–12 Hz in 0.25 Hz steps, matching a
+four-second window's Rayleigh resolution, with no zero-padding. Spectra come
+from raw axes summed within a sensor family, never from vector magnitude: the
+kernel controls demonstrate that a 5 Hz tone reports 5 Hz on its raw axis and
+10 Hz through `|x|`. Those twelve controls run inside the audit process rather
+than deferring to a test suite that may not have been executed.
+
+The authoritative run pins single-threaded numerics and records that it did.
+No BLAS call is made, so the result does not depend on threading.
+
+The materialized spectra — about 32 MB per run — live beside the dataset and are
+not committed to this repository. PADS-P0.4 and P0.5 remain closed.

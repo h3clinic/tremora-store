@@ -663,7 +663,195 @@ that still exists on the other.  Those windows stay in the window index and
 simply go unpaired.  Inventing a partner would be the sample-level alignment
 claim this milestone exists to refuse.
 
-## 8. Milestones after P0.2
+## 8. PADS-P0.3 — source-time spectral preservation and tremor-band replay
+
+### 8.1 The claim
+
+Source-time, gap-aware storage and indexed replay preserve the frequency-domain
+content of irregularly sampled PADS wrist signals without interpolation,
+resampling or nominal-grid substitution.
+
+That is a storage-and-signal-integrity result. It is not a disease
+classification, a tremor-detection accuracy, a video–IMU, a bilateral
+sample-fusion or a sampling-rate-ablation result, and the report publishes a
+zero count for each artifact those milestones would produce.
+
+### 8.2 The P0.2.1 dependency
+
+P0.3 pins the P0.1 and P0.2.1 evidence hashes, the published P0.2.1 report
+bytes, the storage-index content hash, the source manifest and the schema
+fingerprints of the two P0.2 tables it reads. It never rebuilds P0.2.
+
+Verification recomputes the storage-index content hash from the index the store
+actually holds. A substituted store with the same row counts and a different
+content hash is refused — the failure a row-count check cannot see. It also
+requires the store's own `_PADS_P02_INDEX_SUCCESS` marker.
+
+### 8.3 The transform
+
+A conventional FFT assumes uniform spacing. PADS does not have it: reference
+intervals run from 9.9199 ms to 10.0800 ms across the corpus and individual
+deltas from 13.8 µs to 58.8 ms. The kernel therefore evaluates a nonuniform
+discrete Fourier transform at the actual sample times, per axis, in this order:
+centre time on the window start, fit and remove a linear trend against those
+times, apply a continuous-time Hann weight defined on them, transform.
+
+```text
+w_i  = 1/2 - 1/2 cos(2*pi*(t_i - t_0)/T)
+X(f) = sum_i w_i x_i exp(-j 2*pi*f (t_i - t_0))
+P(f) = |X(f)|^2 / sum_i w_i^2
+```
+
+The grid is frozen at 3.0–12.0 Hz in 0.25 Hz steps: 37 bins, matching a
+four-second window's Rayleigh resolution exactly. No zero-padding and no
+oversampled grid, either of which would imply physical resolution this
+milestone has not earned. Values are generated from integer millihertz so each
+is an exact binary fraction.
+
+Everything is float64. No BLAS call is made — the transform is an elementwise
+product and a fixed-shape reduction, not a matrix multiply — so the result does
+not depend on threading, and the authoritative run additionally pins
+single-threaded numerics and records that it did.
+
+### 8.4 Raw axes, never vector magnitude
+
+Spectra are computed per axis and summed within a sensor family:
+
+```text
+P_acc  = P_ax + P_ay + P_az
+P_gyro = P_gx + P_gy + P_gz
+```
+
+Gyroscope is the primary tremor-frequency workload; accelerometer is
+corroborative. Absolute power is never compared between the two — their units
+differ.
+
+Vector magnitude is never the primary input, and the kernel controls show why
+rather than asserting it: a 5 Hz tone reports 5 Hz on its raw axis and 10 Hz
+through `|x|`, because taking the magnitude first doubles the fundamental.
+
+### 8.5 Two frozen sets
+
+The **workload** is one canonical window per stream that has a valid P0.2.1
+window — the window whose task-local midpoint lies closest to the stream's own,
+ties broken by the earlier start. 358 of the 10,318 streams hold no valid
+window, so the set is one per *eligible* stream.
+
+The **audit subset** is stratified by task, wrist, fold, sample count and gap
+adjacency, ordered inside each stratum by a keyed SHA-256 digest rather than an
+RNG, and capped at ten per populated stratum. A window counts as gap-adjacent
+when it is the first window of a segment beginning at a real break or the last
+of one ending at a break; a stream merely starting or stopping is not a break.
+
+Both sets are frozen before any spectrum is examined.
+
+### 8.6 The independent source path
+
+For every audited window, the reference spectrum is computed through a path
+that does not call the replay API and does not reuse the P0.2 stream reader.
+It is a second, minimal implementation of "open the device file the release
+published and take the rows this window covers", and it derives the task-local
+origin the way the release does — the first row's own `Time` — so it never
+consults the store for it.
+
+Using the same spectral kernel on both sides is deliberate: the boundary under
+test is source parsing against indexed replay. The kernel itself is validated
+separately by twelve synthetic controls, which the audit runs in its own
+process rather than deferring to a test suite that may not have been executed.
+
+### 8.7 Eligibility
+
+A window carries a spectrum only when its P0.2.1 status is valid, its stored
+times strictly increase, `dt_ref_ps` is present and positive, coverage clears
+the P0.2.1 floor, the window lies inside one segment, the grid stays under the
+cadence-supported Nyquist limit, and all six channels are finite.
+
+```text
+f_Nyquist,reference = 1 / (2 dt_ref)
+```
+
+The declared 100 Hz is never used for eligibility when the stored per-stream
+`dt_ref_ps` exists, and the sample count is never a gate condition.
+
+### 8.8 The gate
+
+Sixteen conditions, all required:
+
+```text
+P02_1_DEPENDENCY_VERIFIED
+FREQUENCY_GRID_FROZEN
+WORKLOAD_SELECTION_DETERMINISTIC
+ONE_CANONICAL_WINDOW_SELECTED_PER_ELIGIBLE_STREAM
+SOURCE_TIME_USED_FOR_EVERY_SPECTRUM
+NO_NOMINAL_GRID_TIMESTAMP_SUBSTITUTION
+DT_REF_USED_FOR_CADENCE_AND_NYQUIST
+NO_FIXED_SAMPLE_COUNT_ASSUMPTION
+RAW_AXES_PRESERVED
+NO_VECTOR_MAGNITUDE_PRIMARY_SIGNAL
+SOURCE_AND_REPLAY_ROWS_IDENTICAL
+SOURCE_AND_REPLAY_SPECTRA_IDENTICAL
+ALL_SPECTRAL_OUTPUT_ROWS_RECONCILED
+SYNTHETIC_KERNEL_CONTROLS_PASS
+INDEPENDENT_MATERIALIZATION_REPRODUCED
+NO_RESAMPLING_RATE_ABLATION_OR_VIDEO_ARTIFACTS
+```
+
+Gate status is `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION` or
+`NO_GO_PADS_SPECTRAL_PRESERVATION`, with `BLOCKED_P02_DEPENDENCY_UNAVAILABLE`
+below both. The success marker is `_PADS_P03_SPECTRAL_SUCCESS`, never a generic
+`_SUCCESS`.
+
+Several conditions are positive probes rather than the absence of a complaint.
+The nominal-grid condition rebuilds, for every workload window, the ordinal/rate
+grid an implementation might have substituted and requires that the stored
+timestamps differ from it — so it cannot pass vacuously. The Nyquist condition
+recomputes the limit from each stream's own cadence and reports how many rows
+carry the declared-rate 50 Hz value instead; on this corpus none do, because no
+stream's `dt_ref` is exactly 10 ms.
+
+### 8.9 Result
+
+The gate is `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION` on all sixteen
+conditions, run against the frozen P0.2.1 store and the original release files.
+
+| | |
+|---|---|
+| Streams / with a valid window | 10,318 / 9,960 |
+| Workload windows | 9,960 over 9,960 distinct streams, all eligible |
+| Spectral rows | 19,920 — 9,960 gyroscope, 9,960 accelerometer |
+| Independently audited windows | **6,077** across 862 strata |
+| Audit coverage | 11 tasks, both wrists, 5 folds, lengths 395–405, 1,497 gap-adjacent + 4,580 interior |
+| Row mismatches | 0 |
+| Input-hash mismatches | 0 |
+| Spectral-hash mismatches | 0 |
+| Dominant-frequency mismatches | 0 |
+| **Maximum observed bin error** | **0.0** |
+| Nominal-grid substitutions | 0, against 9,960 windows that differ from one |
+| Nyquist rows from `dt_ref` / from the declared rate | 9,960 / 0 |
+| Kernel controls | 12 / 12, run in the audit's own process |
+| Evidence hash | `a0be87d4…`, identical across both processes |
+| Spectral-table content hash | `27bb6444…` |
+
+The maximum bin error is exactly zero, not a tolerance: both paths feed
+identical float64 inputs into the identical kernel, so agreement is bit
+equality rather than numerical closeness. If it ever ceases to be zero, that is
+a reproducibility incident to diagnose — multithreaded BLAS, platform maths,
+serialization metadata or the algorithm — and not an invitation to loosen the
+comparison.
+
+Two numbers are worth reading carefully.
+
+**9,960 windows differ from a nominal grid, and 0 were substituted.** The zero
+on its own would be satisfied by an implementation that never checked. The
+second number is what gives it force: every window's stored timestamps
+genuinely differ from the ordinal/rate grid a substitution would have produced.
+
+**The workload carries 9 distinct window lengths; the audit subset carries 11.**
+The workload takes one window per stream, so the 395- and 396-sample cases —
+which occur once and twice in the entire corpus — are never reached by it. The
+stratified audit subset reaches both. Neither set assumes a length.
+
+## 9. Milestones after P0.3
 
 **E4D-P0.2 — frame-to-IMU range index.** Opens only on a passing P0.1 gate. For
 each frame interval `[t_i, t_(i+1))`, store the contiguous range of eligible IMU
@@ -687,7 +875,7 @@ retrieval, four-second gap-aware windows, participant-disjoint grouping and
 deterministic replay. Spectral features and resampling ablations are a separate
 milestone and are not combined into the ingest work.
 
-## 9. What the paper says about VIDIMU
+## 10. What the paper says about VIDIMU
 
 > Of the evaluated multimodal source structures, reproducibility of a
 > publisher-provided transformation was not sufficient to establish temporal
@@ -698,7 +886,7 @@ milestone and are not combined into the ingest work.
 That is not an embarrassing failure. It is the direct evidence for why the
 authority model is necessary.
 
-## 10. Provenance of this branch
+## 11. Provenance of this branch
 
 The E4D-P0.1 and PADS-P0.1 implementation on this branch is a **re-derivation**.
 An earlier build of the same design was produced in an ephemeral environment and
@@ -706,7 +894,7 @@ lost with it, together with the adversarial reviews it had passed. This code was
 rebuilt from the architecture and has not carried those reviews. It is a new
 artifact and the commit messages say so.
 
-## 11. Current status
+## 12. Current status
 
 | Component | Status |
 |---|---|
@@ -720,6 +908,8 @@ artifact and the commit messages say so.
 | PADS-P0.1 empirical gate | `PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK`; 14/14 |
 | PADS-P0.2 storage, indexes, windows, folds, replay | Implemented and executed against PADS 1.0.0 |
 | PADS-P0.2 empirical gate | `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`; 16/16, reproduced across two processes |
-| PADS-P0.3 / P0.4 / P0.5 | Closed; P0.2 emits no spectrum, resampled signal or benchmark result |
+| PADS-P0.3 spectral preservation | Implemented and executed against the P0.2.1 store |
+| PADS-P0.3 empirical gate | `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`; 16/16, maximum bin error 0.0, reproduced across two processes |
+| PADS-P0.4 / P0.5 | Closed; P0.3 emits no resampled signal, anti-aliasing output or benchmark result |
 | EgoInertia-MI | Verified real (arXiv:2607.03934); optional, off the critical path |
 | Comparative systems results | None yet |

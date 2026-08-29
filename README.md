@@ -25,6 +25,11 @@ validation data, or redistributed VIDIMU source archives.
   four-second windows, and byte-exact replay of all 10,318 streams read back
   from the store. No spectrum, resampled signal or benchmark result is
   claimed.
+- PADS-P0.3: source-time spectral preservation
+  `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`, 16/16 conditions; 19,920
+  tremor-band spectra over 9,960 windows, and 6,077 independently audited
+  windows where re-parsing the original device files reproduces indexed
+  replay with a maximum bin error of exactly 0.0.
 - E4D-P0.1: machinery only. Ego4D needs a signed licence and pinned assets, so
   the audit has never run against Ego4D data -- the CLI returns
   `BLOCKED_INPUT_DATA_UNAVAILABLE` and exits 4.

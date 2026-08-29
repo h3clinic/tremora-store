@@ -1,0 +1,315 @@
+{
+  "artifact_kind": "TREMORA_PADS_P03_SPECTRAL_RELEASE_AUDIT",
+  "audit_execution_status": "PASS",
+  "authority": {
+    "contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+    "cross_wrist_clock_alignment": "UNRESOLVED",
+    "dataset_id": "PADS",
+    "detrend": "LINEAR_IN_SOURCE_TIME",
+    "hardware_sync_claim": false,
+    "numeric_dtype": "float64",
+    "sample_level_bilateral_fusion_allowed": false,
+    "spectral_contract_version": "tremora-pads-nudft-tremor-band-0.3.0",
+    "spectral_input": "RAW_AXES_PER_SENSOR_FAMILY",
+    "time_basis": "SOURCE_TIME_COLUMN",
+    "timing_authority": "SOURCE_RELATIVE_UNIMODAL_CLOCK",
+    "transform": "NONUNIFORM_DISCRETE_FOURIER_TRANSFORM",
+    "vector_magnitude_primary_signal": false,
+    "video_pairing": "NOT_APPLICABLE",
+    "window_function": "CONTINUOUS_TIME_HANN"
+  },
+  "canonical_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+  "contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+  "frequency_grid": {
+    "frequency_bin_count": 37,
+    "frequency_grid_hash": "b7b18ff14e6ef93a159484abd7850c732851e63c69290213706381bb32f77b25",
+    "frequency_grid_id": "tremor-band-3to12hz-0p25-b7b18ff14e6ef93a"
+  },
+  "gate_conditions": [
+    {
+      "condition": "P02_1_DEPENDENCY_VERIFIED",
+      "detail": "P02_1_DEPENDENCY_VERIFIED",
+      "satisfied": true
+    },
+    {
+      "condition": "FREQUENCY_GRID_FROZEN",
+      "detail": "37 bins, hash b7b18ff14e6ef93a",
+      "satisfied": true
+    },
+    {
+      "condition": "WORKLOAD_SELECTION_DETERMINISTIC",
+      "detail": "reselection reproduced the same windows",
+      "satisfied": true
+    },
+    {
+      "condition": "ONE_CANONICAL_WINDOW_SELECTED_PER_ELIGIBLE_STREAM",
+      "detail": "9960 windows over 9960 streams, 9960 eligible",
+      "satisfied": true
+    },
+    {
+      "condition": "SOURCE_TIME_USED_FOR_EVERY_SPECTRUM",
+      "detail": "0 input-hash mismatches over 6077 audited windows",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_NOMINAL_GRID_TIMESTAMP_SUBSTITUTION",
+      "detail": "0 substitutions; 9960 windows differ from an ordinal/rate grid",
+      "satisfied": true
+    },
+    {
+      "condition": "DT_REF_USED_FOR_CADENCE_AND_NYQUIST",
+      "detail": "9960 rows derive Nyquist from dt_ref; 0 report the declared-rate limit",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_FIXED_SAMPLE_COUNT_ASSUMPTION",
+      "detail": "every observed length accepted=True, 0 refused for length, 9 distinct lengths carried a spectrum",
+      "satisfied": true
+    },
+    {
+      "condition": "RAW_AXES_PRESERVED",
+      "detail": "0 rows where the aggregate is not the exact sum of its three axes",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_VECTOR_MAGNITUDE_PRIMARY_SIGNAL",
+      "detail": "0 vector-magnitude inputs",
+      "satisfied": true
+    },
+    {
+      "condition": "SOURCE_AND_REPLAY_ROWS_IDENTICAL",
+      "detail": "0 row mismatches",
+      "satisfied": true
+    },
+    {
+      "condition": "SOURCE_AND_REPLAY_SPECTRA_IDENTICAL",
+      "detail": "0 hash mismatches, maximum bin error 0.0",
+      "satisfied": true
+    },
+    {
+      "condition": "ALL_SPECTRAL_OUTPUT_ROWS_RECONCILED",
+      "detail": "19920 rows against 19920 expected",
+      "satisfied": true
+    },
+    {
+      "condition": "SYNTHETIC_KERNEL_CONTROLS_PASS",
+      "detail": "SYNTHETIC_KERNEL_CONTROLS_PASS",
+      "satisfied": true
+    },
+    {
+      "condition": "INDEPENDENT_MATERIALIZATION_REPRODUCED",
+      "detail": "BYTE_IDENTICAL_PADS_P03_PASS",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_RESAMPLING_RATE_ABLATION_OR_VIDEO_ARTIFACTS",
+      "detail": "0 forbidden artifacts emitted",
+      "satisfied": true
+    }
+  ],
+  "gate_conditions_satisfied": 16,
+  "gate_conditions_total": 16,
+  "gate_evaluated": true,
+  "gate_status": "PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION",
+  "implementation_version": "pads-p03-spectral-preservation-1.0.0",
+  "independent_reproduction_status": "BYTE_IDENTICAL_PADS_P03_PASS",
+  "kernel_controls": {
+    "controls": {
+      "axis_rotation_preserves_summed_power": true,
+      "every_observed_length_accepted": true,
+      "gap_crossing_refused": true,
+      "grid_is_thirty_seven_bins": true,
+      "linear_trend_removed": true,
+      "non_monotonic_refused": true,
+      "phase_shift_preserves_spectrum": true,
+      "sample_count_is_not_the_clock": true,
+      "source_time_not_ordinal_over_rate": true,
+      "tone_5hz_recovered": true,
+      "tone_8hz_recovered": true,
+      "vector_magnitude_would_double_frequency": true
+    },
+    "controls_passed": 12,
+    "controls_total": 12,
+    "status": "SYNTHETIC_KERNEL_CONTROLS_PASS"
+  },
+  "materialization": {
+    "accel_spectral_rows": 9960,
+    "audit_windows_selected": 6077,
+    "declared_rate_nyquist_rows": 0,
+    "distinct_sample_counts": 9,
+    "dominant_frequency_mismatches": 0,
+    "dt_ref_ps_distribution": {
+      "10000000000": 4967,
+      "10100000000": 4237,
+      "9900000000": 756
+    },
+    "failure_count": 0,
+    "failures": [],
+    "gyro_spectral_rows": 9960,
+    "ineligibility_reasons": {},
+    "maximum_observed_bin_error": 0.0,
+    "nominal_grid_substitutions": 0,
+    "nyquist_derived_from_dt_ref_rows": 9960,
+    "raw_axis_sum_mismatches": 0,
+    "sample_count_histogram": {
+      "397": 3153,
+      "398": 1826,
+      "399": 19,
+      "400": 4093,
+      "401": 110,
+      "402": 78,
+      "403": 638,
+      "404": 42,
+      "405": 1
+    },
+    "selection_coverage": {
+      "audit_selection_seed": 20260829,
+      "audit_selection_version": "pads-p03-stratified-source-replay-audit-1.0.0",
+      "audit_windows_per_stratum": 10,
+      "device_locations": [
+        "LeftWrist",
+        "RightWrist"
+      ],
+      "gap_adjacent_windows": 1497,
+      "interior_windows": 4580,
+      "outer_folds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "populated_strata": 862,
+      "sample_counts": [
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405
+      ],
+      "selection_version": "pads-p03-canonical-midpoint-window-1.0.0",
+      "tasks": [
+        "CrossArms",
+        "DrinkGlas",
+        "Entrainment",
+        "HoldWeight",
+        "LiftHold",
+        "PointFinger",
+        "Relaxed",
+        "RelaxedTask",
+        "StretchHold",
+        "TouchIndex",
+        "TouchNose"
+      ]
+    },
+    "source_replay_input_hash_mismatches": 0,
+    "source_replay_row_mismatches": 0,
+    "source_replay_spectral_hash_mismatches": 0,
+    "source_unreadable": 0,
+    "spectral_table_content_sha256": "27bb6444bdfcab77911134b1c4671f563c51084f69e6d587e339c0a00d76c97e",
+    "streams_total": 10318,
+    "streams_with_valid_windows": 9960,
+    "vector_magnitude_uses": 0,
+    "windows_differing_from_nominal_grid": 9960,
+    "windows_refused_for_length": 0,
+    "workload_distinct_streams": 9960,
+    "workload_selection_stable": true,
+    "workload_windows_eligible": 9960,
+    "workload_windows_ineligible": 0,
+    "workload_windows_selected": 9960
+  },
+  "materialized_release_artifacts": 19920,
+  "numeric_execution": {
+    "blas_used": false,
+    "threading": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "p02_dependency": {
+    "dependency_status": "P02_1_DEPENDENCY_VERIFIED",
+    "detail": "P0.2.1 authority, published report and materialized store reconcile",
+    "observed_report_sha256": "8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb",
+    "observed_storage_index_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1",
+    "pinned": {
+      "expected_samples": 13447168,
+      "expected_streams": 10318,
+      "expected_windows": 50676,
+      "p01_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+      "p02_contract_version": "tremora-pads-index-and-window-authority-0.2.1",
+      "p02_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+      "p02_gate_status": "PASS_PADS_INDEX_AND_WINDOW_AUTHORITY",
+      "p02_report_sha256": "8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb",
+      "sample_store_schema_sha256": "ad2df20a0db8c053f284baff315cee98c143528d6f027bda4e363c0392423d36",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+      "spectral_contract_version": "tremora-pads-nudft-tremor-band-0.3.0",
+      "spectral_implementation_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+      "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1",
+      "window_index_schema_sha256": "2036fe171d323171bd613ba554960e653352a2bc9486e276b797a66c6c8a1422"
+    }
+  },
+  "release_gate_contract_version": "tremora-p01-release-gate-0.1.0",
+  "release_status": "EVALUATED",
+  "reproduction_receipts": {
+    "note": "Absolute roots and command arguments are reduced to their final component; the unredacted receipts are written beside the materialized spectra, not into this repository. The reproduction proof rests on the differing run ids, process ids and output-root device/inode identities together with the identical canonical evidence hash.",
+    "run_a": {
+      "canonical_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+      "contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p03-spectral-preservation-1.0.0",
+      "output_root_basename": "run_a",
+      "output_root_identity": "16777233:131569739",
+      "process_id": 19653,
+      "run_id": "302fb17b350346e383ee7bf50686be8c",
+      "schema_version": "pads-p0.3.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_a_canonical_hash": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+    "run_b": {
+      "canonical_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+      "contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p03-spectral-preservation-1.0.0",
+      "output_root_basename": "run_b",
+      "output_root_identity": "16777233:131569740",
+      "process_id": 19684,
+      "run_id": "85f4551f19b14537b8bdcab612768cbb",
+      "schema_version": "pads-p0.3.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_b_canonical_hash": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17"
+  },
+  "run_receipt": {
+    "canonical_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+    "contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+    "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+    "implementation_version": "pads-p03-spectral-preservation-1.0.0",
+    "output_root_basename": "run_b",
+    "output_root_identity": "16777233:131569740",
+    "process_id": 19684,
+    "run_id": "85f4551f19b14537b8bdcab612768cbb",
+    "schema_version": "pads-p0.3.0",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+  },
+  "schema_version": "pads-p0.3.0",
+  "withheld_artifacts": {
+    "anti_alias_filter_outputs": 0,
+    "bilateral_fusion_tables": 0,
+    "classification_tables": 0,
+    "comparative_benchmark_tables": 0,
+    "derived_rate_tables": 0,
+    "generic_success_markers": 0,
+    "resampled_signal_tables": 0,
+    "tremor_detection_tables": 0,
+    "video_association_tables": 0
+  }
+}
