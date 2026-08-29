@@ -1,0 +1,19 @@
+{
+  "artifact_kind": "TREMORA_PADS_P03_P02_DEPENDENCY",
+  "pinned": {
+    "expected_samples": 13447168,
+    "expected_streams": 10318,
+    "expected_windows": 50676,
+    "p01_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+    "p02_contract_version": "tremora-pads-index-and-window-authority-0.2.1",
+    "p02_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+    "p02_gate_status": "PASS_PADS_INDEX_AND_WINDOW_AUTHORITY",
+    "p02_report_sha256": "8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb",
+    "sample_store_schema_sha256": "ad2df20a0db8c053f284baff315cee98c143528d6f027bda4e363c0392423d36",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+    "spectral_contract_version": "tremora-pads-nudft-tremor-band-0.3.0",
+    "spectral_implementation_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+    "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1",
+    "window_index_schema_sha256": "2036fe171d323171bd613ba554960e653352a2bc9486e276b797a66c6c8a1422"
+  }
+}
