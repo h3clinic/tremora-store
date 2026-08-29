@@ -1,0 +1,16 @@
+{
+  "artifact_kind": "TREMORA_PADS_P02_P01_DEPENDENCY",
+  "pinned": {
+    "dataset_version": "1.0.0",
+    "expected_assessments": 5159,
+    "expected_participants": 469,
+    "expected_samples": 13447168,
+    "expected_streams": 10318,
+    "p01_code_commit": "05fe4bfecf06a93fea2dcaf40311c4c86059993e",
+    "p01_contract_version": "tremora-pads-source-relative-unimodal-clock-0.1.0",
+    "p01_evidence_sha256": "e25ce02f7cc023061f5840e314564b153a7829ff487c996b59b25798cf4c801a",
+    "p01_gate_status": "PASS_SOURCE_RELATIVE_UNIMODAL_CLOCK",
+    "p01_report_sha256": "6d2e0fab4bbcc3762e70c95b30b48293c17d785d3db9877288a4efa75f03a749",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+  }
+}
