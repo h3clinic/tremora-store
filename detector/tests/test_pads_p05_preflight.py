@@ -444,3 +444,42 @@ def test_memory_numbers_are_provenance_not_evidence() -> None:
     record = check_memory(_samples(0.1, 0.1)).as_record()
     assert "swap_used_bytes" in record
     assert "free_percentage" in record
+
+
+# --- the early-exit paths return records, not pairs -----------------------
+
+
+def test_a_blocked_dependency_returns_one_record(tmp_path) -> None:
+    """Every early exit must return what the CLI expects to read.
+
+    A blocked path that returned a pair got past the tests and only failed
+    when the real run hit it, three minutes into an authoritative attempt.
+    """
+
+    from motionbloom.tremora_store.pads.p05.audit import measure_pads_p05
+
+    record = measure_pads_p05(
+        release_root=tmp_path / "absent",
+        store_root=tmp_path / "absent",
+        baseline_root=tmp_path / "base",
+        output_root=tmp_path / "out",
+        p02_report_path=tmp_path / "p02.json",
+        p03_report_path=tmp_path / "p03.json",
+        p04_report_path=tmp_path / "p04.json",
+    )
+    assert isinstance(record, dict), "an early exit returned a pair"
+    assert record.get("gate_evaluated") is False
+    assert "blocked_reason" in record
+
+
+def test_the_preflight_refusal_also_returns_one_record(bench, tmp_path) -> None:
+    from motionbloom.tremora_store.pads.p05.audit import _preflight_record
+    from motionbloom.tremora_store.pads.p05.memory import check_memory
+
+    record = _preflight_record(
+        preflight=_preflight(bench, query_counts={Q2: 10**12}),
+        memory=check_memory(_samples(0.1)),
+        inspected={},
+    )
+    assert isinstance(record, dict)
+    assert record["gate_evaluated"] is False

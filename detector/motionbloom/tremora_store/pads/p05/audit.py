@@ -377,7 +377,7 @@ def measure_pads_p05(
                 "p03_report": str(p03_report_path),
                 "p04_report": str(p04_report_path),
             },
-        ), None
+        )
 
     output_root.mkdir(parents=True, exist_ok=True)
     baseline_root.mkdir(parents=True, exist_ok=True)

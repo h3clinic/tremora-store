@@ -101,7 +101,18 @@ def _arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--p04-store-root", type=Path)
     parser.add_argument("--rounds", type=int, default=11)
     parser.add_argument("--progress", action="store_true")
-    return parser.parse_args(argv)
+    parsed = parser.parse_args(argv)
+    # Every phase runs in its own interpreter with its own working directory,
+    # so relative paths would resolve against the wrong root and read as
+    # absent.  They are resolved once, here, against the caller's cwd.
+    for name in (
+        "release_root", "store_root", "baseline_root", "output_root",
+        "p02_report", "p03_report", "p04_report", "p04_store_root",
+    ):
+        value = getattr(parsed, name)
+        if value is not None:
+            setattr(parsed, name, Path(value).resolve())
+    return parsed
 
 
 def _refused(output_root: Path, run_root: Path, phase: str) -> int:
