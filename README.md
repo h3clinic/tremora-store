@@ -30,6 +30,12 @@ validation data, or redistributed VIDIMU source archives.
   tremor-band spectra over 9,960 windows, and 6,077 independently audited
   windows where re-parsing the original device files reproduces indexed
   replay with a maximum bin error of exactly 0.0.
+- PADS-P0.4: rate ablations and anti-aliasing
+  `PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING`, 18/18 conditions; 100, 50, 30
+  and 25 Hz derived from source-time storage through two explicit stages, with
+  the 3-10 Hz tremor band preserved at every rate (power ratio flat at 0.971)
+  and the accepted 25 Hz loss confined to the 10-12 Hz edge. No classification,
+  video-association or storage-benchmark result is claimed.
 - E4D-P0.1: machinery only. Ego4D needs a signed licence and pinned assets, so
   the audit has never run against Ego4D data -- the CLI returns
   `BLOCKED_INPUT_DATA_UNAVAILABLE` and exits 4.

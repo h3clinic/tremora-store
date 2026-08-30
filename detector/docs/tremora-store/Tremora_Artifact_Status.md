@@ -6,8 +6,8 @@ artifacts.
 
 | Artifact | Status | SHA-256 |
 |---|---|---|
-| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest and PADS-P0.2 indexing are both `PASS`, and E4D-P0.1 is implemented but unevaluated | `a239e8cf7b99f2b062e5de0683c0742b5e7c5b2259f040363125ec30ca0e1640` |
-| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1, PADS-P0.1 and PADS-P0.2 contracts | `1d0c4388f76dace211b1b3c6dcd49153d68415af56dcca3a0624c65175dadf71` |
+| `TremoraStore_Public_Data_Benchmark_Spec_v0_1.md` | **Current authoritative scope**: public-data-only storage, indexing, synchronization, replay, and regeneration-verified completeness benchmark; VIDIMU v0.4 Gate B is `PASS`, while both the v0.5 RAW-native authority gate and v0.5D source-derived materialization gate are `NO-GO`; v0.6/v0.6D remain closed; PADS-P0.1 ingest, PADS-P0.2 indexing, PADS-P0.3 spectral preservation and PADS-P0.4 rate ablation are all `PASS`, and E4D-P0.1 is implemented but unevaluated | `15386d99091a7d393c82ad43b559fe8751536f93d269fd48c1010c916ba9c756` |
+| `TremoraStore_Dataset_Architecture_v0_2.md` | **Current dataset-role and timing-authority scope**: supplements the v0.1 specification; freezes the eight timing-authority tiers and the three-dataset architecture, and records the E4D-P0.1 contract and the PADS-P0.1 through P0.4 contracts | `66ad93820354ec5b7bbc947931a47a36b3dc6fcd41e3e190fe442b84164500c0` |
 | `fullmotion/detector/benchmarks/vidimu_v2_release_audit.json` | **Current implementation evidence**: deterministic `PASS` audit of all 208 pinned VIDIMU CSV/RAW pairs plus central-directory-only original-video candidate inventory | `41277661f9e248da2f42c0703b69beec92bcaf0037b5d46264f64852ab22ecf1` |
 | `fullmotion/detector/benchmarks/vidimu_v04_gate_b_release_audit.json` | **Current Gate-B empirical evidence**: `BYTE_IDENTICAL_SOURCE_TO_CV_PASS` / `PASS` for two clean, process/root/inode-disjoint all-208 executions in the frozen observed environment | `d24863d20347cf2c9ab092a9f7771ada3a88ec8fbc77a7b33788df5c0637a10e` |
 | `fullmotion/detector/benchmarks/vidimu_v05_sync_authority_audit.json` | **Current v0.5 authority evidence**: audit execution `PASS`, gate `NO_GO_RAW_NATIVE_CLOCK_AUTHORITY`; all 208 original RAW assets and all 217 released synchronization overrides reconcile, two records are `AMBIGUOUS_SOURCE_MAPPING`, and no canonical clocks or v0.6 artifacts were emitted | `3d4492f984ddffaed579da2e107aaf9f7d1e9cdae1ddc83629f8708d8e75bdec` |
@@ -16,6 +16,8 @@ artifacts.
 | `fullmotion/detector/benchmarks/pads_p02_release_audit.json` | **Current PADS-P0.2 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`, 16/16 conditions; 13,447,168 samples stored exactly once in 10,318 single-row-group streams and all 13,447,168 read back, 14,729 segments over 4,411 detected gaps, 50,676 windows none crossing a segment, 23,928 bilateral window pairs with no sample-level alignment claim, five participant-disjoint folds, and byte-exact replay of all 10,318 streams read back from the store; evidence `7ca16981…` reproduced by two inode-disjoint processes | `8e5eb21cf8ecafcadc26a5a0bcdb37a4bd5bad0088a33bf42d1939b45b1f41eb` |
 | `fullmotion/detector/benchmarks/pads_p01_dependency.json` | **Current P0.2 authority pin**: the exact P0.1 verdict, report bytes, source manifest and release counts P0.2 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p02_contract.py` |
 | `fullmotion/detector/benchmarks/pads_p03_release_audit.json` | **Current PADS-P0.3 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`, 16/16 conditions; 9,960 workload windows carrying 19,920 spectra on the frozen 3-12 Hz 37-bin grid, 6,077 independently audited windows across 862 strata, source and replay agreeing on every row, input hash and spectrum with a maximum bin error of exactly 0.0; evidence `a0be87d4…` reproduced by two inode-disjoint processes | `a2b6dfa3f598dfe7e2821285c3262dd1f817b168cb81e62683ad796445faf615` |
+| `fullmotion/detector/benchmarks/pads_p04_release_audit.json` | **Current PADS-P0.4 empirical evidence**: audit execution `PASS`, gate `PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING`, 18/18 conditions; 38,316 of 39,840 rate-windows eligible at 100/50/30/25 Hz carrying 76,632 derived spectra, 7,981,740 samples all on exact rational time with none rounded at 30 Hz, 730,804 output ordinals removed by the parent-bracketing stage and 0 admitted over an unbracketable parent, 5,627 source-versus-replay comparisons with a maximum bin error of exactly 0.0; core 3-10 Hz power ratio flat at 0.971 from 100 Hz down to 25 Hz while the 25 Hz 10-12 Hz edge falls to 0.44; evidence `2aaebd34…` reproduced by two inode-disjoint processes | `45bfb308c6db053c48a1abf7231615d395a8b5039999a99f91991aecbce379d3` |
+| `fullmotion/detector/benchmarks/pads_p03_dependency.json` | **Current P0.4 authority pin**: the exact P0.3 evidence hash, published P0.3 report bytes, P0.3 spectral-table content hash, frequency grid, the P0.2.1 chain beneath it and the SHA-256 of the frozen anti-alias coefficients P0.4 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p04_contract.py` |
 | `fullmotion/detector/benchmarks/pads_p02_dependency.json` | **Current P0.3 authority pin**: the exact P0.1 and P0.2.1 evidence hashes, published P0.2.1 report bytes, storage-index content hash, source manifest and both P0.2 schema fingerprints P0.3 refuses to run without | generated from `FROZEN_DEPENDENCY`; equality asserted by `test_pads_p03_contract.py` |
 | `Tremora_IEEE_BigData_2026_research_brief.md` | **Superseded historical record**: abandoned participant-study and privileged-supervision scope; do not use for current claims or venue gates | `e28c563796816cb80febe1b9420b65230cc8de640e955ed98609865bda1d4c65` |
 | `Tremora_Engineering_Calibration_Manifest_v0_2.xlsx` | **Frozen historical record**: not an execution gate for the public-data paper | `2aff25acc3025be7b04d67f6181deb443b878de423112d1175d45080b44f34db` |
@@ -210,4 +212,58 @@ The authoritative run pins single-threaded numerics and records that it did.
 No BLAS call is made, so the result does not depend on threading.
 
 The materialized spectra — about 32 MB per run — live beside the dataset and are
-not committed to this repository. PADS-P0.4 and P0.5 remain closed.
+not committed to this repository.
+
+## PADS-P0.4 — rate ablations and anti-aliasing
+
+PADS-P0.4 is `PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING` on all eighteen
+conditions, computed twice in separate processes against the frozen P0.3
+spectra, the P0.2.1 store and the original release files.
+
+The claim is a sampling-rate result about a storage system: deriving 50, 30 and
+25 Hz from source-time PADS storage preserves the 3–10 Hz tremor band, and the
+loss that appears at 25 Hz is confined to the 10–12 Hz edge and reported
+separately. It is not a disease classification, a tremor-detection accuracy, a
+video–IMU or a storage-benchmark result, and the report publishes a zero count
+for every artifact those milestones would produce.
+
+**The core band does not care about the rate.** Median across 469 participants,
+the 3–10 Hz power ratio is 0.9710, 0.9712, 0.9712 and 0.9712 at 100, 50, 30 and
+25 Hz — flat to four decimals — with the shape distance flat at about 0.008.
+The ~2.9% deficit is already present at 100 Hz, where no anti-alias filter runs
+at all, so it belongs to the uniformization of irregular source time and not to
+the rate.
+
+**The 25 Hz edge band is where the cost lands**, by design. Power falls to
+0.44/0.47 and the shape distance rises fortyfold to 0.31–0.33, because the
+25 Hz filter passes to 10 Hz and stops at 12.5 Hz. Separating that band from
+the core is why the milestone reports two: averaged together, a real
+preservation result would have been contaminated by a loss that was
+deliberately accepted.
+
+Resampling is two explicit stages — bracketing onto an exact 100 Hz parent
+grid, then one frozen linear-phase FIR per rate — so exactly one uniformization
+step exists and the published anti-alias response is the response that runs.
+Support is the intersection of both stages in that order: 730,804 output
+ordinals were removed by the parent stage that the FIR guard alone would have
+admitted, and 0 survived over an interval the source could not bracket. Nothing
+is padded, reflected, repeated or renormalized at an edge; unsupported outputs
+are refused, which is why eligibility falls monotonically with rate.
+
+The three polyphase branch gains are published rather than normalized. At
+30 Hz they sum to 1.000001881, 0.999996238 and 1.000001881 — 0.000049 dB apart,
+four orders of magnitude inside the ripple budget. Normalizing each branch
+would make the executed gain depend on output phase and replace one frozen
+transfer function with three, so the imbalance is reported instead, and a
+control confirms the realized per-output ripple *is* that spread while the gain
+within a single phase is invariant to exactly 0.00e+00.
+
+One published metric had to be corrected before this run was authoritative. The
+first pass reported core power ratios of 0.9738, 0.4869, 0.2922 and 0.2434 —
+rate/100 to five digits, because the frozen P0.3 kernel's power grows with the
+number of samples transformed. The kernel was left alone and the normalization
+added to P0.4's comparison; a twelfth control now requires a 5 Hz tone to
+produce a core ratio near one at every rate.
+
+The materialized spectra — about 56 MB per run — live beside the dataset and
+are not committed to this repository. PADS-P0.5 remains closed.

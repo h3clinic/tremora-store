@@ -851,7 +851,203 @@ The workload takes one window per stream, so the 395- and 396-sample cases —
 which occur once and twice in the entire corpus — are never reached by it. The
 stratified audit subset reaches both. Neither set assumes a length.
 
-## 9. Milestones after P0.3
+## 9. PADS-P0.4 — rate ablations and anti-aliasing
+
+### 9.1 The claim
+
+Deriving lower uniform sampling rates from source-time PADS storage preserves
+the 3–10 Hz tremor band, and the loss that does appear at 25 Hz is confined to
+the 10–12 Hz edge and is reported separately rather than averaged away.
+
+That is a sampling-rate result about a storage system. It is not a disease
+classification, a tremor-detection accuracy, a video–IMU or a storage-benchmark
+result, and the report publishes a zero count for each artifact those
+milestones would produce.
+
+### 9.2 The P0.3 dependency
+
+P0.4 pins the P0.3 evidence hash, the published P0.3 report bytes, the P0.3
+spectral-table content hash, the frequency grid, the P0.2.1 chain beneath it —
+evidence hash, storage-index content hash, source manifest — and the SHA-256 of
+the frozen anti-alias coefficients. It never rebuilds P0.3, and it never
+recomputes a native spectrum: the P0.3 table *is* the reference every derived
+rate is compared against.
+
+### 9.3 Whole segments, not windows
+
+Rates are derived from whole P0.2.1 contiguous segments. Deriving per window
+would let each window invent its own filter state at its own edges, so a
+window's spectrum would depend on where the window was cut. Windows are taken
+from the derived segment afterwards, and a window is eligible only if it lies
+entirely inside the supported output.
+
+### 9.4 Two stages, and why they are separate
+
+**Stage A** brackets the irregular source onto the exact 100 Hz parent grid by
+linear interpolation between the two neighbouring source samples. It never
+extrapolates: a target with no bracketing pair is not produced.
+
+**Stage B** applies one frozen linear-phase Type I FIR per derived rate,
+evaluated through its polyphase branches.
+
+Keeping them separate means exactly one uniformization step exists, and the
+anti-alias response that is published is the response that runs. The rejected
+alternative — a per-output normalized irregular sinc — would have made the
+executed transfer function depend on local sample spacing, so no single
+response could have been published at all.
+
+### 9.5 One filter per rate, not one cutoff for all
+
+| Rate | L/M | Passband | Stopband | Taps | Group delay | Edge | Ripple | Stopband |
+|---|---|---|---|---|---|---|---|---|
+| 50 Hz | 1/2 | 0–12 Hz | 25 Hz | 33 | 16 | +0.0028 dB | 0.0081 dB | 63.80 dB |
+| 30 Hz | 3/10 | 0–12 Hz | 15 Hz | 399 | 199 | −0.0034 dB | 0.0093 dB | 64.38 dB |
+| 25 Hz | 1/4 | 0–10 Hz | 12.5 Hz | 161 | 80 | −0.0024 dB | 0.0083 dB | 64.57 dB |
+
+A universal fraction-of-Nyquist cutoff was rejected: at 25 Hz it would have
+put the transition band across 10 Hz, attenuating the top of the tremor band
+that the milestone exists to measure. Each filter is designed against the band
+it must preserve. Combined coefficients hash to `976957f7…`.
+
+### 9.6 The branch gains are published, not normalized
+
+Each prototype sums to its upsampling factor, so the effective DC gain is 1.
+The three 30 Hz polyphase branches sum to 1.000001881, 0.999996238 and
+1.000001881 — a spread of 0.000049 dB, four orders of magnitude inside the
+0.25 dB ripple budget.
+
+Those branch gains are left alone. Normalizing each branch separately would
+make the executed gain depend on output phase, turning the 3/10 path into a
+periodically time-varying correction and replacing one frozen transfer
+function with three. The report publishes `prototype_coefficient_sum`,
+`upsampling_factor`, `effective_dc_gain`, `polyphase_dc_gains`,
+`polyphase_dc_gain_spread_db` and `per_phase_normalization: false` so the
+prototype's normalization is never mistaken for the realized gain.
+
+A constant-input control pins the decision empirically: mean gain 1 to within
+1e-6, realized per-output ripple equal to the published branch spread, and
+gain within a single phase invariant to exactly 0.00e+00. The last number is
+the one that matters — it is what would move if anything were being
+renormalized per output.
+
+### 9.7 Support is the intersection of both stages
+
+`S_derived = S_100Hz_bracketable ∩ S_FIR_valid`, in that order. An interval the
+source could not bracket removes the derived ordinals it feeds *before* the
+filter guard is consulted; the filter guard alone would not have removed them.
+
+Nothing is padded, reflected, repeated or renormalized at an edge. An output
+whose kernel would run off either end is simply not produced, so support
+narrows as the rate falls.
+
+### 9.8 Exact rational time
+
+100, 50 and 25 Hz have exact picosecond periods. 30 Hz does not: its period is
+`Fraction(100_000_000_000, 3)` picoseconds. Ordinal *k* is held as exactly
+*k*/30 s rather than rounded, and the schema refuses any `_ns` field, which
+could not represent the release's ten-decimal times in the first place.
+
+### 9.9 The gate
+
+Eighteen conditions. On an empty fact record the gate satisfies **0 of 18**:
+no condition can be met by having measured nothing.
+
+Two are decided by positive probes rather than by the absence of a complaint.
+
+**Support.** Whether a corpus contains an unbracketable interval is a property
+of the corpus, so requiring the parent stage to have removed something would
+test the corpus instead of the code. A control builds an offset segment
+in-process and requires the parent stage to have removed outputs the FIR guard
+alone would have admitted — 500, 250, 150 and 125 of them at 100, 50, 30 and
+25 Hz. Every derived ordinal in the real run is then re-checked against its own
+polyphase kernel support.
+
+**Branch gain.** The realized ripple and the coefficient sums are computed by
+different routes, so they agree to 3.9e-15 dB rather than exactly; the gate
+allows 1e-9 dB. Per-phase normalization would collapse the realized ripple to
+zero — a discrepancy of 4.9e-05 dB, ten million times that bound. Concealment
+is what closes the gate, not what slips through it.
+
+### 9.10 Result
+
+The gate is `PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING` on all eighteen
+conditions, run against the frozen P0.3 spectra, the P0.2.1 store and the
+original release files.
+
+| | |
+|---|---|
+| Workload windows | 9,960, from P0.3 unchanged |
+| Segment × rate grids | 39,840 |
+| Rate-windows attempted / eligible | 39,840 / **38,316** |
+| Eligible by rate | 100 Hz 9,960 · 50 Hz 9,756 · 30 Hz 9,327 · 25 Hz 9,273 |
+| Derived sample counts | 400 / 200 / 120 / 100 — one value per rate, no exceptions |
+| Derived samples written | 7,981,740 |
+| Ordinals on exact rational time | 7,981,740 checked, 0 mismatches, 0 rounded at 30 Hz |
+| Removed by the parent stage | 730,804 of 25,515,223 the FIR guard alone would have admitted |
+| Admitted over an unbracketable parent | **0** |
+| Spectral rows | 76,632 — 38,316 gyroscope, 38,316 accelerometer |
+| Independently audited windows | 1,689, 5,627 comparisons |
+| Derived-value / spectral / sample mismatches | 0 / 0 / 0 |
+| **Maximum observed bin error** | **0.0** |
+| Participants | 469, 7,504 summary rows — 3,752 core, 3,752 edge |
+| Resampling controls | 12 / 12, run in the audit's own process |
+| Evidence hash | `2aaebd34…`, identical across both processes |
+| Spectral-table content hash | `a66785de…` |
+
+Eligibility falls monotonically with rate — 9,960, 9,756, 9,327, 9,273 —
+because a longer kernel reaches further past each segment's ends and those
+outputs are refused rather than padded.
+
+#### What the ablation shows
+
+Median across 469 participants, by band:
+
+| Rate | Core 3–10 Hz power | Core distance | Edge 10–12 Hz power | Edge distance | Dominant kept |
+|---|---|---|---|---|---|
+| 100 Hz | 0.9710 / 0.9726 | 0.0082 / 0.0078 | 0.9126 / 0.9116 | 0.0073 / 0.0090 | 97.5% / 97.9% |
+| 50 Hz | 0.9712 / 0.9727 | 0.0082 / 0.0078 | 0.9130 / 0.9121 | 0.0071 / 0.0089 | 97.6% / 97.9% |
+| 30 Hz | 0.9712 / 0.9727 | 0.0082 / 0.0077 | 0.9123 / 0.9114 | 0.0074 / 0.0091 | 97.6% / 98.0% |
+| 25 Hz | 0.9712 / 0.9728 | 0.0082 / 0.0078 | **0.4401 / 0.4698** | **0.3345 / 0.3057** | 93.9% / 96.1% |
+
+*(accelerometer / gyroscope)*
+
+**The core band does not care about the rate.** 0.9710, 0.9712, 0.9712, 0.9712
+— the 3–10 Hz power ratio is flat to four decimals from 100 Hz down to 25 Hz,
+and the shape distance is flat at about 0.008. The ~2.9% deficit is already
+present at 100 Hz, where no anti-alias filter runs at all, so it is stage A's
+uniformization of irregular source time and not a consequence of the rate.
+
+**The 25 Hz edge band is where the cost lands.** Power falls to 0.44/0.47 and
+the shape distance rises fortyfold, from 0.008 to 0.31–0.33. That is the
+designed behaviour: the 25 Hz filter passes to 10 Hz and stops at 12.5 Hz, so
+10–12 Hz sits in its transition band. Separating this band from the core is
+the reason the milestone reports two bands rather than one — averaged
+together, a real 3–10 Hz preservation result would have been contaminated by a
+loss that was deliberately accepted.
+
+**Dominant-frequency preservation drops only at 25 Hz**, from about 97.6% to
+93.9% (accelerometer) and 96.1% (gyroscope) — the windows whose peak sat in
+the sacrificed edge.
+
+#### A metric that had to be fixed first
+
+The first authoritative run passed all eighteen conditions and published core
+power ratios of 0.9738, 0.4869, 0.2922 and 0.2434 — which is rate/100 to five
+digits. The P0.3 kernel's power grows linearly with the number of samples
+transformed, which never mattered inside P0.3 because every window was only
+compared against itself. Here it did: a perfectly preserved signal was being
+reported as having lost 75% of its tremor-band power.
+
+The kernel stayed frozen; the normalization was added to P0.4's comparison,
+dividing each side by its own sample count. The eighteen conditions were not
+wrong to miss it — they ask whether storage and indexed replay preserve what
+the source contained, and that answer was bit-exact throughout. A twelfth
+control now asks the separate question the gate did not: a 5 Hz tone, inside
+every rate's passband, must produce a core ratio near one at all four rates.
+Unnormalized it reads 1.00, 0.50, 0.30, 0.25; it now reads 1.000000, 0.999923,
+1.000439, 0.999969.
+
+## 10. Milestones after P0.4
 
 **E4D-P0.2 — frame-to-IMU range index.** Opens only on a passing P0.1 gate. For
 each frame interval `[t_i, t_(i+1))`, store the contiguous range of eligible IMU
@@ -869,13 +1065,14 @@ values, index overhead, random four-second retrieval p50/p95, sequential replay
 throughput, batch loading, peak memory and deterministic replay hashes. The
 v0.1 baseline fairness rules apply unchanged.
 
-**PADS-P0.2 — tremor workload.** Opens only on a passing PADS-P0.1 gate:
-immutable participant/task/stream indexes, exact task-local sample-range
-retrieval, four-second gap-aware windows, participant-disjoint grouping and
-deterministic replay. Spectral features and resampling ablations are a separate
-milestone and are not combined into the ingest work.
+**PADS-P0.5 — storage and retrieval benchmarks.** Opens only on a passing
+P0.4 gate. The same baseline comparison E4D-P0.4 defines, measured against the
+PADS source-time store: bytes per hour, index overhead, random four-second
+retrieval, sequential replay and deterministic replay hashes. It is a separate
+milestone from the four that precede it, and none of them emit its artifacts —
+each publishes a zero count for them instead.
 
-## 10. What the paper says about VIDIMU
+## 11. What the paper says about VIDIMU
 
 > Of the evaluated multimodal source structures, reproducibility of a
 > publisher-provided transformation was not sufficient to establish temporal
@@ -886,7 +1083,7 @@ milestone and are not combined into the ingest work.
 That is not an embarrassing failure. It is the direct evidence for why the
 authority model is necessary.
 
-## 11. Provenance of this branch
+## 12. Provenance of this branch
 
 The E4D-P0.1 and PADS-P0.1 implementation on this branch is a **re-derivation**.
 An earlier build of the same design was produced in an ephemeral environment and
@@ -894,7 +1091,7 @@ lost with it, together with the adversarial reviews it had passed. This code was
 rebuilt from the architecture and has not carried those reviews. It is a new
 artifact and the commit messages say so.
 
-## 12. Current status
+## 13. Current status
 
 | Component | Status |
 |---|---|
@@ -910,6 +1107,8 @@ artifact and the commit messages say so.
 | PADS-P0.2 empirical gate | `PASS_PADS_INDEX_AND_WINDOW_AUTHORITY`; 16/16, reproduced across two processes |
 | PADS-P0.3 spectral preservation | Implemented and executed against the P0.2.1 store |
 | PADS-P0.3 empirical gate | `PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION`; 16/16, maximum bin error 0.0, reproduced across two processes |
-| PADS-P0.4 / P0.5 | Closed; P0.3 emits no resampled signal, anti-aliasing output or benchmark result |
+| PADS-P0.4 rate ablations and anti-aliasing | Implemented and executed against the P0.3 spectra and the P0.2.1 store |
+| PADS-P0.4 empirical gate | `PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING`; 18/18, maximum bin error 0.0, reproduced across two processes |
+| PADS-P0.5 | Closed; P0.4 emits no classification, video-association or storage-benchmark result |
 | EgoInertia-MI | Verified real (arXiv:2607.03934); optional, off the critical path |
 | Comparative systems results | None yet |

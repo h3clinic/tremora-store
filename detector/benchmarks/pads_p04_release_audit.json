@@ -1,0 +1,567 @@
+{
+  "anti_alias_filters": {
+    "coefficients_sha256": "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81",
+    "dc_terminology": {
+      "25": {
+        "effective_dc_gain": 1.0000000000000002,
+        "per_phase_normalization": false,
+        "polyphase_dc_gain_spread_db": 0.0,
+        "polyphase_dc_gains": [
+          1.0000000000000002
+        ],
+        "prototype_coefficient_sum": 1.0000000000000002,
+        "upsampling_factor": 1
+      },
+      "30": {
+        "effective_dc_gain": 1.0000000000000002,
+        "per_phase_normalization": false,
+        "polyphase_dc_gain_spread_db": 4.901008705233925e-05,
+        "polyphase_dc_gains": [
+          1.0000018808298288,
+          0.9999962383403425,
+          1.0000018808298288
+        ],
+        "prototype_coefficient_sum": 3.0000000000000004,
+        "upsampling_factor": 3
+      },
+      "50": {
+        "effective_dc_gain": 1.0,
+        "per_phase_normalization": false,
+        "polyphase_dc_gain_spread_db": 0.0,
+        "polyphase_dc_gains": [
+          1.0
+        ],
+        "prototype_coefficient_sum": 1.0,
+        "upsampling_factor": 1
+      }
+    },
+    "manifest": {
+      "attenuation_target_db": 65.0,
+      "coefficients_sha256": "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81",
+      "design": "KAISER_WINDOW_METHOD_LINEAR_PHASE_TYPE_I",
+      "filters": {
+        "25": {
+          "coefficients_sha256": "ce821d9b05d4efab5f035980333ceb11aaa03ae4de7a769e1db698fc0ca69846",
+          "cutoff_hz": 11.25,
+          "dc_gain": 0.9999999999999999,
+          "decimate": 4,
+          "effective_dc_gain": 1.0000000000000002,
+          "group_delay_taps": 80.0,
+          "passband_edge_db": -0.002389587518665823,
+          "passband_hz": 10.0,
+          "passband_ripple_db": 0.00833217290685369,
+          "per_phase_normalization": false,
+          "polyphase_dc_gain_spread_db": 0.0,
+          "polyphase_dc_gains": [
+            1.0000000000000002
+          ],
+          "prototype_coefficient_sum": 1.0000000000000002,
+          "stopband_attenuation_db": 64.57143323699931,
+          "stopband_start_hz": 12.5,
+          "symmetric": true,
+          "taps": 161,
+          "upsample": 1,
+          "upsampling_factor": 1,
+          "working_rate_hz": 100
+        },
+        "30": {
+          "coefficients_sha256": "f84bf51548b91d6143ff3df55cef1622cf1773de52aa0222f3c02c519bdf92e5",
+          "cutoff_hz": 13.5,
+          "dc_gain": 1.0000000000000007,
+          "decimate": 10,
+          "effective_dc_gain": 1.0000000000000002,
+          "group_delay_taps": 199.0,
+          "passband_edge_db": -0.0034130721699360492,
+          "passband_hz": 12.0,
+          "passband_ripple_db": 0.009268905666203966,
+          "per_phase_normalization": false,
+          "polyphase_dc_gain_spread_db": 4.901008705233925e-05,
+          "polyphase_dc_gains": [
+            1.0000018808298288,
+            0.9999962383403425,
+            1.0000018808298288
+          ],
+          "prototype_coefficient_sum": 3.0000000000000004,
+          "stopband_attenuation_db": 64.37985096032872,
+          "stopband_start_hz": 15.0,
+          "symmetric": true,
+          "taps": 399,
+          "upsample": 3,
+          "upsampling_factor": 3,
+          "working_rate_hz": 300
+        },
+        "50": {
+          "coefficients_sha256": "12d2de96bff1188479506afe2b0fb1fdbec0fb19091bb3f405296398dbaff32d",
+          "cutoff_hz": 18.5,
+          "dc_gain": 1.0000000000000002,
+          "decimate": 2,
+          "effective_dc_gain": 1.0,
+          "group_delay_taps": 16.0,
+          "passband_edge_db": 0.0027508693752442536,
+          "passband_hz": 12.0,
+          "passband_ripple_db": 0.008133913340192197,
+          "per_phase_normalization": false,
+          "polyphase_dc_gain_spread_db": 0.0,
+          "polyphase_dc_gains": [
+            1.0
+          ],
+          "prototype_coefficient_sum": 1.0,
+          "stopband_attenuation_db": 63.801429029206716,
+          "stopband_start_hz": 25.0,
+          "symmetric": true,
+          "taps": 33,
+          "upsample": 1,
+          "upsampling_factor": 1,
+          "working_rate_hz": 100
+        }
+      },
+      "passband_ripple_max_db": 0.25,
+      "stage_a_reference_response_db": {
+        "10_hz_db": -0.2867003443237515,
+        "12_hz_db": -0.4134533731981803,
+        "3_hz_db": -0.02572550743871263
+      },
+      "stopband_attenuation_min_db": 60.0,
+      "stress_band_hz": {
+        "25": [
+          10.0,
+          12.0
+        ]
+      }
+    },
+    "measured": {
+      "25": {
+        "dc_gain": 0.9999999999999999,
+        "group_delay_taps": 80.0,
+        "passband_edge_db": -0.002389587518665823,
+        "passband_ripple_db": 0.00833217290685369,
+        "stopband_attenuation_db": 64.57143323699931,
+        "symmetric": true,
+        "taps": 161
+      },
+      "30": {
+        "dc_gain": 1.0000000000000007,
+        "group_delay_taps": 199.0,
+        "passband_edge_db": -0.0034130721699360492,
+        "passband_ripple_db": 0.009268905666203966,
+        "stopband_attenuation_db": 64.37985096032872,
+        "symmetric": true,
+        "taps": 399
+      },
+      "50": {
+        "dc_gain": 1.0000000000000002,
+        "group_delay_taps": 16.0,
+        "passband_edge_db": 0.0027508693752442536,
+        "passband_ripple_db": 0.008133913340192197,
+        "stopband_attenuation_db": 63.801429029206716,
+        "symmetric": true,
+        "taps": 33
+      }
+    },
+    "worst_passband_ripple_db": 0.009268905666203966,
+    "worst_stopband_attenuation_db": 63.801429029206716
+  },
+  "artifact_kind": "TREMORA_PADS_P04_RATE_ABLATION_RELEASE_AUDIT",
+  "audit_execution_status": "PASS",
+  "authority": {
+    "analysis_bands": [
+      "CORE_3_TO_10_HZ",
+      "EDGE_STRESS_10_TO_12_HZ"
+    ],
+    "contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+    "cross_wrist_clock_alignment": "UNRESOLVED",
+    "dataset_id": "PADS",
+    "derived_rate_method": "FROZEN_POLYPHASE_FIR",
+    "derived_rates_hz": [
+      100,
+      50,
+      30,
+      25
+    ],
+    "edge_policy": "REFUSE_UNSUPPORTED_OUTPUT_SAMPLES",
+    "grid_origin": "TASK_LOCAL_ZERO",
+    "hardware_sync_claim": false,
+    "parent_rate_hz": 100,
+    "per_output_weight_normalization": false,
+    "reference": "NATIVE_IRREGULAR_SOURCE_TIME",
+    "reference_milestone": "PADS_P0_3",
+    "resampling_contract_version": "tremora-pads-bandlimited-nonuniform-resample-0.4.0",
+    "resampling_domain": "P02_CONTIGUOUS_SEGMENT",
+    "sample_level_bilateral_fusion_allowed": false,
+    "source_to_parent": "SOURCE_TIME_LINEAR_INTERPOLATION",
+    "time_basis": "SOURCE_TIME_COLUMN",
+    "timing_authority": "SOURCE_RELATIVE_UNIMODAL_CLOCK",
+    "video_pairing": "NOT_APPLICABLE",
+    "window_eligibility": "FULLY_INSIDE_SUPPORTED_OUTPUT"
+  },
+  "canonical_evidence_sha256": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0",
+  "contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+  "derived_rates_hz": [
+    100,
+    50,
+    30,
+    25
+  ],
+  "gate_conditions": [
+    {
+      "condition": "P03_DEPENDENCY_VERIFIED",
+      "detail": "P03_DEPENDENCY_VERIFIED",
+      "satisfied": true
+    },
+    {
+      "condition": "ANTI_ALIAS_COEFFICIENTS_FROZEN",
+      "detail": "coefficients 976957f77d3ba0ed against pinned 976957f77d3ba0ed",
+      "satisfied": true
+    },
+    {
+      "condition": "FILTER_RESPONSE_MEETS_SPECIFICATION",
+      "detail": "worst ripple 0.0093 dB of 0.25 allowed, worst stopband 63.80 dB of 60.0 required, over 3 rates",
+      "satisfied": true
+    },
+    {
+      "condition": "DERIVED_FROM_WHOLE_P02_1_SEGMENTS",
+      "detail": "domain 'P02_CONTIGUOUS_SEGMENT' over 39840 segments; 0 windows resampled in isolation",
+      "satisfied": true
+    },
+    {
+      "condition": "NATIVE_SPECTRA_ARE_THE_P03_REFERENCE",
+      "detail": "reference PADS_P0_3 table 27bb6444bdfcab77",
+      "satisfied": true
+    },
+    {
+      "condition": "ALL_FOUR_RATES_MATERIALIZED",
+      "detail": "[25, 30, 50, 100] materialized against [25, 30, 50, 100] required",
+      "satisfied": true
+    },
+    {
+      "condition": "EXACT_RATIONAL_TIMING_PRESERVED",
+      "detail": "0 of 7981740 ordinals off their exact rational time; 0 rounded at 30 Hz",
+      "satisfied": true
+    },
+    {
+      "condition": "TWO_STAGE_SUPPORT_INTERSECTION_ENFORCED",
+      "detail": "control passed; 0 of 7981740 derived ordinals reach into an unbracketable parent interval (730804 of 25515223 were removed by the parent stage in this corpus)",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_EDGE_PADDING_OR_KERNEL_RENORMALIZATION",
+      "detail": "0 padded samples over 7981740 derived, 0 renormalized kernels",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_PER_PHASE_GAIN_NORMALIZATION",
+      "detail": "observed spread 0.000049 dB against published 0.000049 dB; within-phase spread 0.0",
+      "satisfied": true
+    },
+    {
+      "condition": "DERIVED_SAMPLE_COUNTS_EXACT",
+      "detail": "0 windows whose derived length is not rate times duration, over 38316 eligible rate-windows",
+      "satisfied": true
+    },
+    {
+      "condition": "CORE_AND_EDGE_BANDS_REPORTED_SEPARATELY",
+      "detail": "3752 core rows, 3752 edge rows, 0 merged",
+      "satisfied": true
+    },
+    {
+      "condition": "SOURCE_AND_REPLAY_DERIVED_IDENTICAL",
+      "detail": "0 value and 0 spectral mismatches over 5627 comparisons, maximum bin error 0.0",
+      "satisfied": true
+    },
+    {
+      "condition": "ALL_DERIVED_OUTPUT_ROWS_RECONCILED",
+      "detail": "76632 rows against 76632 expected",
+      "satisfied": true
+    },
+    {
+      "condition": "PARTICIPANT_LEVEL_SUMMARIES_PRESENT",
+      "detail": "7504 rows over 469 participants",
+      "satisfied": true
+    },
+    {
+      "condition": "SYNTHETIC_RESAMPLING_CONTROLS_PASS",
+      "detail": "RESAMPLING_CONTROLS_PASS",
+      "satisfied": true
+    },
+    {
+      "condition": "INDEPENDENT_MATERIALIZATION_REPRODUCED",
+      "detail": "BYTE_IDENTICAL_PADS_P04_PASS",
+      "satisfied": true
+    },
+    {
+      "condition": "NO_CLASSIFICATION_VIDEO_OR_P05_ARTIFACTS",
+      "detail": "0 forbidden artifacts over 8 screened categories",
+      "satisfied": true
+    }
+  ],
+  "gate_conditions_satisfied": 18,
+  "gate_conditions_total": 18,
+  "gate_evaluated": true,
+  "gate_status": "PASS_PADS_RATE_ABLATION_AND_ANTI_ALIASING",
+  "implementation_version": "pads-p04-rate-ablation-1.0.0",
+  "independent_reproduction_status": "BYTE_IDENTICAL_PADS_P04_PASS",
+  "materialization": {
+    "audit_comparisons": 5627,
+    "audit_windows": 1689,
+    "core_summary_rows": 3752,
+    "derived_rate_windows_attempted": 39840,
+    "derived_rate_windows_eligible": 38316,
+    "derived_rate_windows_unsupported": 1524,
+    "derived_sample_count_mismatches": 0,
+    "derived_samples_written": 7981740,
+    "edge_summary_rows": 3752,
+    "eligible_by_rate": {
+      "100": 9960,
+      "25": 9273,
+      "30": 9327,
+      "50": 9756
+    },
+    "failure_count": 0,
+    "failures": [],
+    "maximum_bin_absolute_error": 0.0,
+    "ordinals_admitted_by_filter_guard_alone": 25515223,
+    "ordinals_admitted_over_unbracketed_parent": 0,
+    "ordinals_removed_by_parent_stage": 730804,
+    "parent_ordinals_unbracketed": 1424064,
+    "participant_summary_rows": 7504,
+    "participants": 469,
+    "rates_materialized": [
+      25,
+      30,
+      50,
+      100
+    ],
+    "rational_timing_mismatches": 0,
+    "rational_timing_ordinals_checked": 7981740,
+    "rounded_thirty_hz_ordinals": 0,
+    "sample_count_by_rate": {
+      "100": {
+        "400": 9960
+      },
+      "25": {
+        "100": 9273
+      },
+      "30": {
+        "120": 9327
+      },
+      "50": {
+        "200": 9756
+      }
+    },
+    "segments_derived": 39840,
+    "source_replay_derived_mismatches": 0,
+    "source_replay_sample_mismatches": 0,
+    "source_replay_spectral_mismatches": 0,
+    "source_unreadable": 0,
+    "spectral_rows": 76632,
+    "spectral_table_content_sha256": "a66785ded71a33d5f09469a14c600bd7f98edf960918f549f3df0bff8f56d32c",
+    "unsupported_by_rate": {
+      "25": 687,
+      "30": 633,
+      "50": 204
+    },
+    "workload_windows": 9960
+  },
+  "materialized_release_artifacts": 76632,
+  "numeric_execution": {
+    "blas_used": false,
+    "threading": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "p03_dependency": {
+    "dependency_status": "P03_DEPENDENCY_VERIFIED",
+    "detail": "P0.3 authority, published report, spectra and store all reconcile",
+    "observed_report_sha256": "a2b6dfa3f598dfe7e2821285c3262dd1f817b168cb81e62683ad796445faf615",
+    "observed_spectral_table_sha256": "27bb6444bdfcab77911134b1c4671f563c51084f69e6d587e339c0a00d76c97e",
+    "pinned": {
+      "anti_alias_coefficients_sha256": "976957f77d3ba0edbe72507bb32617751bbf1f3c1f38e299c5ce5e4120163d81",
+      "expected_audit_windows": 6077,
+      "expected_spectral_rows": 19920,
+      "expected_workload_windows": 9960,
+      "frequency_grid_sha256": "b7b18ff14e6ef93a159484abd7850c732851e63c69290213706381bb32f77b25",
+      "p02_evidence_sha256": "7ca16981b3bce63c5b8262fc0efe8855a73b9a8435e2aa485dc6e79ae898a139",
+      "p03_contract_version": "tremora-pads-source-time-spectral-preservation-0.3.0",
+      "p03_evidence_sha256": "a0be87d48c1146862aa83a2a1238d3df50fc344781878b6ee0a03f738548df17",
+      "p03_gate_status": "PASS_PADS_SOURCE_TIME_SPECTRAL_PRESERVATION",
+      "p03_report_sha256": "a2b6dfa3f598dfe7e2821285c3262dd1f817b168cb81e62683ad796445faf615",
+      "p03_spectral_table_sha256": "27bb6444bdfcab77911134b1c4671f563c51084f69e6d587e339c0a00d76c97e",
+      "rate_ablation_contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+      "resampling_contract_version": "tremora-pads-bandlimited-nonuniform-resample-0.4.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46",
+      "storage_index_content_sha256": "22aeeb036cfe2cc6e1e0cc63d2142f75c5754b3bcf2b545aa5a77340f76420f1"
+    }
+  },
+  "release_gate_contract_version": "tremora-p01-release-gate-0.1.0",
+  "release_status": "EVALUATED",
+  "reproduction_receipts": {
+    "note": "Absolute roots and command arguments are reduced to their final component; the unredacted receipts are written beside the materialized spectra, not into this repository. The reproduction proof rests on the differing run ids, process ids and output-root device/inode identities together with the identical canonical evidence hash.",
+    "run_a": {
+      "canonical_evidence_sha256": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0",
+      "contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p04-rate-ablation-1.0.0",
+      "output_root_basename": "run_a",
+      "output_root_identity": "16777233:131691002",
+      "process_id": 29690,
+      "run_id": "df01155c1b54484683fe651da9583c0c",
+      "schema_version": "pads-p0.4.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_a_canonical_hash": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0",
+    "run_b": {
+      "canonical_evidence_sha256": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0",
+      "contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+      "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+      "implementation_version": "pads-p04-rate-ablation-1.0.0",
+      "output_root_basename": "run_b",
+      "output_root_identity": "16777233:131691003",
+      "process_id": 29801,
+      "run_id": "11a284e03e364e78814ae9e4f646ac4d",
+      "schema_version": "pads-p0.4.0",
+      "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+    },
+    "run_b_canonical_hash": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0"
+  },
+  "resampling_controls": {
+    "controls": {
+      "a_segment_shorter_than_the_kernel_yields_nothing": true,
+      "band_power_ratio_is_independent_of_sample_count": true,
+      "constant_input_unit_gain": true,
+      "derived_grids_have_no_cumulative_drift": true,
+      "filters_meet_their_declared_specification": true,
+      "no_per_phase_normalization": true,
+      "out_of_band_tone_does_not_fold_into_the_band": true,
+      "phase_ripple_matches_published_branch_gains": true,
+      "preservation_band_survives": true,
+      "support_intersection_precedes_the_filter_guard": true,
+      "thirty_hertz_period_is_not_integer_picoseconds": true,
+      "unsupported_output_is_refused_not_padded": true
+    },
+    "controls_passed": 12,
+    "controls_total": 12,
+    "measured": {
+      "alias_25": {
+        "amplitude": 0.00021813518599620485,
+        "db": -73.22548550993184,
+        "folds_to_hz": 10.0,
+        "intruder_hz": 15.0
+      },
+      "alias_30": {
+        "amplitude": 0.0009150619506842534,
+        "db": -60.770990054637,
+        "folds_to_hz": 12.0,
+        "intruder_hz": 18.0
+      },
+      "alias_50": {
+        "amplitude": 0.00011236278114928852,
+        "db": -78.9875503978034,
+        "folds_to_hz": 12.0,
+        "intruder_hz": 38.0
+      },
+      "constant_input_100": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "observed_ripple": 0.0,
+        "observed_ripple_db": 0.0,
+        "published_branch_ripple": 0.0,
+        "published_branch_ripple_db": 0.0,
+        "within_phase_spread": 0.0
+      },
+      "constant_input_25": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "observed_ripple": 0.0,
+        "observed_ripple_db": 0.0,
+        "published_branch_ripple": 0.0,
+        "published_branch_ripple_db": 0.0,
+        "within_phase_spread": 0.0
+      },
+      "constant_input_30": {
+        "max": 1.000001880829829,
+        "mean": 0.9999999981915098,
+        "min": 0.9999962383403422,
+        "observed_ripple": 5.64248948675683e-06,
+        "observed_ripple_db": 4.9010087056196534e-05,
+        "published_branch_ripple": 5.642489486312741e-06,
+        "published_branch_ripple_db": 4.901008705233925e-05,
+        "within_phase_spread": 0.0
+      },
+      "constant_input_50": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "observed_ripple": 0.0,
+        "observed_ripple_db": 0.0,
+        "published_branch_ripple": 0.0,
+        "published_branch_ripple_db": 0.0,
+        "within_phase_spread": 0.0
+      },
+      "core_band_power_ratio_by_rate": {
+        "100": 1.0,
+        "25": 0.999968527968944,
+        "30": 1.000438981896333,
+        "50": 0.9999233345156442
+      },
+      "preserved_100": {
+        "amplitude": 0.9751398637602987,
+        "db": -0.21866178442909862,
+        "hz": 12.0
+      },
+      "preserved_25": {
+        "amplitude": 0.9823085085533522,
+        "db": -0.15504188335722724,
+        "hz": 10.0
+      },
+      "preserved_30": {
+        "amplitude": 0.9747562758054805,
+        "db": -0.22207919996976805,
+        "hz": 12.0
+      },
+      "preserved_50": {
+        "amplitude": 0.9754444827804719,
+        "db": -0.2159488669209868,
+        "hz": 12.0
+      },
+      "support_intersection": {
+        "offset_picoseconds": 5000000000000,
+        "ordinals_removed_by_parent_stage": {
+          "100": 500,
+          "25": 125,
+          "30": 150,
+          "50": 250
+        }
+      }
+    },
+    "status": "RESAMPLING_CONTROLS_PASS"
+  },
+  "run_receipt": {
+    "canonical_evidence_sha256": "2aaebd342902c9e2d7d4f3900be92bfd59f52d299c320aa47a7677dc476979b0",
+    "contract_version": "tremora-pads-rate-ablation-and-anti-aliasing-0.4.0",
+    "dataset_root_basename": "pads-parkinsons-disease-smartwatch-dataset-1.0.0",
+    "implementation_version": "pads-p04-rate-ablation-1.0.0",
+    "output_root_basename": "run_b",
+    "output_root_identity": "16777233:131691003",
+    "process_id": 29801,
+    "run_id": "11a284e03e364e78814ae9e4f646ac4d",
+    "schema_version": "pads-p0.4.0",
+    "source_manifest_sha256": "514cd95405a12afcdfb126d47d1f559e2e8a744f03e586c3088d5e4fd7b02c46"
+  },
+  "schema_version": "pads-p0.4.0",
+  "withheld_artifacts": {
+    "classification_tables": 0,
+    "diagnosis_tables": 0,
+    "generic_success_markers": 0,
+    "retrieval_latency_tables": 0,
+    "severity_tables": 0,
+    "storage_benchmark_tables": 0,
+    "tremor_detection_tables": 0,
+    "video_association_tables": 0
+  }
+}
