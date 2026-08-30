@@ -328,9 +328,17 @@ def test_a_refusal_reports_the_volume_numbers_it_refused_on(bench, roomy) -> Non
     """The record exists to say why the run did not happen."""
 
     from motionbloom.tremora_store.pads.p05.audit import _preflight_record
+    from motionbloom.tremora_store.pads.p05.memory import check_memory
 
     report = _preflight(bench, query_counts={Q2: 10**12})
-    record = _preflight_record(preflight=report, inspected={})
+    record = _preflight_record(
+        preflight=report,
+        memory=check_memory([{
+            "index": 0, "swap_total_bytes": 0, "swap_used_bytes": 0,
+            "free_percentage": 80.0,
+        }]),
+        inspected={},
+    )
     assert record["release_status"] == "ERROR_RESOURCE_PREFLIGHT"
     assert record["gate_evaluated"] is False
     assert record["materialized_release_artifacts"] == 0
@@ -352,3 +360,87 @@ def test_the_hashed_evidence_omits_the_volume_state(bench, roomy) -> None:
     ):
         assert key in deterministic, key
     assert "free_bytes" in _preflight(bench).volume_record()
+
+
+# --- the memory preflight -------------------------------------------------
+
+
+def _samples(*used_gb, total_gb=8.0, free_pct=60.0):
+    return [
+        {
+            "index": index,
+            "swap_total_bytes": int(total_gb * 1024**3),
+            "swap_used_bytes": int(used * 1024**3),
+            "free_percentage": free_pct,
+        }
+        for index, used in enumerate(used_gb)
+    ]
+
+
+def test_a_quiet_machine_passes_the_memory_check() -> None:
+    from motionbloom.tremora_store.pads.p05.memory import (
+        MEMORY_OK,
+        check_memory,
+    )
+
+    report = check_memory(_samples(0.1, 0.1, 0.1))
+    assert report.status == MEMORY_OK
+    assert report.ok
+
+
+def test_a_machine_already_paging_is_refused() -> None:
+    # The state that killed the first authoritative run: swap heavily
+    # occupied before the benchmark has allocated anything.
+    from motionbloom.tremora_store.pads.p05.memory import (
+        SWAP_HEAVILY_USED,
+        check_memory,
+    )
+
+    report = check_memory(_samples(5.9, 5.9, 5.9))
+    assert report.status == SWAP_HEAVILY_USED
+    assert not report.ok
+    assert "already paging" in report.detail
+
+
+def test_climbing_swap_is_refused_even_when_it_is_still_small() -> None:
+    from motionbloom.tremora_store.pads.p05.memory import (
+        SWAP_GROWING,
+        check_memory,
+    )
+
+    report = check_memory(_samples(0.1, 0.6, 1.1))
+    assert report.status == SWAP_GROWING
+    assert report.swap_growth_bytes > 0
+
+
+def test_low_free_memory_is_refused() -> None:
+    from motionbloom.tremora_store.pads.p05.memory import (
+        MEMORY_PRESSURE_ELEVATED,
+        check_memory,
+    )
+
+    report = check_memory(_samples(0.1, 0.1, free_pct=3.0))
+    assert report.status == MEMORY_PRESSURE_ELEVATED
+
+
+def test_a_machine_with_no_swap_configured_is_fine() -> None:
+    from motionbloom.tremora_store.pads.p05.memory import (
+        MEMORY_OK,
+        check_memory,
+    )
+
+    report = check_memory([{
+        "index": 0, "swap_total_bytes": 0, "swap_used_bytes": 0,
+        "free_percentage": 67.0,
+    }])
+    assert report.status == MEMORY_OK
+
+
+def test_memory_numbers_are_provenance_not_evidence() -> None:
+    """They must never reach the canonical hash."""
+
+    from motionbloom.tremora_store.pads.p05.memory import check_memory
+
+    record = check_memory(_samples(0.1, 0.1)).as_record()
+    assert "swap_used_bytes" in record
+    assert "free_percentage" in record

@@ -267,7 +267,7 @@ def run_preflight(
     workload_content_sha256: str,
     source_manifest_sha256: str,
     expected_identities: Mapping[str, Mapping[str, Any]] | None = None,
-    expected_workload_sha256: str = FROZEN_WORKLOAD_SHA256,
+    expected_workload_sha256: str | None = None,
     expected_source_manifest_sha256: str | None = None,
     required_baselines: Sequence[str] = (B1, B2),
 ) -> PreflightReport:
@@ -278,11 +278,14 @@ def run_preflight(
         source_manifest_sha256=source_manifest_sha256,
     )
 
-    if workload_content_sha256 != expected_workload_sha256:
+    # Read at call time, not bound as a default: a default argument freezes
+    # at import and cannot be reached by a test that needs a different corpus.
+    expected_workload = expected_workload_sha256 or FROZEN_WORKLOAD_SHA256
+    if workload_content_sha256 != expected_workload:
         report.status = WORKLOAD_HASH_MISMATCH
         report.detail = (
             f"workload is {workload_content_sha256[:16]}, frozen at "
-            f"{expected_workload_sha256[:16]}"
+            f"{expected_workload[:16]}"
         )
         return report
 

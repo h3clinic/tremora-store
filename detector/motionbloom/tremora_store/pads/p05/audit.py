@@ -17,9 +17,12 @@ evidence hash and disagree about nanoseconds, which is the truthful version of
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import gc
+import hashlib
 import json
 import os
+import platform
 import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -29,7 +32,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from ...release_gate import (
-    AUDIT_EXECUTION_ERROR,
     AUDIT_EXECUTION_PASS,
     RELEASE_GATE_CONTRACT_VERSION,
     canonical_json_bytes,
@@ -47,7 +49,13 @@ from ..reproduction import (
     build_run_receipt,
     verify_independent_reproduction,
 )
-from .benchmark import all_speed_ratios, measure_cold, run_rounds
+from .benchmark import (
+    BenchmarkReport,
+    ColdMeasurement,
+    all_speed_ratios,
+    measure_cold,
+    run_rounds,
+)
 from .contract import (
     B0,
     B1,
@@ -77,6 +85,7 @@ from .gate import (
     PadsP05GateFacts,
     evaluate_gate,
 )
+from .memory import check_memory
 from .preflight import (
     run_preflight,
 )
@@ -134,6 +143,43 @@ _SINGLE_THREAD_VARIABLES = (
 )
 
 
+MEASUREMENT_FILENAME = "pads_p05_measurement.json"
+
+#: The constructor's fields; ``as_record`` adds derived keys it cannot take.
+_COLD_FIELDS = tuple(
+    field.name for field in dataclasses.fields(ColdMeasurement)
+)
+
+
+def file_sha256(path: Path) -> str:
+    """Hash a finished artifact, so the summarizer can prove it read the
+    table the measurement process actually wrote."""
+
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(4 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, payload: Mapping[str, Any]) -> int:
+    body = canonical_json_bytes(payload)
+    path.write_bytes(body)
+    return len(body)
+
+
+def environment_record() -> dict[str, Any]:
+    """Provenance only.  Never hashed into the canonical evidence."""
+
+    return {
+        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "processor": platform.processor(),
+        "cpu_count": os.cpu_count() or 0,
+        "thread_pinning": pin_single_thread(),
+    }
+
+
 class PadsP05AuditError(RuntimeError):
     """Raised when the audit itself cannot run."""
 
@@ -167,7 +213,7 @@ def _blocked_record(
 
 
 def _preflight_record(
-    *, preflight, inspected: Mapping[str, str | None]
+    *, preflight, memory, inspected: Mapping[str, str | None]
 ) -> dict[str, Any]:
     """A run that could not start.
 
@@ -187,7 +233,12 @@ def _preflight_record(
         # The full record here, volume numbers included: this record exists
         # to say why the run did not happen, and nothing about it is hashed.
         "preflight": preflight.as_record(),
-        "blocked_reason": f"{preflight.status}: {preflight.detail}",
+        "memory": memory.as_record(),
+        "blocked_reason": (
+            f"{preflight.status}: {preflight.detail}"
+            if not preflight.ok
+            else f"{memory.status}: {memory.detail}"
+        ),
         "inspected_roots": {
             key: value for key, value in sorted(inspected.items())
         },
@@ -240,6 +291,8 @@ def verify_dependency(
         "p04_evidence_sha256": p04.get("canonical_evidence_sha256"),
         "p03_gate_status": p03.get("gate_status"),
         "p04_gate_status": p04.get("gate_status"),
+        "release_root": str(release_root),
+        "store_root": str(store_root),
         "source_manifest_sha256": (
             p02.get("p01_dependency", {}).get("pinned", {})
             .get("source_manifest_sha256")
@@ -285,7 +338,7 @@ def _hdf5_facts(root: Path) -> dict[str, Any]:
     }
 
 
-def audit_pads_p05(
+def measure_pads_p05(
     *,
     release_root: Path,
     store_root: Path,
@@ -297,14 +350,17 @@ def audit_pads_p05(
     p04_store_root: Path | None = None,
     rounds: int = TOTAL_ROUNDS,
     command_arguments: Sequence[str] = (),
-    reproduction_receipt: Mapping[str, Any] | None = None,
     run_id: str | None = None,
     process_id: int | None = None,
     progress: bool = False,
-) -> tuple[dict[str, Any], dict[str, Any] | None]:
-    """Run the P0.5 audit and return ``(record, receipt)``."""
+) -> dict[str, Any]:
+    """Time the four representations and write the measurement receipt.
 
-    threading = pin_single_thread()
+    This process does nothing after the timing except close the table, hash
+    it and exit.  The summaries are another process's job.
+    """
+
+    pin_single_thread()
     dependency = verify_dependency(
         release_root=release_root, store_root=store_root,
         p02_report_path=p02_report_path,
@@ -377,15 +433,30 @@ def audit_pads_p05(
         ),
         expected_identities=baseline_identities.get("baselines"),
     )
-    if not preflight.ok:
+    # Disk is not enough on its own: the previous run was killed by the
+    # memory manager, which had grown swap until the disk looked like the
+    # problem.  A machine already paging will page harder under a long run.
+    memory = check_memory()
+    if not memory.ok:
         return _preflight_record(
             preflight=preflight,
+            memory=memory,
             inspected={
                 "baseline_root": str(baseline_root),
                 "output_root": str(output_root),
                 "store_root": str(store_root),
             },
-        ), None
+        )
+    if not preflight.ok:
+        return _preflight_record(
+            preflight=preflight,
+            memory=memory,
+            inspected={
+                "baseline_root": str(baseline_root),
+                "output_root": str(output_root),
+                "store_root": str(store_root),
+            },
+        )
 
     if progress:
         print("cold measurements", flush=True)
@@ -445,15 +516,127 @@ def audit_pads_p05(
     benchmark.cold = cold
     workload_hash_after = workload.content_sha256()
 
-    # Timing is done, so the representations' indexes are released before the
-    # read-back allocates.  Holding both at once is what got a run killed by
-    # the memory manager on a machine already under pressure.
+    # This is where the measurement process ends.  It closes the table, hashes
+    # it, releases the representations and exits; the summaries are read back
+    # by a separate process that was never resident during the timing.  A
+    # three-hour run should not be carrying the read-back's allocation
+    # alongside its own, and the previous architecture -- which did -- was
+    # killed by the memory manager after the timing had already succeeded.
     for representation in representations.values():
         representation.release()
     representations.clear()
     gc.collect()
+
+    measurement = {
+        "artifact_kind": P05_ARTIFACT_KIND,
+        "schema_version": P05_SCHEMA_VERSION,
+        "implementation_version": P05_IMPLEMENTATION_VERSION,
+        "contract_version": P05_CONTRACT_VERSION,
+        "run_id": run_id,
+        "process_id": process_id,
+        "timing_table": {
+            "path": str(table_path),
+            "content_sha256": file_sha256(table_path),
+            "bytes": table_path.stat().st_size,
+            "rows": benchmark.rows_written,
+        },
+        "benchmark": benchmark.as_record(),
+        "workload": workload.as_record(),
+        "workload_content_sha256_before": workload_hash_before,
+        "workload_content_sha256_after": workload_hash_after,
+        "equivalence": equivalence.as_record(),
+        "storage": storage,
+        "hdf5": hdf5,
+        "baseline_builds": {B1: b1_build, B2: b2_build},
+        "baseline_identities": baseline_identities,
+        "dependency": dependency,
+        "preflight": preflight.deterministic_record(),
+        "execution_receipt": {
+            "volume_at_start": preflight.volume_record(),
+            "memory_at_start": memory.as_record(),
+            "environment": environment_record(),
+            "command_arguments": list(command_arguments),
+        },
+    }
+    write_json(output_root / MEASUREMENT_FILENAME, measurement)
+    return measurement
+
+
+def summarize_pads_p05(
+    *,
+    output_root: Path,
+    store_root: Path,
+    reproduction_receipt: Mapping[str, Any] | None = None,
+    progress: bool = False,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Read a finished timing table and produce the run's evidence.
+
+    A fresh process.  Nothing here was resident while the timing ran, so the
+    read-back's few hundred megabytes never coexist with the representations
+    and the measured rounds.
+    """
+
+    measurement = json.loads(
+        (output_root / MEASUREMENT_FILENAME).read_bytes().decode("utf-8")
+    )
+    table_path = Path(measurement["timing_table"]["path"])
+    recorded = str(measurement["timing_table"]["content_sha256"])
+    observed = file_sha256(table_path)
+    if observed != recorded:
+        raise PadsP05AuditError(
+            f"timing table changed after measurement: {observed[:16]} "
+            f"is not the recorded {recorded[:16]}"
+        )
+
+    run_id = str(measurement["run_id"])
+    process_id = int(measurement["process_id"])
+    benchmark = BenchmarkReport(
+        rounds_completed=int(measurement["benchmark"]["rounds_completed"]),
+        warmup_rounds_discarded=int(
+            measurement["benchmark"]["warmup_rounds_discarded"]
+        ),
+        failed_queries=int(measurement["benchmark"]["failed_queries"]),
+        rows_written=int(measurement["benchmark"]["rows_written"]),
+        rows_offered=int(measurement["benchmark"]["rows_offered"]),
+        round_orders=list(measurement["benchmark"]["round_orders"]),
+        order_digest=str(measurement["benchmark"]["round_order_digest"]),
+        rounds_by_query_class=dict(
+            measurement["benchmark"]["measured_rounds_by_query_class"]
+        ),
+        table_path=str(table_path),
+        cold=[
+            ColdMeasurement(**{
+                name: item[name]
+                for name in _COLD_FIELDS if name in item
+            })
+            for item in measurement["benchmark"]["cold"]
+        ],
+    )
+    equivalence = measurement["equivalence"]
+    storage = measurement["storage"]
+    hdf5 = measurement["hdf5"]
+    b1_build = measurement["baseline_builds"][B1]
+    b2_build = measurement["baseline_builds"][B2]
+    dependency = measurement["dependency"]
+    workload_hash_before = str(measurement["workload_content_sha256_before"])
+    workload_hash_after = str(measurement["workload_content_sha256_after"])
+    workload_record = measurement["workload"]
+    query_counts = dict(workload_record["query_counts"])
+    rounds = int(measurement["benchmark"]["rounds_completed"]) + int(
+        measurement["benchmark"]["warmup_rounds_discarded"]
+    )
+    accounts = {
+        str(row["representation"]): row for row in storage["accounts"]
+    }
+    threading = dict(
+        measurement["execution_receipt"]["environment"]["thread_pinning"]
+    )
+    equivalence_failures = int(equivalence["failed_queries"])
+
     # Every published number is read back out of the table that was written,
     # so the report and the artifact cannot drift apart.
+    if progress:
+        print("summarizing", flush=True)
     latency = summarize_table(table_path)
     throughput = batch_throughput_table(table_path)
     ratios = all_speed_ratios(
@@ -496,7 +679,7 @@ def audit_pads_p05(
 
     measured_rounds = rounds_by_class(table_path)
     expected_records = sum(
-        len(workload.query_ids[name]) * MEASURED_ROUNDS_BY_QUERY_CLASS.get(
+        query_counts.get(name, 0) * MEASURED_ROUNDS_BY_QUERY_CLASS.get(
             name, 0
         ) * len(REPRESENTATIONS)
         for name in QUERY_CLASSES
@@ -522,10 +705,10 @@ def audit_pads_p05(
         query_classes_supported={
             name: len(QUERY_CLASSES) for name in REPRESENTATIONS
         },
-        windows_reconciled=equivalence.windows_compared,
-        expected_windows=len(windows_table),
-        streams_reconciled=equivalence.streams_compared,
-        assessments_reconciled=equivalence.assessments_compared,
+        windows_reconciled=equivalence["windows_compared"],
+        expected_windows=query_counts.get(Q2, 0),
+        streams_reconciled=equivalence["streams_compared"],
+        assessments_reconciled=equivalence["assessments_compared"],
         per_representation_mismatches={
             name: sum(
                 counts[key] for key in (
@@ -535,16 +718,16 @@ def audit_pads_p05(
                 )
             )
             for name, counts in
-            equivalence.as_record()["per_representation"].items()
+            equivalence["per_representation"].items()
         },
-        content_mismatches=equivalence.content_mismatches,
-        row_count_mismatches=equivalence.row_count_mismatches,
-        time_mismatches=equivalence.time_mismatches,
-        sensor_value_mismatches=equivalence.sensor_value_mismatches,
+        content_mismatches=equivalence["content_mismatches"],
+        row_count_mismatches=equivalence["row_count_mismatches"],
+        time_mismatches=equivalence["time_mismatches"],
+        sensor_value_mismatches=equivalence["sensor_value_mismatches"],
         b1_stored_instances=int(b1_build["stored_sample_instances"]),
         b1_unique_samples=int(b1_build["unique_samples"]),
-        m1_stored_instances=accounts[M1].stored_sample_instances,
-        m1_unique_samples=accounts[M1].unique_samples,
+        m1_stored_instances=int(accounts[M1]["stored_sample_instances"]),
+        m1_unique_samples=int(accounts[M1]["unique_samples"]),
         hdf5_indexes_present=tuple(hdf5["indexes_present"]),
         hdf5_indexes_required=("stream_offset_index", "window_offset_index"),
         hdf5_window_index_entries=hdf5["window_index_entries"],
@@ -565,7 +748,7 @@ def audit_pads_p05(
         storage_problems=tuple(storage["reconciliation"]["problems"]),
         latency_records=written["pads_p05_retrieval"],
         expected_latency_records=expected_records,
-        failed_queries=benchmark.failed_queries + equivalence.failed_queries,
+        failed_queries=benchmark.failed_queries + equivalence_failures,
         signal_processing_declared=not NEW_SIGNAL_PROCESSING,
         new_signal_processing_outputs=0,
         emitted_forbidden_artifacts=dict(WITHHELD_P05_ARTIFACTS),
@@ -586,9 +769,9 @@ def audit_pads_p05(
         "dependency": {
             key: value for key, value in dependency.items()
         },
-        "workload": workload.as_record(),
-        "preflight": preflight.deterministic_record(),
-        "equivalence": equivalence.as_record(),
+        "workload": workload_record,
+        "preflight": measurement["preflight"],
+        "equivalence": equivalence,
         "storage": storage,
         "hdf5_fairness": {
             "indexes_present": list(hdf5["indexes_present"]),
@@ -616,7 +799,7 @@ def audit_pads_p05(
     evidence_sha256 = canonical_sha256(evidence)
 
     receipt = build_run_receipt(
-        dataset_root=release_root,
+        dataset_root=Path(dependency["release_root"]),
         source_manifest_sha256=str(
             dependency.get("source_manifest_sha256") or ""
         ),
@@ -625,7 +808,9 @@ def audit_pads_p05(
         contract_version=P05_CONTRACT_VERSION,
         implementation_version=P05_IMPLEMENTATION_VERSION,
         canonical_evidence_sha256=evidence_sha256,
-        command_arguments=tuple(command_arguments),
+        command_arguments=tuple(
+            measurement["execution_receipt"]["command_arguments"]
+        ),
         run_id=run_id,
         process_id=process_id,
     ).as_record()
@@ -644,7 +829,11 @@ def audit_pads_p05(
     record["run_receipt"] = receipt
     # Published, never hashed.
     record["measured_performance"] = {
-        "volume_at_start": preflight.volume_record(),
+        # Provenance, not experimental content: how much room and memory the
+        # machine had is a fact about that machine at that moment, and two
+        # honest runs will disagree about it.
+        "execution_receipt": measurement["execution_receipt"],
+        "timing_table": measurement["timing_table"],
         "benchmark": benchmark.as_record(),
         "latency_summary": latency,
         "batch_throughput": throughput,
@@ -684,8 +873,13 @@ def _participant_rows(table_path: Path, store_root: Path) -> list[
     )
 
 
-def _arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
+def _measure_arguments(argv: Sequence[str] | None = None):
+    parser = argparse.ArgumentParser(
+        description=(
+            "Time the four PADS representations and write a measurement "
+            "receipt.  Summaries are a separate process."
+        )
+    )
     parser.add_argument("--release-root", required=True, type=Path)
     parser.add_argument("--store-root", required=True, type=Path)
     parser.add_argument("--baseline-root", required=True, type=Path)
@@ -695,51 +889,83 @@ def _arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--p04-report", required=True, type=Path)
     parser.add_argument("--p04-store-root", type=Path)
     parser.add_argument("--rounds", type=int, default=TOTAL_ROUNDS)
+    parser.add_argument("--run-id", default="")
+    parser.add_argument("--process-id", type=int, default=os.getpid())
+    parser.add_argument("--progress", action="store_true")
+    return parser.parse_args(argv)
+
+
+def measure_main(argv: Sequence[str] | None = None) -> int:
+    args = _measure_arguments(argv)
+    args.output_root.mkdir(parents=True, exist_ok=True)
+    record = measure_pads_p05(
+        release_root=args.release_root,
+        store_root=args.store_root,
+        baseline_root=args.baseline_root,
+        output_root=args.output_root,
+        p02_report_path=args.p02_report,
+        p03_report_path=args.p03_report,
+        p04_report_path=args.p04_report,
+        p04_store_root=args.p04_store_root,
+        rounds=args.rounds,
+        run_id=args.run_id or f"p05-{args.process_id}",
+        process_id=args.process_id,
+        command_arguments=tuple(argv or sys.argv[1:]),
+        progress=args.progress,
+    )
+    if record.get("release_status") == ERROR_RESOURCE_PREFLIGHT:
+        write_json(
+            args.output_root / EVIDENCE_FILENAME, record
+        )
+        sys.stdout.buffer.write(canonical_json_bytes(record))
+        return EXIT_PREFLIGHT
+    if record.get("release_status") == BLOCKED_DEPENDENCY:
+        write_json(args.output_root / EVIDENCE_FILENAME, record)
+        sys.stdout.buffer.write(canonical_json_bytes(record))
+        return EXIT_BLOCKED
+    sys.stdout.buffer.write(canonical_json_bytes({
+        "timing_table": record["timing_table"],
+        "rows": record["benchmark"]["rows_written"],
+    }))
+    sys.stdout.write("\n")
+    return EXIT_PASS
+
+
+def _summarize_arguments(argv: Sequence[str] | None = None):
+    parser = argparse.ArgumentParser(
+        description=(
+            "Read a finished timing table and produce the run's evidence."
+        )
+    )
+    parser.add_argument("--output-root", required=True, type=Path)
+    parser.add_argument("--store-root", required=True, type=Path)
     parser.add_argument("--reproduction-receipt", type=Path)
     parser.add_argument("--progress", action="store_true")
     return parser.parse_args(argv)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    args = _arguments(argv)
-    payload = b""
-    try:
-        args.output_root.mkdir(parents=True, exist_ok=True)
-        reproduction = None
-        if args.reproduction_receipt is not None:
-            reproduction = json.loads(
-                args.reproduction_receipt.read_bytes().decode("utf-8")
-            )
-        record, receipt = audit_pads_p05(
-            release_root=args.release_root,
-            store_root=args.store_root,
-            baseline_root=args.baseline_root,
-            output_root=args.output_root,
-            p02_report_path=args.p02_report,
-            p03_report_path=args.p03_report,
-            p04_report_path=args.p04_report,
-            p04_store_root=args.p04_store_root,
-            rounds=args.rounds,
-            command_arguments=tuple(argv or sys.argv[1:]),
-            reproduction_receipt=reproduction,
-            progress=args.progress,
+def summarize_main(argv: Sequence[str] | None = None) -> int:
+    args = _summarize_arguments(argv)
+    reproduction = None
+    if args.reproduction_receipt and args.reproduction_receipt.is_file():
+        reproduction = json.loads(
+            args.reproduction_receipt.read_bytes().decode("utf-8")
         )
-        payload = canonical_json_bytes(record)
-        with (args.output_root / EVIDENCE_FILENAME).open("xb") as handle:
-            handle.write(payload)
-        if receipt is not None:
-            with (args.output_root / RECEIPT_FILENAME).open("xb") as handle:
-                handle.write(canonical_json_bytes(receipt))
-    except (PadsP05AuditError, OSError, ValueError) as exc:
-        print(f"{AUDIT_EXECUTION_ERROR}: {exc}", file=sys.stderr)
-        return EXIT_ERROR
+    record, receipt = summarize_pads_p05(
+        output_root=args.output_root,
+        store_root=args.store_root,
+        reproduction_receipt=reproduction,
+        progress=args.progress,
+    )
+    payload = canonical_json_bytes(record)
+    (args.output_root / EVIDENCE_FILENAME).write_bytes(payload)
+    if receipt is not None:
+        (args.output_root / RECEIPT_FILENAME).write_bytes(
+            canonical_json_bytes(receipt)
+        )
     sys.stdout.buffer.write(payload)
-    if record.get("release_status") == ERROR_RESOURCE_PREFLIGHT:
-        return EXIT_PREFLIGHT
     if not record.get("gate_evaluated"):
         return EXIT_BLOCKED
-    return EXIT_PASS if record["gate_status"].startswith("PASS") else EXIT_NO_GO
+    return EXIT_PASS if record.get("gate_satisfied") else EXIT_NO_GO
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
