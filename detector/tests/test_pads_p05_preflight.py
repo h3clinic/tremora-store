@@ -71,6 +71,26 @@ def bench(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
     }
 
 
+@pytest.fixture
+def roomy(monkeypatch):
+    """Pretend the volume has plenty of room.
+
+    Otherwise these tests pass or fail according to the free space of
+    whatever machine runs them, which is a fact about that machine and not
+    about the preflight.
+    """
+
+    import shutil as shutil_module
+
+    from motionbloom.tremora_store.pads.p05 import preflight as module
+
+    Usage = type(shutil_module.disk_usage("/"))
+    monkeypatch.setattr(
+        module.shutil, "disk_usage",
+        lambda _path: Usage(total=10 * 1024**4, used=0, free=9 * 1024**4),
+    )
+
+
 def _preflight(bench: dict[str, Any], **kwargs):
     identities = json.loads(
         (bench["baseline_root"] / "baseline_identities.json").read_bytes()
@@ -101,7 +121,7 @@ def test_the_build_records_what_each_baseline_is(bench) -> None:
         assert entry["contract_version"] == P05_CONTRACT_VERSION
 
 
-def test_verified_baselines_pass_preflight(bench) -> None:
+def test_verified_baselines_pass_preflight(bench, roomy) -> None:
     report = _preflight(bench)
     assert report.status == PREFLIGHT_OK, report.detail
     assert report.ok
@@ -198,7 +218,7 @@ def test_an_impossible_footprint_refuses_to_start(bench) -> None:
     assert "GB free" in report.detail
 
 
-def test_the_preflight_publishes_the_numbers_that_decided_it(bench) -> None:
+def test_the_preflight_publishes_the_numbers_that_decided_it(bench, roomy) -> None:
     record = _preflight(bench).as_record()
     for key in (
         "projected_run_bytes", "projected_total_bytes",
@@ -302,3 +322,33 @@ def test_the_projected_row_size_is_not_optimistic(tmp_path) -> None:
         f"observed {observed:.1f} bytes/row exceeds the projected "
         f"{BYTES_PER_MEASURED_ROW}"
     )
+
+
+def test_a_refusal_reports_the_volume_numbers_it_refused_on(bench, roomy) -> None:
+    """The record exists to say why the run did not happen."""
+
+    from motionbloom.tremora_store.pads.p05.audit import _preflight_record
+
+    report = _preflight(bench, query_counts={Q2: 10**12})
+    record = _preflight_record(preflight=report, inspected={})
+    assert record["release_status"] == "ERROR_RESOURCE_PREFLIGHT"
+    assert record["gate_evaluated"] is False
+    assert record["materialized_release_artifacts"] == 0
+    for key in ("free_bytes", "required_free_bytes", "total_bytes"):
+        assert key in record["preflight"], key
+    assert record["preflight"]["free_bytes"] > 0
+
+
+def test_the_hashed_evidence_omits_the_volume_state(bench, roomy) -> None:
+    # Run B measures less free space than run A, because run A just wrote a
+    # timing table.  That difference must not reach the evidence hash.
+    deterministic = _preflight(bench).deterministic_record()
+    for key in ("free_bytes", "required_free_bytes", "total_bytes"):
+        assert key not in deterministic, key
+    # ...and what it verified and projected must still be there.
+    for key in (
+        "baselines", "measured_rows_projected", "projected_run_bytes",
+        "workload_content_sha256",
+    ):
+        assert key in deterministic, key
+    assert "free_bytes" in _preflight(bench).volume_record()

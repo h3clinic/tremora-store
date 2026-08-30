@@ -183,7 +183,9 @@ def _preflight_record(
         "audit_execution_status": AUDIT_EXECUTION_PASS,
         "release_status": ERROR_RESOURCE_PREFLIGHT,
         "gate_evaluated": False,
-        "preflight": preflight.deterministic_record(),
+        # The full record here, volume numbers included: this record exists
+        # to say why the run did not happen, and nothing about it is hashed.
+        "preflight": preflight.as_record(),
         "blocked_reason": f"{preflight.status}: {preflight.detail}",
         "inspected_roots": {
             key: value for key, value in sorted(inspected.items())
