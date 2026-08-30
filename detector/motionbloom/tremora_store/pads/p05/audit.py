@@ -183,7 +183,7 @@ def _preflight_record(
         "audit_execution_status": AUDIT_EXECUTION_PASS,
         "release_status": ERROR_RESOURCE_PREFLIGHT,
         "gate_evaluated": False,
-        "preflight": preflight.as_record(),
+        "preflight": preflight.deterministic_record(),
         "blocked_reason": f"{preflight.status}: {preflight.detail}",
         "inspected_roots": {
             key: value for key, value in sorted(inspected.items())
@@ -579,7 +579,7 @@ def audit_pads_p05(
             key: value for key, value in dependency.items()
         },
         "workload": workload.as_record(),
-        "preflight": preflight.as_record(),
+        "preflight": preflight.deterministic_record(),
         "equivalence": equivalence.as_record(),
         "storage": storage,
         "hdf5_fairness": {
@@ -636,6 +636,7 @@ def audit_pads_p05(
     record["run_receipt"] = receipt
     # Published, never hashed.
     record["measured_performance"] = {
+        "volume_at_start": preflight.volume_record(),
         "benchmark": benchmark.as_record(),
         "latency_summary": latency,
         "batch_throughput": throughput,

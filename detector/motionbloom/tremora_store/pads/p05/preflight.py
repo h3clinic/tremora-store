@@ -164,6 +164,42 @@ class PreflightReport:
     def ok(self) -> bool:
         return self.status == PREFLIGHT_OK
 
+    def deterministic_record(self) -> dict[str, Any]:
+        """The half of the preflight that two honest runs must agree on.
+
+        How much room the volume happened to have is a fact about the machine
+        at that moment -- run B sees less than run A because run A just wrote
+        a timing table -- so it belongs with the timings, not in the evidence
+        hash.  What the run verified and what it projected are deterministic
+        and stay here.
+        """
+
+        return {
+            "status": self.status,
+            "baselines": {
+                name: dict(sorted(entry.items()))
+                for name, entry in sorted(self.baselines.items())
+            },
+            "measured_rows_projected": self.measured_rows_projected,
+            "bytes_per_measured_row": BYTES_PER_MEASURED_ROW,
+            "projected_run_bytes": self.projected_run_bytes,
+            "projected_total_bytes": self.projected_total_bytes,
+            "run_count": RUN_COUNT,
+            "minimum_free_margin_bytes": MINIMUM_FREE_MARGIN_BYTES,
+            "workload_content_sha256": self.workload_content_sha256,
+            "source_manifest_sha256": self.source_manifest_sha256,
+        }
+
+    def volume_record(self) -> dict[str, Any]:
+        """What the volume held when this run started.  Published, not hashed."""
+
+        return {
+            "required_free_bytes": self.required_free_bytes,
+            "free_bytes": self.free_bytes,
+            "total_bytes": self.total_bytes,
+            "detail": self.detail,
+        }
+
     def as_record(self) -> dict[str, Any]:
         return {
             "status": self.status,
