@@ -51,7 +51,28 @@ class Representation(ABC):
         """Load whatever indexes and handles this representation needs."""
 
     def close(self) -> None:
-        return None
+        """Release everything this representation holds.
+
+        Called once timing is finished and before the summaries are read
+        back, so the indexes are not still resident while the read-back
+        allocates.
+        """
+
+        return
+
+    def release(self) -> None:
+        """Drop every cached index.  The representation is unusable after."""
+
+        for name in (
+            "windows", "index", "assessments", "streams", "paths",
+            "stream_index", "window_index", "stream_offsets",
+            "window_offsets", "_columns", "_files",
+        ):
+            holder = getattr(self, name, None)
+            if isinstance(holder, dict):
+                holder.clear()
+        self.close()
+        self.initialized = False
 
     # --- the four query classes -------------------------------------------
 
@@ -125,15 +146,34 @@ class Representation(ABC):
 # --- shared index loading -------------------------------------------------
 
 
+#: Only the columns a query actually needs.  The P0.2.1 tables carry twenty-odd
+#: fields per window; holding all of them for 50,676 windows in each of four
+#: representations cost hundreds of megabytes for data no query reads, and on
+#: a machine already under memory pressure that is what got a run killed.
+_INDEX_COLUMNS: dict[str, tuple[str, ...]] = {
+    "pads_streams": ("stream_id", "participant_id", "source_row_count"),
+    "pads_windows": (
+        "window_id", "stream_id", "first_sample_ordinal",
+        "last_sample_ordinal",
+    ),
+    "pads_assessments": (
+        "assessment_id", "left_stream_id", "right_stream_id",
+    ),
+    "pads_stream_storage_index": (
+        "stream_id", "parquet_relative_path", "row_group_index",
+        "sample_count",
+    ),
+}
+
+
 def _index_tables(store_root: Path) -> dict[str, list[dict[str, Any]]]:
     """The P0.2.1 metadata every representation is given equally."""
 
     out = {}
-    for name in (
-        "pads_streams", "pads_windows", "pads_assessments",
-        "pads_stream_storage_index",
-    ):
-        out[name] = pq.read_table(store_root / f"{name}.parquet").to_pylist()
+    for name, columns in _INDEX_COLUMNS.items():
+        out[name] = pq.read_table(
+            store_root / f"{name}.parquet", columns=list(columns)
+        ).to_pylist()
     return out
 
 

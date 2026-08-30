@@ -137,7 +137,7 @@ class MeasurementSink:
 
 
 def _batches(
-    path: Path, columns: Sequence[str], batch_rows: int = 262_144
+    path: Path, columns: Sequence[str], batch_rows: int = 32_768
 ) -> Iterator[pa.RecordBatch]:
     handle = pq.ParquetFile(path)
     yield from handle.iter_batches(
@@ -250,29 +250,33 @@ def per_query_medians(
     This is the unit the speed ratios bootstrap over.  Collapsing a query's
     rounds to a single median here is what stops ten repetitions of one query
     posing as ten independent workload items.
+
+    Done one representation at a time: holding all four at once cost four
+    times the peak for no benefit, and peak memory is what killed a run.
     """
 
-    gathered: dict[str, dict[str, array]] = {}
-    for batch in _batches(path, (
-        "representation", "query_class", "query_id", "latency_ns",
-    )):
-        names = batch.column("representation").to_pylist()
-        classes = batch.column("query_class").to_pylist()
-        ids = batch.column("query_id").to_pylist()
-        lat = batch.column("latency_ns").to_pylist()
-        for index in range(batch.num_rows):
-            if classes[index] != query_class:
-                continue
-            gathered.setdefault(names[index], {}).setdefault(
-                ids[index], array("q")
-            ).append(lat[index])
-    return {
-        name: {
+    out: dict[str, dict[str, float]] = {}
+    for name in representations_present(path):
+        gathered: dict[str, array] = {}
+        for batch in _batches(path, (
+            "representation", "query_class", "query_id", "latency_ns",
+        )):
+            names = batch.column("representation").to_pylist()
+            classes = batch.column("query_class").to_pylist()
+            ids = batch.column("query_id").to_pylist()
+            lat = batch.column("latency_ns").to_pylist()
+            for index in range(batch.num_rows):
+                if classes[index] != query_class or names[index] != name:
+                    continue
+                gathered.setdefault(ids[index], array("q")).append(
+                    lat[index]
+                )
+        out[name] = {
             query_id: float(statistics.median(values))
-            for query_id, values in queries.items()
+            for query_id, values in gathered.items()
         }
-        for name, queries in gathered.items()
-    }
+        gathered.clear()
+    return out
 
 
 def participant_rows_from_table(

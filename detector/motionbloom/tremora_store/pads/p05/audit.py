@@ -17,6 +17,7 @@ evidence hash and disagree about nanoseconds, which is the truthful version of
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import sys
@@ -443,6 +444,14 @@ def audit_pads_p05(
     # secondary outcome and are published with the warm ones.
     benchmark.cold = cold
     workload_hash_after = workload.content_sha256()
+
+    # Timing is done, so the representations' indexes are released before the
+    # read-back allocates.  Holding both at once is what got a run killed by
+    # the memory manager on a machine already under pressure.
+    for representation in representations.values():
+        representation.release()
+    representations.clear()
+    gc.collect()
     # Every published number is read back out of the table that was written,
     # so the report and the artifact cannot drift apart.
     latency = summarize_table(table_path)
@@ -450,9 +459,6 @@ def audit_pads_p05(
     ratios = all_speed_ratios(
         per_query_medians(table_path), system=SYSTEM_UNDER_TEST
     )
-
-    for representation in representations.values():
-        representation.close()
 
     # --- tables -----------------------------------------------------------
     storage_rows = [
