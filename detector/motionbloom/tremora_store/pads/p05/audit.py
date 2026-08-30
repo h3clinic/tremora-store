@@ -553,6 +553,9 @@ def measure_pads_p05(
         "preflight": preflight.deterministic_record(),
         "execution_receipt": {
             "volume_at_start": preflight.volume_record(),
+            # The reference the settle stage holds run B to, so the
+            # two executions are comparable rather than merely both
+            # survivable.  Provenance; never hashed.
             "memory_at_start": memory.as_record(),
             "environment": environment_record(),
             "command_arguments": list(command_arguments),

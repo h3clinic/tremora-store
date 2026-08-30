@@ -483,3 +483,114 @@ def test_the_preflight_refusal_also_returns_one_record(bench, tmp_path) -> None:
     )
     assert isinstance(record, dict)
     assert record["gate_evaluated"] is False
+
+
+# --- settling between the two runs ----------------------------------------
+
+
+def _health(swap_gb: float, free_pct: float = 70.0):
+    return {
+        "index": 0,
+        "swap_total_bytes": 5 * 1024**3,
+        "swap_used_bytes": int(swap_gb * 1024**3),
+        "free_percentage": free_pct,
+    }
+
+
+def _settle(readings, *, reference=None, disk_gb=12.0, **kwargs):
+    from motionbloom.tremora_store.pads.p05 import settle as module
+
+    queue = list(readings)
+
+    def fake_sample(count=1, **_):
+        return [queue.pop(0) if queue else readings[-1]]
+
+    ticks = {"now": 0.0}
+
+    def fake_clock():
+        return ticks["now"]
+
+    def fake_sleep(seconds):
+        ticks["now"] += seconds
+
+    original = module.sample_memory
+    module.sample_memory = fake_sample
+    try:
+        return module.settle_between_runs(
+            reference=reference,
+            disk_free=lambda: int(disk_gb * 1024**3),
+            required_healthy=kwargs.pop("required_healthy", 3),
+            interval=30.0,
+            sleep=fake_sleep,
+            clock=fake_clock,
+            **kwargs,
+        )
+    finally:
+        module.sample_memory = original
+
+
+def test_a_drained_machine_settles() -> None:
+    from motionbloom.tremora_store.pads.p05.settle import SETTLED
+
+    report = _settle([_health(0.05)] * 4)
+    assert report.status == SETTLED
+    assert report.ok
+    assert report.consecutive_healthy >= 3
+
+
+def test_a_machine_still_holding_swap_does_not_settle() -> None:
+    from motionbloom.tremora_store.pads.p05.settle import SETTLE_TIMEOUT
+
+    # The state run A left the machine in: 3.5 GB of swap still occupied.
+    report = _settle([_health(3.5)] * 40, max_wait=600.0)
+    assert report.status == SETTLE_TIMEOUT
+    assert not report.ok
+    assert "swap" in report.detail
+
+
+def test_one_healthy_reading_is_not_enough() -> None:
+    """A machine that dips healthy while still draining must not qualify."""
+
+    from motionbloom.tremora_store.pads.p05.settle import SETTLE_TIMEOUT
+
+    readings = [_health(3.0), _health(0.05), _health(3.0), _health(0.05)]
+    report = _settle(readings * 12, max_wait=600.0)
+    assert report.status == SETTLE_TIMEOUT
+    assert report.consecutive_healthy < 3
+
+
+def test_growing_swap_is_unhealthy_even_when_the_level_is_fine() -> None:
+    from motionbloom.tremora_store.pads.p05.settle import SETTLE_TIMEOUT
+
+    climbing = [_health(0.01), _health(0.02), _health(0.03), _health(0.04)]
+    report = _settle(climbing * 12, max_wait=600.0)
+    assert report.status == SETTLE_TIMEOUT
+    # Every reading is under the swap cap, so the only thing that can have
+    # broken the streak is the growth check.
+    reasons = {entry["reason"] for entry in report.history}
+    assert "swap still growing" in reasons
+    assert report.consecutive_healthy < 3
+
+
+def test_the_gate_tightens_to_the_first_run_s_start() -> None:
+    """Run A started clean, so run B is held to that, not just the floor."""
+
+    from motionbloom.tremora_store.pads.p05.settle import _thresholds
+
+    clean = _thresholds({"swap_used_bytes": 0, "free_percentage": 70.0})
+    assert clean["max_swap_used_bytes"] == 512 * 1024**2
+    assert clean["min_free_percentage"] == 60.0
+    # A first run that started dirtier cannot loosen the absolute floors.
+    dirty = _thresholds(
+        {"swap_used_bytes": 4 * 1024**3, "free_percentage": 20.0}
+    )
+    assert dirty["max_swap_used_bytes"] == 512 * 1024**2
+    assert dirty["min_free_percentage"] == 60.0
+
+
+def test_low_disk_blocks_settling_even_with_memory_free() -> None:
+    from motionbloom.tremora_store.pads.p05.settle import SETTLE_TIMEOUT
+
+    report = _settle([_health(0.05)] * 40, disk_gb=1.0, max_wait=600.0)
+    assert report.status == SETTLE_TIMEOUT
+    assert "disk" in report.detail

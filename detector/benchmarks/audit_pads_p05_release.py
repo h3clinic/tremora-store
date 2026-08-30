@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -34,6 +35,10 @@ from motionbloom.tremora_store.pads.p05.audit import (
 from motionbloom.tremora_store.pads.p05.build import (
     build_all,
     describe_existing,
+)
+from motionbloom.tremora_store.pads.p05.settle import (
+    SETTLE_TIMEOUT,
+    settle_between_runs,
 )
 from motionbloom.tremora_store.release_gate import (
     canonical_json_bytes,
@@ -87,6 +92,93 @@ def _summarize(
             *(["--progress"] if args.progress else []),
         ],
     )
+
+
+#: Headline numbers reported per run and compared across runs.  The
+#: bootstrap interval inside one run measures query-to-query sampling
+#: uncertainty only; it is not the benchmark's total uncertainty, and the
+#: replicate difference between two executions is the larger term.
+WITHIN_RUN_CI_NOTE = (
+    "The bootstrap interval is query-to-query sampling uncertainty within a "
+    "single execution. It is not the benchmark's total uncertainty. "
+    "Run-to-run variation from OS scheduling and page cache is larger, and "
+    "is reported here as the replicate difference between two independent "
+    "executions. Do not pool the two runs' latency samples: they were "
+    "measured on the same machine in materially different states."
+)
+
+
+def _headline(record: dict) -> dict:
+    """One run's published numbers, per representation and query class."""
+
+    performance = record.get("measured_performance", {})
+    latency = performance.get("latency_summary", {})
+    return {
+        "median_latency_ns": {
+            name: {
+                query_class: summary["p50_latency_ns"]
+                for query_class, summary in sorted(classes.items())
+            }
+            for name, classes in sorted(latency.items())
+        },
+        "speed_ratios": {
+            entry["baseline"]: {
+                "median_ratio": entry["median_ratio"],
+                "within_run_ci_low": entry["confidence_low"],
+                "within_run_ci_high": entry["confidence_high"],
+                "queries": entry["queries"],
+            }
+            for entry in performance.get("speed_ratios", [])
+        },
+        "batch_throughput": performance.get("batch_throughput", {}),
+    }
+
+
+def _replicate_comparison(record_a: dict, record_b: dict) -> dict:
+    """Each headline median in both runs, and the difference between them."""
+
+    first = _headline(record_a)
+    second = _headline(record_b)
+    medians: dict[str, dict] = {}
+    for name, classes in first["median_latency_ns"].items():
+        for query_class, value_a in classes.items():
+            value_b = (
+                second["median_latency_ns"].get(name, {}).get(query_class)
+            )
+            if value_b is None:
+                continue
+            medians.setdefault(name, {})[query_class] = {
+                "run_a_ns": value_a,
+                "run_b_ns": value_b,
+                "difference_ns": value_b - value_a,
+                "percent_difference": (
+                    100.0 * (value_b - value_a) / value_a
+                    if value_a else 0.0
+                ),
+            }
+    ratios: dict[str, dict] = {}
+    for baseline, entry_a in first["speed_ratios"].items():
+        entry_b = second["speed_ratios"].get(baseline)
+        if entry_b is None:
+            continue
+        ratios[baseline] = {
+            "run_a": entry_a,
+            "run_b": entry_b,
+            "percent_difference": (
+                100.0
+                * (entry_b["median_ratio"] - entry_a["median_ratio"])
+                / entry_a["median_ratio"]
+                if entry_a["median_ratio"] else 0.0
+            ),
+        }
+    return {
+        "note": WITHIN_RUN_CI_NOTE,
+        "run_a": first,
+        "run_b": second,
+        "median_latency": medians,
+        "speed_ratios": ratios,
+        "pooling_permitted": False,
+    }
 
 
 def _arguments(argv: list[str] | None = None) -> argparse.Namespace:
@@ -174,6 +266,35 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: summarizer A produced no receipt", file=sys.stderr)
         return EXIT_ERROR
 
+    # SETTLE_BETWEEN_RUNS.  Run A drives swap up by several gigabytes, mostly
+    # page cache from reading 3.2 GB of baselines for three hours.  Starting B
+    # on that machine would not be a crash risk so much as a methodological
+    # one: the two executions would not be comparable as replicates.  So B
+    # waits until the machine looks like it did when A started.  No purge, no
+    # cache dropping -- waiting, or refusing.
+    measure_a = json.loads((run_a / MEASUREMENT_FILENAME).read_bytes())
+    reference = measure_a["execution_receipt"].get("memory_at_start", {})
+    settle = settle_between_runs(
+        reference=reference,
+        disk_free=lambda: shutil.disk_usage(args.output_root).free,
+        progress=args.progress,
+    )
+    (args.output_root / "pads_p05_settle.json").write_bytes(
+        canonical_json_bytes(settle.as_record())
+    )
+    if not settle.ok:
+        payload = canonical_json_bytes({
+            "release_status": SETTLE_TIMEOUT,
+            "gate_status": None,
+            "refused_phase": "settle_between_runs",
+            "blocked_reason": settle.detail,
+            "settle": settle.as_record(),
+            "run_a_complete": True,
+        })
+        (args.output_root / SUMMARY_FILENAME).write_bytes(payload)
+        sys.stdout.buffer.write(payload)
+        return EXIT_PREFLIGHT
+
     second = _measure(output_root=run_b, process_id=2, args=args)
     if second == EXIT_PREFLIGHT:
         return _refused(args.output_root, run_b, "measurement_b")
@@ -192,7 +313,6 @@ def main(argv: list[str] | None = None) -> int:
 
     record_a = json.loads((run_a / EVIDENCE_FILENAME).read_bytes())
     record_b = json.loads((run_b / EVIDENCE_FILENAME).read_bytes())
-    measure_a = json.loads((run_a / MEASUREMENT_FILENAME).read_bytes())
     measure_b = json.loads((run_b / MEASUREMENT_FILENAME).read_bytes())
     agree = (
         record_a["canonical_evidence_sha256"]
@@ -223,6 +343,8 @@ def main(argv: list[str] | None = None) -> int:
             "run_a": measure_a["execution_receipt"],
             "run_b": measure_b["execution_receipt"],
         },
+        "settle_between_runs": settle.as_record(),
+        "replicate_comparison": _replicate_comparison(record_a, record_b),
     })
     (args.output_root / SUMMARY_FILENAME).write_bytes(payload)
     sys.stdout.buffer.write(payload)
