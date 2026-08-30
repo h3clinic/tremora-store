@@ -258,3 +258,56 @@ def test_the_builders_report_what_they_actually_wrote(
         assert record["streams"] > 0
         assert record["windows"] > 0
         assert Path(bench[root]).exists()
+
+
+# --- what the clock covers ------------------------------------------------
+
+
+def test_fetch_returns_rows_without_hashing_them(reps) -> None:
+    # `fetch` is the timed operation and must not compute the content hash:
+    # hashing costs about 1.7 ms per window identically for all four, which
+    # timed would inflate every representation by the same absolute amount
+    # and so compress the ratios between them.
+    window_id = next(iter(reps["M1"].windows))
+    for name, representation in reps.items():
+        rows = representation.fetch(Q2, window_id)
+        assert isinstance(rows, list), name
+        assert rows and isinstance(rows[0], dict), name
+
+
+def test_query_is_fetch_plus_verification(reps) -> None:
+    window_id = next(iter(reps["M1"].windows))
+    for name, representation in reps.items():
+        fetched = representation.fetch(Q2, window_id)
+        verified = representation.query(Q2, window_id)
+        assert verified.rows == len(fetched), name
+        assert len(verified.content_sha256) == 64, name
+
+
+def test_the_timer_stops_before_the_hash_is_taken(reps) -> None:
+    from unittest.mock import patch
+
+    from motionbloom.tremora_store.pads.p05 import benchmark
+
+    window_id = next(iter(reps["M1"].windows))
+    # One shared log, so the assertion is about order and not just counts.
+    events: list[str] = []
+    real_hash = benchmark.result_from_rows
+    real_counter = benchmark.time.perf_counter_ns
+
+    def watched_hash(query_id, rows):
+        events.append("hash")
+        return real_hash(query_id, rows)
+
+    def watched_counter():
+        events.append("clock")
+        return real_counter()
+
+    with patch.object(benchmark, "result_from_rows", watched_hash), \
+            patch.object(benchmark.time, "perf_counter_ns", watched_counter):
+        benchmark.time_query(
+            reps["M1"], query_class=Q2, query_id=window_id, round_id=0,
+        )
+    # Start, stop, then hash: the clock has already stopped when the
+    # canonical hash is computed, so verification is not timed.
+    assert events == ["clock", "clock", "hash"]

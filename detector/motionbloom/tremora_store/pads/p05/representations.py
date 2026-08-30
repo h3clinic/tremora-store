@@ -84,22 +84,42 @@ class Representation(ABC):
 
     # --- the uniform result -----------------------------------------------
 
-    def query(self, query_class: str, query_id: str, **kwargs: Any) -> (
-        QueryResult
-    ):
+    def fetch(
+        self, query_class: str, query_id: str, **kwargs: Any
+    ) -> list[dict[str, Any]]:
+        """Retrieve one query's rows.  This, and only this, is what is timed.
+
+        Reducing the rows to their canonical identity is verification, not
+        retrieval, and it costs about 1.7 ms per window identically for every
+        representation.  Timed, it would inflate all four by the same absolute
+        amount and so compress the ratios between them -- flattering whichever
+        is slowest.  So the hash is taken after the clock stops.
+
+        Materializing the rows themselves stays inside the timer: a caller
+        does receive rows, every representation has to produce them, and the
+        step is the same for all four.
+        """
+
         from .contract import Q1, Q2, Q3, Q4
 
         if query_class == Q1:
-            rows = self.stream_rows(query_id)
-        elif query_class == Q2:
-            rows = self.window_rows(query_id)
-        elif query_class == Q3:
-            rows = self.assessment_rows(query_id)
-        elif query_class == Q4:
-            rows = self.batch_rows(kwargs["window_ids"])
-        else:  # pragma: no cover - contract guard
-            raise RepresentationError(f"unknown query class {query_class!r}")
-        return result_from_rows(query_id, rows)
+            return self.stream_rows(query_id)
+        if query_class == Q2:
+            return self.window_rows(query_id)
+        if query_class == Q3:
+            return self.assessment_rows(query_id)
+        if query_class == Q4:
+            return self.batch_rows(kwargs["window_ids"])
+        raise RepresentationError(f"unknown query class {query_class!r}")
+
+    def query(self, query_class: str, query_id: str, **kwargs: Any) -> (
+        QueryResult
+    ):
+        """Fetch and verify.  Used by the equivalence audit, not the timer."""
+
+        return result_from_rows(
+            query_id, self.fetch(query_class, query_id, **kwargs)
+        )
 
 
 # --- shared index loading -------------------------------------------------

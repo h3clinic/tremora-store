@@ -15,7 +15,7 @@ Parquet store uses, so a size difference is a layout difference.
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -26,10 +26,13 @@ import pyarrow.parquet as pq
 
 from ..p02.replay import read_stream_row_group
 from .contract import (
+    B1,
+    B2,
     COMPRESSION_CODEC,
     COMPRESSION_LEVEL,
     HDF5_CHUNK_ROWS,
     HDF5_REQUIRED_INDEXES,
+    M1,
 )
 from .representations import (
     DuplicatedWindowRepresentation,
@@ -402,10 +405,200 @@ def build_b2(
     return report
 
 
+
+
+# --- building once, as a separate step ------------------------------------
+
+
+def build_all(
+    *, store_root: Path, baseline_root: Path, progress: bool = False
+) -> dict[str, Any]:
+    """Build both materialized baselines and record what they are.
+
+    This is deliberately not part of the audit.  Baselines are frozen
+    experimental inputs, like the P0.2.1 store: they are built once, verified
+    on every reuse, and never rebuilt by a run that is about to measure them.
+    Rebuilding per run once cost 3.2 GB of duplicate writes and filled the
+    volume mid-benchmark.
+    """
+
+    from .preflight import baseline_identity, write_baseline_identities
+    baseline_root.mkdir(parents=True, exist_ok=True)
+    reports = {
+        B1: build_b1(
+            store_root=store_root, output_root=baseline_root / "b1",
+            progress=progress,
+        ).as_record(),
+        B2: build_b2(
+            store_root=store_root, output_root=baseline_root / "b2",
+            progress=progress,
+        ).as_record(),
+    }
+    (baseline_root / "b1_build.json").write_bytes(
+        json.dumps(reports[B1], indent=2, sort_keys=True).encode("utf-8")
+    )
+    (baseline_root / "b2_build.json").write_bytes(
+        json.dumps(reports[B2], indent=2, sort_keys=True).encode("utf-8")
+    )
+    identities = {
+        B1: baseline_identity(B1, baseline_root / "b1"),
+        B2: baseline_identity(B2, baseline_root / "b2"),
+        M1: baseline_identity(M1, store_root),
+    }
+    write_baseline_identities(
+        baseline_root / "baseline_identities.json", identities
+    )
+    return {
+        "builds": reports,
+        "identities": {
+            name: identity.as_record()
+            for name, identity in sorted(identities.items())
+        },
+    }
+
+
+def _build_arguments(argv: Sequence[str] | None = None):
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Build the P0.5 baselines once, before any benchmark."
+    )
+    parser.add_argument("--store-root", required=True, type=Path)
+    parser.add_argument("--baseline-root", required=True, type=Path)
+    parser.add_argument("--progress", action="store_true")
+    return parser.parse_args(argv)
+
+
+def build_main(argv: Sequence[str] | None = None) -> int:
+    import sys
+
+    args = _build_arguments(argv)
+    result = build_all(
+        store_root=args.store_root, baseline_root=args.baseline_root,
+        progress=args.progress,
+    )
+    sys.stdout.write(json.dumps(result, indent=2, sort_keys=True))
+    sys.stdout.write("\n")
+    return 0
+
+
+
+def describe_existing(
+    *, baseline_root: Path, store_root: Path
+) -> dict[str, Any]:
+    """Recover the build records and identities of baselines already on disk.
+
+    Reads what is there rather than writing it again.  Without this, adopting
+    an existing baseline set would mean rebuilding 3.2 GB to learn facts the
+    files already carry -- which is the mistake that filled the volume.
+    """
+
+    import h5py
+    import hdf5plugin  # noqa: F401
+
+    from .preflight import baseline_identity, write_baseline_identities
+    from .representations import (
+        DuplicatedWindowRepresentation,
+        Hdf5RangeIndexedRepresentation,
+    )
+
+    b1_root = baseline_root / "b1"
+    b2_root = baseline_root / "b2"
+    if not b1_root.is_dir() or not b2_root.is_dir():
+        raise BuildError(f"no baselines under {baseline_root}")
+
+    streams = pq.ParquetFile(
+        b1_root / DuplicatedWindowRepresentation.STREAM_DIRECTORY
+        / "streams.parquet"
+    )
+    windows = pq.ParquetFile(
+        b1_root / DuplicatedWindowRepresentation.WINDOW_DIRECTORY
+        / "windows.parquet"
+    )
+    unique = streams.metadata.num_rows
+    b1_total, b1_files = _directory_bytes(b1_root)
+    manifest = b1_root / "b1_manifest.json"
+    b1 = BuildReport(
+        representation=B1,
+        unique_samples=unique,
+        stored_sample_instances=unique + windows.metadata.num_rows,
+        streams=streams.num_row_groups,
+        windows=windows.num_row_groups,
+        file_count=b1_files,
+        physical_storage_bytes=b1_total,
+        index_bytes=manifest.stat().st_size,
+        metadata_bytes=manifest.stat().st_size,
+        compression={
+            "codec": COMPRESSION_CODEC, "level": COMPRESSION_LEVEL,
+        },
+        detail={
+            "stream_row_groups": streams.num_row_groups,
+            "window_row_groups": windows.num_row_groups,
+            "recovered_from_disk": True,
+        },
+    )
+
+    path = b2_root / Hdf5RangeIndexedRepresentation.FILENAME
+    with h5py.File(path, "r") as handle:
+        samples = int(handle["samples"]["source_time_ps"].shape[0])
+        b2_streams = int(handle["stream_offset_index"]["start"].shape[0])
+        b2_windows = int(handle["window_offset_index"]["start"].shape[0])
+        chunk = handle["samples"]["gyroscope_z"].chunks
+    b2 = BuildReport(
+        representation=B2,
+        unique_samples=samples,
+        stored_sample_instances=samples,
+        streams=b2_streams,
+        windows=b2_windows,
+        file_count=1,
+        physical_storage_bytes=path.stat().st_size,
+        index_bytes=b2_windows * 16 + b2_streams * 16,
+        metadata_bytes=len(
+            json.dumps(list(HDF5_REQUIRED_INDEXES)).encode()
+        ),
+        compression={
+            "codec": COMPRESSION_CODEC, "level": COMPRESSION_LEVEL,
+        },
+        detail={
+            "chunk_rows": int(chunk[0]) if chunk else 0,
+            "indexes": list(HDF5_REQUIRED_INDEXES),
+            "recovered_from_disk": True,
+        },
+    )
+
+    (baseline_root / "b1_build.json").write_bytes(
+        json.dumps(b1.as_record(), indent=2, sort_keys=True).encode("utf-8")
+    )
+    (baseline_root / "b2_build.json").write_bytes(
+        json.dumps(b2.as_record(), indent=2, sort_keys=True).encode("utf-8")
+    )
+    identities = {
+        B1: baseline_identity(B1, b1_root),
+        B2: baseline_identity(B2, b2_root),
+        M1: baseline_identity(M1, store_root),
+    }
+    write_baseline_identities(
+        baseline_root / "baseline_identities.json", identities
+    )
+    return {
+        "builds": {B1: b1.as_record(), B2: b2.as_record()},
+        "identities": {
+            name: identity.as_record()
+            for name, identity in sorted(identities.items())
+        },
+    }
+
 __all__ = [
     "CARRIED_COLUMNS",
     "BuildError",
     "BuildReport",
+    "build_all",
     "build_b1",
     "build_b2",
+    "build_main",
+    "describe_existing",
 ]
+
+
+if __name__ == "__main__":
+    raise SystemExit(build_main())

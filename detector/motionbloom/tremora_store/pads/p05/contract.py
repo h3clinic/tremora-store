@@ -154,6 +154,19 @@ WARMUP_ROUNDS = 1
 MEASURED_ROUNDS = 10
 TOTAL_ROUNDS = WARMUP_ROUNDS + MEASURED_ROUNDS
 
+#: Q2 is the principal latency workload and gets the full ten measured
+#: rounds.  Q1 and Q3 each re-read the entire corpus once per representation
+#: per round -- they are whole-stream and both-wrist replays -- and are
+#: secondary outcomes, so they get four.  This is published rather than
+#: applied quietly: a reader comparing a Q1 interval against a Q2 interval is
+#: entitled to know one rests on fewer rounds.
+MEASURED_ROUNDS_BY_QUERY_CLASS: dict[str, int] = {
+    "Q1_SINGLE_STREAM_REPLAY": 4,
+    "Q2_SINGLE_WINDOW": MEASURED_ROUNDS,
+    "Q3_PARTICIPANT_TASK_RETRIEVAL": 4,
+    "Q4_BATCH_WINDOWS": 4,
+}
+
 #: Each round shuffles the frozen query order independently, every
 #: representation sees that same order within the round, and the order the
 #: representations run in rotates between rounds.  That is what keeps cache,
@@ -385,6 +398,7 @@ __all__ = [
     "M1",
     "M1_WINDOW_INDEX_COPIES_SAMPLES",
     "MEASURED_ROUNDS",
+    "MEASURED_ROUNDS_BY_QUERY_CLASS",
     "MEASUREMENT_PHASES",
     "NEW_SIGNAL_PROCESSING",
     "P05_ARTIFACT_KIND",

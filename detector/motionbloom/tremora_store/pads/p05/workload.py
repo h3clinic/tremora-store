@@ -64,6 +64,8 @@ class QueryWorkload:
     assessment_ids: tuple[str, ...]
     batches: tuple[tuple[str, ...], ...]
     batch_sizes: tuple[int, ...]
+    #: Batch sizes larger than the corpus, skipped rather than truncated.
+    skipped_batch_sizes: tuple[int, ...] = ()
 
     @property
     def query_ids(self) -> dict[str, tuple[str, ...]]:
@@ -113,6 +115,7 @@ class QueryWorkload:
             "batched_window_fetches": sum(
                 len(batch) for batch in self.batches
             ),
+            "skipped_batch_sizes": list(self.skipped_batch_sizes),
         }
 
 
@@ -146,8 +149,15 @@ def build_workload(
     pool = deterministic_order(window_ids, purpose=Q4)
     batches: list[tuple[str, ...]] = []
     sizes: list[int] = []
+    skipped: list[int] = []
     cursor = 0
     for size in BATCH_SIZES:
+        if size > len(pool):
+            # A batch bigger than the corpus would be silently truncated and
+            # then reported as if it were that size.  It is skipped and the
+            # skip is published; on the real corpus nothing is skipped.
+            skipped.append(size)
+            continue
         for _ in range(BATCHES_PER_SIZE):
             if cursor + size > len(pool):
                 cursor = 0
@@ -160,6 +170,7 @@ def build_workload(
         assessment_ids=assessments,
         batches=tuple(batches),
         batch_sizes=tuple(sizes),
+        skipped_batch_sizes=tuple(skipped),
     )
 
 

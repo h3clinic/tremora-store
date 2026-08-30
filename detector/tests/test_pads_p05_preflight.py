@@ -1,0 +1,304 @@
+"""Preflight, baseline verification, and the streaming timing table."""
+
+from __future__ import annotations
+
+import json
+import shutil
+from pathlib import Path
+from typing import Any
+
+import pyarrow.parquet as pq
+import pytest
+from _pads_fixtures import build_release
+from motionbloom.tremora_store.pads.p02.materialize import (
+    materialize as p02_materialize,
+)
+from motionbloom.tremora_store.pads.p05.build import build_all
+from motionbloom.tremora_store.pads.p05.contract import (
+    B1,
+    B2,
+    M1,
+    MEASURED_ROUNDS_BY_QUERY_CLASS,
+    P05_CONTRACT_VERSION,
+    Q2,
+    REPRESENTATIONS,
+)
+from motionbloom.tremora_store.pads.p05.preflight import (
+    BASELINE_ABSENT,
+    BASELINE_CONTRACT_MISMATCH,
+    BASELINE_HASH_MISMATCH,
+    BYTES_PER_MEASURED_ROW,
+    FROZEN_WORKLOAD_SHA256,
+    INSUFFICIENT_DISK,
+    MINIMUM_FREE_MARGIN_BYTES,
+    PREFLIGHT_OK,
+    RUN_COUNT,
+    SOURCE_MANIFEST_MISMATCH,
+    WORKLOAD_HASH_MISMATCH,
+    baseline_identity,
+    check_disk,
+    project_measured_rows,
+    project_run_bytes,
+    run_preflight,
+)
+from motionbloom.tremora_store.pads.p05.sink import (
+    MeasurementSink,
+    per_query_medians,
+    rounds_by_class,
+    summarize_table,
+    warmup_rows_present,
+)
+
+PARTICIPANTS = ("001", "002")
+
+
+@pytest.fixture(scope="module")
+def bench(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+    root = tmp_path_factory.mktemp("p05_preflight")
+    release_root = build_release(root, participants=PARTICIPANTS)
+    store_root = root / "store"
+    p02_materialize(
+        release_root=release_root, output_root=store_root,
+        p01_evidence_sha256="e" * 64, expected_samples=0,
+    )
+    built = build_all(
+        store_root=store_root, baseline_root=root / "base",
+    )
+    return {
+        "root": root, "release_root": release_root,
+        "store_root": store_root, "baseline_root": root / "base",
+        "built": built,
+    }
+
+
+def _preflight(bench: dict[str, Any], **kwargs):
+    identities = json.loads(
+        (bench["baseline_root"] / "baseline_identities.json").read_bytes()
+    )
+    defaults = {
+        "baseline_root": bench["baseline_root"],
+        "store_root": bench["store_root"],
+        "output_root": bench["root"],
+        "query_counts": {Q2: 100},
+        "workload_content_sha256": FROZEN_WORKLOAD_SHA256,
+        "source_manifest_sha256": "m" * 64,
+        "expected_identities": identities["baselines"],
+    }
+    defaults.update(kwargs)
+    return run_preflight(**defaults)
+
+
+# --- baselines are verified, never rebuilt --------------------------------
+
+
+def test_the_build_records_what_each_baseline_is(bench) -> None:
+    identities = bench["built"]["identities"]
+    assert set(identities) == {B1, B2, M1}
+    for name, entry in identities.items():
+        assert len(entry["content_sha256"]) == 64, name
+        assert entry["file_count"] > 0
+        assert entry["physical_storage_bytes"] > 0
+        assert entry["contract_version"] == P05_CONTRACT_VERSION
+
+
+def test_verified_baselines_pass_preflight(bench) -> None:
+    report = _preflight(bench)
+    assert report.status == PREFLIGHT_OK, report.detail
+    assert report.ok
+    assert set(report.baselines) == {B1, B2, M1}
+
+
+def test_a_changed_baseline_fails_rather_than_rebuilding(bench) -> None:
+    identities = json.loads(
+        (bench["baseline_root"] / "baseline_identities.json").read_bytes()
+    )["baselines"]
+    tampered = {
+        name: {**entry, "content_sha256": "0" * 64} if name == B2 else entry
+        for name, entry in identities.items()
+    }
+    report = _preflight(bench, expected_identities=tampered)
+    assert report.status == BASELINE_HASH_MISMATCH
+    assert not report.ok
+
+
+def test_a_baseline_from_another_contract_fails(bench) -> None:
+    identities = json.loads(
+        (bench["baseline_root"] / "baseline_identities.json").read_bytes()
+    )["baselines"]
+    tampered = {
+        name: {**entry, "contract_version": "older"} if name == B1 else entry
+        for name, entry in identities.items()
+    }
+    report = _preflight(bench, expected_identities=tampered)
+    assert report.status == BASELINE_CONTRACT_MISMATCH
+
+
+def test_an_absent_baseline_fails(bench, tmp_path) -> None:
+    report = _preflight(bench, baseline_root=tmp_path / "nowhere")
+    assert report.status == BASELINE_ABSENT
+
+
+def test_a_moved_workload_fails(bench) -> None:
+    report = _preflight(bench, workload_content_sha256="a" * 64)
+    assert report.status == WORKLOAD_HASH_MISMATCH
+
+
+def test_a_disagreeing_source_manifest_fails(bench) -> None:
+    report = _preflight(
+        bench, source_manifest_sha256="a" * 64,
+        expected_source_manifest_sha256="b" * 64,
+    )
+    assert report.status == SOURCE_MANIFEST_MISMATCH
+
+
+def test_the_identity_hash_notices_a_changed_byte(bench, tmp_path) -> None:
+    copied = tmp_path / "b2copy"
+    shutil.copytree(bench["baseline_root"] / "b2", copied)
+    before = baseline_identity(B2, copied)
+    target = next(copied.rglob("*.h5"))
+    payload = bytearray(target.read_bytes())
+    payload[-1] ^= 0xFF
+    target.write_bytes(bytes(payload))
+    assert baseline_identity(B2, copied).content_sha256 != (
+        before.content_sha256
+    )
+
+
+# --- the disk preflight ---------------------------------------------------
+
+
+def test_the_projection_comes_from_the_workload_not_a_guess() -> None:
+    counts = {name: 1_000 for name in MEASURED_ROUNDS_BY_QUERY_CLASS}
+    rows = project_measured_rows(counts)
+    expected = sum(
+        1_000 * budget * len(REPRESENTATIONS)
+        for budget in MEASURED_ROUNDS_BY_QUERY_CLASS.values()
+    )
+    assert rows == expected
+    # More queries must project more bytes; nothing is fixed.
+    _, small = project_run_bytes({Q2: 10})
+    _, large = project_run_bytes({Q2: 10_000})
+    assert large > small
+
+
+def test_the_requirement_is_two_runs_plus_a_margin(tmp_path) -> None:
+    _, required, free, total = check_disk(tmp_path, 1_000_000)
+    assert required == RUN_COUNT * 1_000_000 + MINIMUM_FREE_MARGIN_BYTES
+    assert total > 0
+    assert free >= 0
+    assert MINIMUM_FREE_MARGIN_BYTES >= 1024**3
+
+
+def test_an_impossible_footprint_refuses_to_start(bench) -> None:
+    # A workload that would need more than the volume holds.
+    report = _preflight(bench, query_counts={Q2: 10**12})
+    assert report.status == INSUFFICIENT_DISK
+    assert not report.ok
+    assert report.required_free_bytes > report.free_bytes
+    assert "GB free" in report.detail
+
+
+def test_the_preflight_publishes_the_numbers_that_decided_it(bench) -> None:
+    record = _preflight(bench).as_record()
+    for key in (
+        "projected_run_bytes", "projected_total_bytes",
+        "required_free_bytes", "free_bytes", "total_bytes",
+        "measured_rows_projected", "bytes_per_measured_row", "run_count",
+    ):
+        assert key in record, key
+    assert record["projected_total_bytes"] == (
+        RUN_COUNT * record["projected_run_bytes"]
+    )
+
+
+# --- the streaming sink ---------------------------------------------------
+
+
+def _row(round_id: int, name: str, query_id: str, latency: int) -> dict:
+    return {
+        "representation": name, "query_class": Q2, "query_id": query_id,
+        "round_id": round_id, "latency_ns": latency,
+        "cpu_time_ns": latency // 2, "rows_returned": 400,
+        "bytes_returned": 4_000, "peak_rss_delta": 0,
+        "content_sha256": "a" * 64, "status": "QUERY_OK",
+    }
+
+
+@pytest.fixture
+def table(tmp_path) -> Path:
+    path = tmp_path / "retrieval.parquet"
+    with MeasurementSink(path, flush_rows=64) as sink:
+        for round_id in (-1, 0, 1, 2):
+            for name in REPRESENTATIONS:
+                for query in range(50):
+                    sink.add(_row(
+                        round_id, name, f"w{query:03d}",
+                        1_000_000 + query * 1_000,
+                    ))
+    return path
+
+
+def test_warmup_rows_never_reach_the_table(table) -> None:
+    assert warmup_rows_present(table) == 0
+    # Three measured rounds of fifty queries for each representation.
+    assert pq.ParquetFile(table).metadata.num_rows == 3 * 4 * 50
+
+
+def test_the_table_is_written_in_bounded_batches(table) -> None:
+    handle = pq.ParquetFile(table)
+    assert handle.num_row_groups > 1
+    for index in range(handle.num_row_groups):
+        assert handle.metadata.row_group(index).num_rows <= 64
+
+
+def test_summaries_are_read_back_from_the_written_table(table) -> None:
+    summary = summarize_table(table)
+    assert set(summary) == set(REPRESENTATIONS)
+    for classes in summary.values():
+        entry = classes[Q2]
+        assert entry["queries"] == 150
+        assert entry["p50_latency_ns"] <= entry["p95_latency_ns"]
+        assert entry["p95_latency_ns"] <= entry["p99_latency_ns"]
+
+
+def test_rounds_are_counted_from_the_table(table) -> None:
+    assert rounds_by_class(table) == {Q2: 3}
+
+
+def test_one_median_per_query_not_one_per_observation(table) -> None:
+    medians = per_query_medians(table, query_class=Q2)
+    assert set(medians) == set(REPRESENTATIONS)
+    for queries in medians.values():
+        # Fifty query ids, each collapsed from its three rounds.
+        assert len(queries) == 50
+
+
+def test_a_failed_row_is_counted_but_still_recorded(tmp_path) -> None:
+    path = tmp_path / "failures.parquet"
+    with MeasurementSink(path) as sink:
+        sink.add(_row(0, M1, "ok", 1_000))
+        broken = _row(0, M1, "bad", 5)
+        broken["status"] = "QUERY_FAILED"
+        sink.add(broken)
+    assert pq.ParquetFile(path).metadata.num_rows == 2
+
+
+def test_the_projected_row_size_is_not_optimistic(tmp_path) -> None:
+    """The projection must not under-count what a real table costs."""
+
+    path = tmp_path / "sized.parquet"
+    count = 40_000
+    with MeasurementSink(path) as sink:
+        for index in range(count):
+            sink.add(_row(
+                index % 4, REPRESENTATIONS[index % 4],
+                f"{index:06d}:window:{index % 977}", 1_000_000 + index,
+            ))
+    observed = path.stat().st_size / count
+    # The constant the preflight projects with has to be at least what a
+    # written table actually costs per row, or the disk check is optimistic
+    # in exactly the direction that fills a volume.
+    assert observed <= BYTES_PER_MEASURED_ROW, (
+        f"observed {observed:.1f} bytes/row exceeds the projected "
+        f"{BYTES_PER_MEASURED_ROW}"
+    )
