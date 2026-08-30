@@ -1,4 +1,6 @@
 numpy<2
 pyarrow>=16,<22
+h5py>=3.11,<4
+hdf5plugin>=5,<8
 av>=18.1,<19
 pytest>=8,<9
