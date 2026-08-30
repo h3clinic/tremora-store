@@ -192,6 +192,15 @@ def _arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--p04-report", required=True, type=Path)
     parser.add_argument("--p04-store-root", type=Path)
     parser.add_argument("--rounds", type=int, default=11)
+    parser.add_argument(
+        "--resume-from-settle", action="store_true",
+        help=(
+            "Keep a completed run A and continue at the settle stage. Use "
+            "when A finished and B was refused; it reuses A's measurement "
+            "rather than spending three hours reproducing it. Refuses "
+            "unless A's measurement, evidence and receipt are all present."
+        ),
+    )
     parser.add_argument("--progress", action="store_true")
     parsed = parser.parse_args(argv)
     # Every phase runs in its own interpreter with its own working directory,
@@ -245,26 +254,46 @@ def main(argv: list[str] | None = None) -> int:
                 progress=args.progress,
             )
 
-    # measurement A -> summarizer A -> measurement B -> summarizer B
-    first = _measure(output_root=run_a, process_id=1, args=args)
-    if first == EXIT_PREFLIGHT:
-        return _refused(args.output_root, run_a, "measurement_a")
-    if first != EXIT_PASS:
-        print(f"ERROR: measurement A exited {first}", file=sys.stderr)
-        return EXIT_ERROR
-
-    first_summary = _summarize(
-        output_root=run_a, args=args, reproduction_receipt=None
-    )
-    if first_summary not in (EXIT_PASS, EXIT_NO_GO):
-        print(
-            f"ERROR: summarizer A exited {first_summary}", file=sys.stderr
-        )
-        return EXIT_ERROR
+    # measurement A -> summarizer A -> settle -> measurement B -> summarizer B
     receipt = run_a / RECEIPT_FILENAME
-    if not receipt.is_file():
-        print("ERROR: summarizer A produced no receipt", file=sys.stderr)
-        return EXIT_ERROR
+    if args.resume_from_settle:
+        missing = [
+            name for name in (
+                MEASUREMENT_FILENAME, EVIDENCE_FILENAME, RECEIPT_FILENAME
+            )
+            if not (run_a / name).is_file()
+        ]
+        if missing:
+            print(
+                f"ERROR: --resume-from-settle needs a complete run A; "
+                f"missing {', '.join(missing)}",
+                file=sys.stderr,
+            )
+            return EXIT_ERROR
+        print(
+            "reusing the completed run A; continuing at the settle stage",
+            flush=True,
+        )
+    else:
+        first = _measure(output_root=run_a, process_id=1, args=args)
+        if first == EXIT_PREFLIGHT:
+            return _refused(args.output_root, run_a, "measurement_a")
+        if first != EXIT_PASS:
+            print(f"ERROR: measurement A exited {first}", file=sys.stderr)
+            return EXIT_ERROR
+
+        first_summary = _summarize(
+            output_root=run_a, args=args, reproduction_receipt=None
+        )
+        if first_summary not in (EXIT_PASS, EXIT_NO_GO):
+            print(
+                f"ERROR: summarizer A exited {first_summary}",
+                file=sys.stderr,
+            )
+            return EXIT_ERROR
+        if not receipt.is_file():
+            print("ERROR: summarizer A produced no receipt", file=sys.stderr)
+            return EXIT_ERROR
 
     # SETTLE_BETWEEN_RUNS.  Run A drives swap up by several gigabytes, mostly
     # page cache from reading 3.2 GB of baselines for three hours.  Starting B
